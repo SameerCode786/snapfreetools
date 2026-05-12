@@ -16,6 +16,7 @@ export default function ImageCompressor() {
   const [preview, setPreview] = useState<string | null>(null);
   const [quality, setQuality] = useState(0.8);
   const [targetFormat, setTargetFormat] = useState<ImageFormat>("image/jpeg");
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools";
@@ -38,7 +39,14 @@ export default function ImageCompressor() {
         else if (file.type === "image/jpeg") setTargetFormat("image/png");
         else setTargetFormat("image/jpeg");
       }
+
+      // Reset value to allow selecting the same file again
+      e.target.value = "";
     }
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
   };
 
   const compressImage = async () => {
@@ -123,6 +131,15 @@ export default function ImageCompressor() {
 
   return (
     <div id="image-tools-page" className="max-w-5xl mx-auto px-4 py-12">
+      {/* Hidden constant file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -166,13 +183,8 @@ export default function ImageCompressor() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-16 text-center hover:border-primary transition-colors cursor-pointer group relative"
+            onClick={triggerUpload}
           >
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
               <Upload className="text-slate-400 group-hover:text-primary" size={32} />
             </div>
@@ -189,10 +201,18 @@ export default function ImageCompressor() {
             className="bg-white rounded-3xl border border-slate-200 p-6 md:p-10 shadow-sm transition-all"
           >
             <div className="flex justify-between items-center mb-8">
-              <h3 className="font-bold text-xl flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center text-sm">1</span>
-                {activeTab === "compressor" ? "Step 2: Optimize Settings" : "Step 2: Choose Format"}
-              </h3>
+              <div className="flex gap-4 items-center">
+                <h3 className="font-bold text-xl flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center text-sm">1</span>
+                  {activeTab === "compressor" ? "Step 2: Optimize Settings" : "Step 2: Choose Format"}
+                </h3>
+                <button 
+                  onClick={triggerUpload}
+                  className="text-xs px-3 py-1 bg-slate-100 text-slate-500 rounded-full font-bold hover:bg-slate-200 transition-colors"
+                >
+                  Change Image
+                </button>
+              </div>
               <button onClick={clear} className="text-slate-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-full transition-colors"><X size={24} /></button>
             </div>
 
