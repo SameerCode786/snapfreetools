@@ -1,6 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Image as ImageIcon, Upload, Download, Loader2, X, Shield, Zap, FileJson, RefreshCcw, Layers } from "lucide-react";
+import { 
+  Image as ImageIcon, 
+  Upload, 
+  Download, 
+  Loader2, 
+  X, 
+  Shield, 
+  Zap, 
+  RefreshCcw, 
+  Layers, 
+  ArrowRight,
+  CheckCircle2,
+  Info,
+  AlertCircle
+} from "lucide-react";
 import imageCompression from "browser-image-compression";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -13,36 +27,50 @@ export default function ImageCompressor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processedFile, setProcessedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [originalPreview, setOriginalPreview] = useState<string | null>(null);
+  const [processedPreview, setProcessedPreview] = useState<string | null>(null);
   const [quality, setQuality] = useState(0.8);
   const [targetFormat, setTargetFormat] = useState<ImageFormat>("image/jpeg");
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality using SnapFreeTools. Safe, secure, and fast browser-side processing.");
+      metaDescription.setAttribute("content", "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality using SnapFreeTools. Professional tool with real browser-side processing.");
     }
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
-      setProcessedFile(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      // Auto activate target format tab based on uploaded file type for converter
-      if (activeTab === "converter") {
-        if (file.type === "image/png") setTargetFormat("image/jpeg");
-        else if (file.type === "image/jpeg") setTargetFormat("image/png");
-        else setTargetFormat("image/jpeg");
-      }
-
-      // Reset value to allow selecting the same file again
-      e.target.value = "";
+    if (file.size > 15 * 1024 * 1024) {
+      setError("File size exceeds 15MB limit. Please upload a smaller image.");
+      return;
     }
+
+    setError(null);
+    setSuccess(false);
+    setSelectedFile(file);
+    setOriginalPreview(URL.createObjectURL(file));
+    setProcessedFile(null);
+    setProcessedPreview(null);
+
+    // Auto-detect format for converter
+    if (activeTab === "converter") {
+      const mime = file.type as ImageFormat;
+      // If uploading same format, suggest conversion to something else
+      if (mime === "image/png") setTargetFormat("image/jpeg");
+      else if (mime === "image/jpeg") setTargetFormat("image/webp");
+      else setTargetFormat("image/jpeg");
+    }
+    
+    // Reset file input value to allow re-upload of same file
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const triggerUpload = () => {
@@ -53,6 +81,9 @@ export default function ImageCompressor() {
     if (!selectedFile) return;
 
     setIsProcessing(true);
+    setSuccess(false);
+    setError(null);
+
     try {
       const options = {
         maxSizeMB: 1,
@@ -63,8 +94,11 @@ export default function ImageCompressor() {
       
       const compressed = await imageCompression(selectedFile, options);
       setProcessedFile(compressed);
-    } catch (error) {
-      console.error("Compression failed:", error);
+      setProcessedPreview(URL.createObjectURL(compressed));
+      setSuccess(true);
+    } catch (err) {
+      setError("Compression failed. Please try a different image.");
+      console.error(err);
     } finally {
       setIsProcessing(false);
     }
@@ -74,10 +108,16 @@ export default function ImageCompressor() {
     if (!selectedFile) return;
 
     setIsProcessing(true);
+    setSuccess(false);
+    setError(null);
+
     try {
       const img = new Image();
       img.src = URL.createObjectURL(selectedFile);
-      await new Promise((resolve) => (img.onload = resolve));
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("Failed to load image"));
+      });
 
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -95,9 +135,14 @@ export default function ImageCompressor() {
         const ext = targetFormat.split("/")[1];
         const newFile = new File([blob], `${selectedFile.name.split(".")[0]}.${ext}`, { type: targetFormat });
         setProcessedFile(newFile);
+        setProcessedPreview(URL.createObjectURL(newFile));
+        setSuccess(true);
+      } else {
+        throw new Error("Conversion resulted in an empty blob");
       }
-    } catch (error) {
-      console.error("Conversion failed:", error);
+    } catch (err) {
+      setError("Conversion failed. Your browser might not support this specific format transition.");
+      console.error(err);
     } finally {
       setIsProcessing(false);
     }
@@ -115,13 +160,20 @@ export default function ImageCompressor() {
   };
 
   const formatSize = (bytes: number) => {
-    return (bytes / 1024).toFixed(2) + " KB";
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const clear = () => {
     setSelectedFile(null);
     setProcessedFile(null);
-    setPreview(null);
+    setOriginalPreview(null);
+    setProcessedPreview(null);
+    setError(null);
+    setSuccess(false);
   };
 
   const switchTab = (tab: Tab) => {
@@ -130,353 +182,346 @@ export default function ImageCompressor() {
   };
 
   return (
-    <div id="image-tools-page" className="max-w-5xl mx-auto px-4 py-12">
-      {/* Hidden constant file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
+    <div id="image-tools-page" className="max-w-6xl mx-auto px-4 py-12 md:py-20">
+      <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileChange} className="hidden" />
 
-      {/* Header */}
+      {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
+        className="text-center mb-12"
       >
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-xl mb-4">
-          <ImageIcon size={24} />
+        <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600/10 text-primary rounded-2xl mb-6">
+          <ImageIcon size={28} />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Image Compressor & Converter</h1>
-        <p className="text-slate-600">Securely compress and convert your images directly in your browser.</p>
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+          SnapFree <span className="text-primary tracking-tighter">Image Tools</span>
+        </h1>
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          High-performance, secure, and free tools to optimize your visuals. 100% browser-based processing for maximum privacy.
+        </p>
       </motion.div>
 
-      {/* Tabs */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-slate-100 p-1 rounded-2xl flex gap-1">
-          <button
-            onClick={() => switchTab("compressor")}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              activeTab === "compressor" ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            Compressor
-          </button>
-          <button
-            onClick={() => switchTab("converter")}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              activeTab === "converter" ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            Converter
-          </button>
+      {/* Main Tool Card */}
+      <div className="bg-white rounded-[40px] border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden mb-20">
+        {/* Navigation Tabs */}
+        <div className="flex bg-slate-50 border-b border-slate-200 p-2">
+          {[
+            { id: "compressor", label: "Compress Image", icon: Zap },
+            { id: "converter", label: "Convert Format", icon: Layers },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => switchTab(tab.id as Tab)}
+              className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-sm font-bold transition-all ${
+                activeTab === tab.id 
+                ? "bg-white text-primary shadow-sm ring-1 ring-slate-200" 
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
+              }`}
+            >
+              <tab.icon size={18} />
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      <AnimatePresence mode="wait">
-        {!selectedFile ? (
-          <motion.div 
-            key={activeTab + "-upload"}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-16 text-center hover:border-primary transition-colors cursor-pointer group relative"
-            onClick={triggerUpload}
-          >
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-              <Upload className="text-slate-400 group-hover:text-primary" size={32} />
-            </div>
-            <p className="text-xl font-bold text-slate-800 mb-2">
-              Click or drag image to {activeTab === "compressor" ? "compress" : "convert"}
-            </p>
-            <p className="text-slate-500 text-sm">Supports PNG, JPG, WebP, AVIF • Processed locally in browser</p>
-          </motion.div>
-        ) : (
-          <motion.div 
-            key={activeTab + "-editor"}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl border border-slate-200 p-6 md:p-10 shadow-sm transition-all"
-          >
-            <div className="flex justify-between items-center mb-8">
-              <div className="flex gap-4 items-center">
-                <h3 className="font-bold text-xl flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center text-sm">1</span>
-                  {activeTab === "compressor" ? "Step 2: Optimize Settings" : "Step 2: Choose Format"}
-                </h3>
-                <button 
-                  onClick={triggerUpload}
-                  className="text-xs px-3 py-1 bg-slate-100 text-slate-500 rounded-full font-bold hover:bg-slate-200 transition-colors"
-                >
-                  Change Image
+        <div className="p-6 md:p-12">
+          <AnimatePresence mode="wait">
+            {!selectedFile ? (
+              <motion.div
+                key="upload"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                onClick={triggerUpload}
+                className="group relative h-96 border-4 border-dashed border-slate-100 rounded-[32px] flex flex-col items-center justify-center cursor-pointer hover:border-primary/30 hover:bg-blue-50/30 transition-all"
+              >
+                <div className="w-24 h-24 bg-blue-50 text-primary rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <Upload size={40} className="group-hover:translate-y-[-4px] transition-transform" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">Drop your image here</h2>
+                <p className="text-slate-400 font-medium">PNG, JPG, WEBP, AVIF (Max 15MB)</p>
+                <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full font-bold shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all">
+                  Browse Files
                 </button>
-              </div>
-              <button onClick={clear} className="text-slate-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-full transition-colors"><X size={24} /></button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-              {/* Left Column: Preview */}
-              <div className="space-y-6">
-                <div className="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 aspect-square md:aspect-video flex items-center justify-center relative group">
-                  <img src={preview!} alt="Preview" className="max-h-full object-contain" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-xs font-bold uppercase tracking-widest px-3 py-1 border border-white/40 rounded-full">Preview</span>
-                  </div>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl flex justify-between items-center text-sm border border-slate-100">
-                  <div className="flex flex-col">
-                    <span className="text-slate-500 font-medium">Original File</span>
-                    <span className="font-bold text-slate-700">{selectedFile.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-slate-500 font-medium tracking-tight">Size:</span>
-                    <span className="ml-2 px-2 py-0.5 bg-white border border-slate-200 rounded-md font-bold">{formatSize(selectedFile.size)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: controls */}
-              <div className="space-y-8">
-                {activeTab === "compressor" ? (
-                  <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <label className="text-sm font-bold text-slate-700">Quality: {Math.round(quality * 100)}%</label>
-                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">Adjust Slider</span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="editor"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-12"
+              >
+                {/* Left Panel: Preview & Settings */}
+                <div className="lg:col-span-7 space-y-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">1</span>
+                      <h3 className="font-bold text-xl text-slate-800">Preview & Configure</h3>
                     </div>
-                    <input 
-                      type="range" 
-                      min="0.1" 
-                      max="1" 
-                      step="0.05" 
-                      value={quality}
-                      onChange={(e) => setQuality(parseFloat(e.target.value))}
-                      className="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary"
-                    />
-                    <div className="flex justify-between mt-2 text-[10px] text-slate-400 font-bold uppercase">
-                      <span>Performance</span>
-                      <span>Best Quality</span>
-                    </div>
+                    <button onClick={clear} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                      <X size={24} />
+                    </button>
                   </div>
-                ) : (
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-4">Select Target Format</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {([
-                        { label: "JPG", value: "image/jpeg" },
-                        { label: "PNG", value: "image/png" },
-                        { label: "WEBP", value: "image/webp" },
-                        { label: "AVIF", value: "image/avif" }
-                      ] as const).map((format) => (
-                        <button
-                          key={format.value}
-                          onClick={() => setTargetFormat(format.value)}
-                          className={`py-3 px-4 rounded-xl border-2 font-bold transition-all text-center ${
-                            targetFormat === format.value 
-                            ? "border-primary bg-blue-50 text-primary shadow-sm" 
-                            : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
-                          }`}
-                        >
-                          {format.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                <AnimatePresence mode="wait">
-                  {processedFile ? (
-                    <motion.div 
-                      key="processed"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-6 bg-blue-50 border border-blue-100 rounded-2xl relative overflow-hidden"
-                    >
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-blue-800 text-sm font-bold flex items-center gap-1.5 uppercase tracking-wide">
-                          <Zap size={14} /> Ready for Download
-                        </span>
-                        <span className="text-primary font-black text-lg">{formatSize(processedFile.size)}</span>
-                      </div>
-
-                      {activeTab === "compressor" && (
-                        <div className="space-y-2 mb-6">
-                          <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(processedFile.size / selectedFile.size) * 100}%` }}
-                              className="bg-primary h-full"
-                            ></motion.div>
-                          </div>
-                          <p className="text-xs text-blue-600 font-bold flex justify-between items-center">
-                            <span>Efficiency</span>
-                            <span>-{Math.round((1 - processedFile.size / selectedFile.size) * 100)}% Smaller</span>
-                          </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Original</p>
+                      <div className="aspect-square rounded-3xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                        <img src={originalPreview!} alt="Original" className="w-full h-full object-contain" />
+                        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                          <span className="text-white text-xs font-bold">{formatSize(selectedFile?.size || 0)}</span>
                         </div>
-                      )}
+                      </div>
+                    </div>
 
-                      <button
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Processed</p>
+                      <div className="aspect-square rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden relative flex items-center justify-center">
+                        {processedPreview ? (
+                          <>
+                            <img src={processedPreview} alt="Processed" className="w-full h-full object-contain" />
+                            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-primary/80 to-transparent">
+                               <span className="text-white text-xs font-bold">{formatSize(processedFile?.size || 0)}</span>
+                            </div>
+                          </>
+                        ) : isProcessing ? (
+                          <div className="text-center">
+                            <Loader2 size={40} className="animate-spin text-primary mx-auto mb-4" />
+                            <p className="text-slate-400 font-bold text-sm">Processing...</p>
+                          </div>
+                        ) : (
+                          <div className="text-center p-8">
+                            <ImageIcon size={40} className="text-slate-200 mx-auto mb-4" />
+                            <p className="text-slate-300 font-bold text-sm">Waiting for action</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Panel: Controls */}
+                <div className="lg:col-span-5 flex flex-col justify-center">
+                  <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200/50">
+                    <h3 className="font-bold text-lg mb-8 flex items-center gap-2">
+                       <RefreshCcw size={20} className="text-primary" />
+                       Settings
+                    </h3>
+
+                    {activeTab === "compressor" ? (
+                      <div className="space-y-8">
+                        <div>
+                          <div className="flex justify-between items-center mb-4">
+                            <label className="text-sm font-bold text-slate-700">Quality: {Math.round(quality * 100)}%</label>
+                            {processedFile && (
+                              <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                Optimized
+                              </span>
+                            )}
+                          </div>
+                          <input 
+                            type="range" min="0.1" max="1" step="0.05" value={quality}
+                            onChange={(e) => {
+                              setQuality(parseFloat(e.target.value));
+                              setProcessedFile(null); // Reset when user changes slider
+                            }}
+                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <div className="flex justify-between mt-3 text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                            <span>Performance</span>
+                            <span>High Fidelity</span>
+                          </div>
+                        </div>
+
+                        {processedFile && (
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-white border border-slate-200 rounded-2xl text-center">
+                            <p className="text-xs font-bold text-slate-400 uppercase mb-2">Compression Result</p>
+                            <div className="text-3xl font-black text-emerald-500 mb-1">
+                              -{Math.round((1 - processedFile.size / selectedFile.size) * 100)}%
+                            </div>
+                            <p className="text-sm text-slate-600 font-medium tracking-tight">
+                              Dropped from {formatSize(selectedFile.size)} to {formatSize(processedFile.size)}
+                            </p>
+                          </motion.div>
+                        )}
+
+                        <button
+                          onClick={compressImage}
+                          disabled={isProcessing}
+                          className="w-full h-16 bg-primary text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                        >
+                          {isProcessing ? <Loader2 className="animate-spin" /> : <Zap size={20} />}
+                          {isProcessing ? "Optimizing..." : "Compress Image"}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-8">
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-4">Target Format</label>
+                          <div className="grid grid-cols-2 gap-3">
+                            {(["image/jpeg", "image/png", "image/webp", "image/avif"] as ImageFormat[]).map((fmt) => (
+                              <button
+                                key={fmt}
+                                onClick={() => {
+                                  setTargetFormat(fmt);
+                                  setProcessedFile(null);
+                                }}
+                                className={`py-4 rounded-2xl border-2 font-bold transition-all ${
+                                  targetFormat === fmt 
+                                  ? "border-primary bg-blue-50 text-primary shadow-sm" 
+                                  : "border-transparent bg-white text-slate-500 hover:bg-slate-100"
+                                }`}
+                              >
+                                {fmt.split("/")[1].toUpperCase()}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={convertImage}
+                          disabled={isProcessing}
+                          className="w-full h-16 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl shadow-slate-200 hover:bg-black transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                        >
+                          {isProcessing ? <Loader2 className="animate-spin" /> : <ArrowRight size={20} />}
+                          {isProcessing ? "Converting..." : "Convert Now"}
+                        </button>
+                      </div>
+                    )}
+
+                    {success && processedFile && (
+                      <motion.button
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         onClick={downloadImage}
-                        className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+                        className="w-full mt-4 h-16 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-600 transition-all flex items-center justify-center gap-3"
                       >
                         <Download size={20} />
                         Download {processedFile.name.split(".").pop()?.toUpperCase()}
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <motion.button
-                      key="action"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      onClick={activeTab === "compressor" ? compressImage : convertImage}
-                      disabled={isProcessing}
-                      className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="animate-spin" />
-                          Processing Image...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCcw size={20} />
-                          {activeTab === "compressor" ? "Compress Image Now" : `Convert to ${targetFormat.split("/")[1].toUpperCase()}`}
-                        </>
-                      )}
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                      </motion.button>
+                    )}
 
-      {/* Features / SEO Section */}
-      <div className="mt-24 space-y-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
-            <div className="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Shield size={28} />
-            </div>
-            <h3 className="text-lg font-bold mb-3">Privacy First</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              We never upload your images to our servers. All processing happens locally in your browser.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Zap size={28} />
-            </div>
-            <h3 className="text-lg font-bold mb-3">Lightning Fast</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Experience instant compression and conversion without wait times or server latency.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
-            <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Layers size={28} />
-            </div>
-            <h3 className="text-lg font-bold mb-3">Multi-Format Support</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Seamlessly handle JPG, PNG, WEBP, and even the modern AVIF format in one tool.
-            </p>
-          </div>
+                    {error && (
+                      <div className="mt-6 flex items-start gap-2 text-red-500 p-4 bg-red-50 rounded-2xl text-xs font-bold">
+                        <AlertCircle size={16} className="shrink-0" />
+                        {error}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+      </div>
 
-        {/* SEO Long Content */}
-        <section className="bg-white p-10 md:p-16 rounded-[40px] border border-slate-100 shadow-sm prose prose-slate max-w-none">
-          <h2 className="text-3xl font-black text-slate-900 mb-8 border-b border-slate-100 pb-4">
-            Master Your Visual Assets with SnapFreeTools
-          </h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                <span className="w-2 h-6 bg-primary rounded-full"></span>
+      {/* Features Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24">
+        {[
+          { 
+            icon: Shield, 
+            color: "bg-blue-50 text-blue-600",
+            title: "Private Processing", 
+            text: "Your photos never leave your device. All calculations happen within your browser window." 
+          },
+          { 
+            icon: Zap, 
+            color: "bg-amber-50 text-amber-600",
+            title: "Lightning Fast", 
+            text: "Leverage standard browser APIs for near-instant results without the delays of server uploads." 
+          },
+          { 
+            icon: CheckCircle2, 
+            color: "bg-emerald-50 text-emerald-600",
+            title: "Permanent Access", 
+            text: "SnapFreeTools is 100% free forever. No registrations, subscriptions, or hidden limits." 
+          }
+        ].map((feature, i) => (
+          <div key={i} className="text-center p-8 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md transition-all">
+            <div className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+              <feature.icon size={28} />
+            </div>
+            <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+            <p className="text-slate-500 text-sm leading-relaxed">{feature.text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* SEO Section */}
+      <section className="bg-white p-10 md:p-20 rounded-[60px] border border-slate-100 shadow-sm prose prose-slate max-w-none">
+        <h2 className="text-4xl font-black text-slate-900 mb-12 tracking-tight text-center md:text-left">
+          Deep Dive: Professional <span className="text-primary italic">Image Optimization</span>
+        </h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="space-y-10">
+            <div>
+              <h3 className="text-2xl font-bold flex items-center gap-3 text-slate-800 mb-4 tracking-tighter">
+                <span className="w-2 h-8 bg-primary rounded-full"></span>
                 What is Image Compression?
               </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Image compression is the process of reducing the file size of a digital image without significantly compromising its visual quality. At SnapFreeTools, we use advanced algorithms that identify and remove redundant data patterns. This results in faster loading websites, reduced storage costs, and better SEO performance for your digital projects.
-              </p>
-
-              <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                <span className="w-2 h-6 bg-primary rounded-full"></span>
-                How Image Conversion Works
-              </h3>
-              <p className="text-slate-600 leading-relaxed">
-                Conversion is the act of changing an image from one encoded format to another (e.g., transforming a PNG to a WEBP). Our tool decodes the original pixel data and re-encodes it into the target format of your choice, ensuring transparency, color depth, and metadata are handled according to your preferences.
+              <p className="text-lg text-slate-600 leading-relaxed">
+                Image compression is the science of minimizing the file size of a digital graphic without noticeably sacrificing visual clarity. Using <strong>image compressor online</strong> tools allows for faster website load times and reduced bandwidth consumption. By identifying patterns and discarding non-essential data, we can turn a 5MB photo into a 500KB asset that looks identical to the human eye.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                <span className="w-2 h-6 bg-primary rounded-full"></span>
-                Why Choose SnapFreeTools?
+            <div>
+              <h3 className="text-2xl font-bold flex items-center gap-3 text-slate-800 mb-4 tracking-tighter">
+                <span className="w-2 h-8 bg-primary rounded-full"></span>
+                Why Convert Images?
               </h3>
-              <ul className="space-y-3 list-none p-0">
-                {[
-                  "100% Free: No subscriptions or hidden fees ever.",
-                  "Zero Uploads: Your sensitive data stays on your machine.",
-                  "Professional Grade: High-quality output suitable for production use.",
-                  "Batch-Ready: Designed for speed and minimal clicks."
-                ].map((text, i) => (
-                  <li key={i} className="flex gap-3 items-start text-slate-600">
-                    <CheckCircle className="text-emerald-500 mt-1 flex-shrink-0" size={18} />
-                    <span>{text}</span>
-                  </li>
-                ))}
+              <p className="text-lg text-slate-600 leading-relaxed">
+                Different workflows require different formats. You might need to <strong>convert PNG to JPG</strong> to remove transparency for a print job, or use a <strong>JPG to WebP converter</strong> to optimize your blog for Google PageSpeed. Every format has its strengths: PNG for lossless transparency, JPG for high-detail photos, and WebP for ultimate web performance.
+              </p>
+            </div>
+
+            <div className="bg-blue-50 p-8 rounded-[32px] border border-blue-100">
+              <h4 className="text-lg font-black text-blue-900 mb-4 flex items-center gap-2">
+                <Info size={20} />
+                Format Comparison at a Glance
+              </h4>
+              <ul className="space-y-4 m-0 p-0 list-none text-blue-800 font-medium">
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>JPG:</strong> Best for photographs; universal compatibility.</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>PNG:</strong> Best for logos and graphics requiring transparency.</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>WebP:</strong> The modern web standard; 26% smaller than PNG.</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>AVIF:</strong> The next-gen format with 50% better compression than JPG.</li>
               </ul>
-              <div className="mt-8 bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                <p className="text-sm font-bold text-blue-900 mb-2">Pro Tip:</p>
-                <p className="text-xs text-blue-800">
-                  Use the <strong>WEBP</strong> format for web development to get the best of both worlds: small file sizes and transparency support similar to PNG.
-                </p>
-              </div>
             </div>
           </div>
 
-          <div className="mt-16 pt-12 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-10">
             <div>
-              <h3 className="text-xl font-bold mb-4">Supported Formats</h3>
-              <div className="flex flex-wrap gap-2">
-                {["JPG", "PNG", "WEBP", "AVIF", "SVG", "GIF"].map(fmt => (
-                  <span key={fmt} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">{fmt}</span>
-                ))}
-              </div>
+              <h3 className="text-2xl font-bold flex items-center gap-3 text-slate-800 mb-4 tracking-tighter">
+                <span className="w-2 h-8 bg-primary rounded-full"></span>
+                Difference Between JPG, PNG, WEBP and AVIF
+              </h3>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                While JPG is the veteran, newer formats like <strong>AVIF converter</strong> options allow for incredible detail at tiny sizes. PNG handles edges perfectly but produces bulky files. WebP is the sweet spot for modern browsers, supporting both lossy and lossless compression. <strong>Compress image online free</strong> services like SnapFreeTools let you experiment with these formats instantly to see which works best for your specific case.
+              </p>
             </div>
+
             <div>
-              <h3 className="text-xl font-bold mb-4">Related Tools</h3>
+              <h3 className="text-2xl font-bold flex items-center gap-3 text-slate-800 mb-4 tracking-tighter">
+                <span className="w-2 h-8 bg-primary rounded-full"></span>
+                How SnapFreeTools Works
+              </h3>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                Our technology stack is built on the browser's native processing power. When you use our tools to optimize photos, you're using your computer's RAM and CPU, not a distant server. This architecture is not only safer but significantly faster because there is zero "waiting for upload" time. 
+              </p>
+            </div>
+
+            <div className="mt-8 border-t border-slate-100 pt-12">
+              <h4 className="text-xl font-bold mb-6 text-slate-900">Recommended Internal Tools</h4>
               <div className="flex flex-wrap gap-4">
-                <Link to="/word-counter" className="text-sm text-primary font-bold hover:underline">Word Counter</Link>
-                <Link to="/gpa-calculator" className="text-sm text-primary font-bold hover:underline">GPA Calculator</Link>
-                <Link to="/pdf-to-word" className="text-sm text-primary font-bold hover:underline">PDF to Word</Link>
+                <Link to="/word-counter" className="px-5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:text-primary hover:border-primary/30 transition-all">Word Counter</Link>
+                <Link to="/gpa-calculator" className="px-5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:text-primary hover:border-primary/30 transition-all">GPA Calculator</Link>
+                <Link to="/pdf-to-word" className="px-5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:text-primary hover:border-primary/30 transition-all">PDF to Word</Link>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-function CheckCircle({ className, size }: { className?: string, size?: number }) {
-  return (
-    <svg 
-      className={className} 
-      width={size || 24} 
-      height={size || 24} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  );
-}
-
