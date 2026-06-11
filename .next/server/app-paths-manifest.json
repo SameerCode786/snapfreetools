@@ -1,0 +1,12 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/about/page": "app/about/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/gpa-calculator/page": "app/gpa-calculator/page.js",
+  "/image-compressor/page": "app/image-compressor/page.js",
+  "/page": "app/page.js",
+  "/pdf-to-word/page": "app/pdf-to-word/page.js",
+  "/privacy-policy/page": "app/privacy-policy/page.js",
+  "/word-counter/page": "app/word-counter/page.js"
+}
