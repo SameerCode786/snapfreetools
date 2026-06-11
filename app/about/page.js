@@ -1,9 +1,10 @@
 import { generatePageMetadata } from "@/seo/metadata";
+import AboutFeature from "@/features/about";
 
 export function generateMetadata() {
   return generatePageMetadata("about");
 }
 
 export default function Page() {
-  return <h1>About Us</h1>;
+  return <AboutFeature />;
 }

@@ -1,9 +1,10 @@
 import { generatePageMetadata } from "@/seo/metadata";
+import PrivacyPolicyFeature from "@/features/privacy-policy";
 
 export function generateMetadata() {
   return generatePageMetadata("privacy-policy");
 }
 
 export default function Page() {
-  return <h1>Privacy Policy</h1>;
+  return <PrivacyPolicyFeature />;
 }

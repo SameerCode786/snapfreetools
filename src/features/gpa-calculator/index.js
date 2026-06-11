@@ -16,13 +16,13 @@ export default function GPACalculator() {
     setCourses([...courses, { id: Math.random().toString(), name: "", grade: "A", credits: "3" }]);
   };
 
-  const removeCourse = (id: string) => {
+  const removeCourse = (id) => {
     if (courses.length > 1) {
       setCourses(courses.filter(c => c.id !== id));
     }
   };
 
-  const updateCourse = (id: string, field: string, value: string) => {
+  const updateCourse = (id, field, value) => {
     setCourses(courses.map(c => c.id === id ? { ...c, [field]: value } : c));
   };
 

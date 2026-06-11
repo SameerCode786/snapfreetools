@@ -20,11 +20,8 @@ export default function Header() {
     <nav id="navbar" className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-primary p-1.5 rounded-lg text-white group-hover:bg-primary-dark transition-colors">
-              <Hammer size={20} />
-            </div>
-            <span className="font-bold text-xl tracking-tight">SnapFreeTools</span>
+          <Link href="/" className="flex items-center group">
+            <img src="/brand/logo.svg" alt="SnapFreeTools Logo" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop Nav */}

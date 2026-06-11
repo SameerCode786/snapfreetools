@@ -177,7 +177,7 @@ export default function ImageCompressor() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600/10 text-primary rounded-2xl mb-6">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-600/10 text-primary rounded-2xl mb-6">
             <ImageIcon size={28} />
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
@@ -220,14 +220,14 @@ export default function ImageCompressor() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   onClick={triggerUpload}
-                  className="group relative h-96 border-4 border-dashed border-slate-100 rounded-[32px] flex flex-col items-center justify-center cursor-pointer hover:border-primary/30 hover:bg-blue-50/30 transition-all"
+                  className="group relative h-96 border-4 border-dashed border-slate-100 rounded-[32px] flex flex-col items-center justify-center cursor-pointer hover:border-primary/30 hover:bg-emerald-50/30 transition-all"
                 >
-                  <div className="w-24 h-24 bg-blue-50 text-primary rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-24 h-24 bg-emerald-50 text-primary rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                     <Upload size={40} className="group-hover:translate-y-[-4px] transition-transform" />
                   </div>
                   <h2 className="text-2xl font-bold text-slate-800 mb-2">Drop your image here</h2>
                   <p className="text-slate-400 font-medium">PNG, JPG, WEBP, AVIF (Max 15MB)</p>
-                  <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full font-bold shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all">
+                  <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full font-bold shadow-lg shadow-emerald-100 hover:shadow-emerald-250 transition-all">
                     Browse Files
                   </button>
                 </motion.div>
@@ -263,7 +263,7 @@ export default function ImageCompressor() {
 
                       <div className="space-y-3">
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Processed</p>
-                        <div className="aspect-square rounded-3xl bg-slate-55 border border-slate-200 overflow-hidden relative flex items-center justify-center">
+                        <div className="aspect-square rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden relative flex items-center justify-center">
                           {processedPreview ? (
                             <>
                               <img src={processedPreview} alt="Processed" className="w-full h-full object-contain" />
@@ -335,7 +335,7 @@ export default function ImageCompressor() {
                           <button
                             onClick={compressImage}
                             disabled={isProcessing}
-                            className="w-full h-16 bg-primary text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                            className="w-full h-16 bg-primary text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
                           >
                             {isProcessing ? <Loader2 className="animate-spin" /> : <Zap size={20} />}
                             {isProcessing ? "Optimizing..." : "Compress Image"}
@@ -355,7 +355,7 @@ export default function ImageCompressor() {
                                   }}
                                   className={`py-4 rounded-2xl border-2 font-bold transition-all ${
                                     targetFormat === fmt 
-                                    ? "border-primary bg-blue-50 text-primary shadow-sm" 
+                                    ? "border-primary bg-emerald-50 text-primary shadow-sm" 
                                     : "border-transparent bg-white text-slate-500 hover:bg-slate-100"
                                   }`}
                                 >
@@ -407,7 +407,7 @@ export default function ImageCompressor() {
           {[
             { 
               icon: Shield, 
-              color: "bg-blue-50 text-blue-600",
+              color: "bg-emerald-50 text-emerald-600",
               title: "Private Processing", 
               text: "Your photos never leave your device. All calculations happen within your browser window." 
             },
@@ -462,16 +462,16 @@ export default function ImageCompressor() {
                 </p>
               </div>
 
-              <div className="bg-blue-50 p-8 rounded-[32px] border border-blue-100">
-                <h4 className="text-lg font-black text-blue-900 mb-4 flex items-center gap-2">
+              <div className="bg-emerald-50 p-8 rounded-[32px] border border-emerald-100">
+                <h4 className="text-lg font-black text-emerald-900 mb-4 flex items-center gap-2">
                   <Info size={20} />
                   Format Comparison at a Glance
                 </h4>
-                <ul className="space-y-4 m-0 p-0 list-none text-blue-800 font-medium">
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>JPG:</strong> Best for photographs; universal compatibility.</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>PNG:</strong> Best for logos and graphics requiring transparency.</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>WebP:</strong> The modern web standard; 26% smaller than PNG.</li>
-                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> <strong>AVIF:</strong> The next-gen format with 50% better compression than JPG.</li>
+                <ul className="space-y-4 m-0 p-0 list-none text-emerald-800 font-medium">
+                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> <strong>JPG:</strong> Best for photographs; universal compatibility.</li>
+                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> <strong>PNG:</strong> Best for logos and graphics requiring transparency.</li>
+                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> <strong>WebP:</strong> The modern web standard; 26% smaller than PNG.</li>
+                  <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> <strong>AVIF:</strong> The next-gen format with 50% better compression than JPG.</li>
                 </ul>
               </div>
             </div>

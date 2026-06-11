@@ -38,7 +38,7 @@ export default function WordCounter() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-primary rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-50 text-primary rounded-xl mb-4">
             <FileText size={24} />
           </div>
           <h1 className="text-3xl font-bold mb-2">Word Counter</h1>
@@ -89,9 +89,9 @@ export default function WordCounter() {
           ></textarea>
         </div>
 
-        <div className="mt-8 bg-blue-50 p-6 rounded-xl border border-blue-100">
-          <h3 className="font-bold mb-2 text-blue-900">About this tool</h3>
-          <p className="text-sm text-blue-800 leading-relaxed">
+        <div className="mt-8 bg-emerald-50 p-6 rounded-xl border border-emerald-100">
+          <h3 className="font-bold mb-2 text-emerald-900">About this tool</h3>
+          <p className="text-sm text-emerald-800 leading-relaxed">
             Word count is important for content creators, students, and writers. 
             Most publishers have specific word limits. Our tool helps you stay within those limits 
             while also providing insights into your writing structure.

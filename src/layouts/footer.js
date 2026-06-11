@@ -7,8 +7,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="text-white text-2xl font-bold mb-4 block">
-              SnapFreeTools
+            <Link href="/" className="mb-4 block">
+              <img src="/brand/logo.svg" alt="SnapFreeTools Logo" className="h-10 w-auto brightness-0 invert" />
             </Link>
             <p className="text-slate-400 max-w-sm mb-6">
               Our mission is to provide the fastest, cleanest, and most accessible online tools for everyone. 

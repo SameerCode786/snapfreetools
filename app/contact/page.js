@@ -1,9 +1,10 @@
 import { generatePageMetadata } from "@/seo/metadata";
+import ContactFeature from "@/features/contact";
 
 export function generateMetadata() {
   return generatePageMetadata("contact");
 }
 
 export default function Page() {
-  return <h1>Contact Us</h1>;
+  return <ContactFeature />;
 }
