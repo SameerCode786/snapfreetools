@@ -38,9 +38,9 @@ const METADATA_CONFIG = {
     path: "/gpa-calculator"
   },
   "word-counter": {
-    title: "Word Counter – Count Words Online | SnapFreeTools",
-    description: "Instantly count words, characters, and sentences in your text with reading time estimation. Free online tool for writers and students.",
-    keywords: "word counter, count words online, character counter, check reading time",
+    title: "Free Word Counter Tool – Count Words, Characters & Reading Time",
+    description: "Count words, characters, sentences, paragraphs, reading time, and keyword density instantly. Free online word counter tool with advanced text analysis.",
+    keywords: "word counter, free word counter, online word counter, word count tool, character counter, sentence counter, paragraph counter, reading time calculator, keyword density checker, text analyzer, word counter with character count, free online word counter, word counter for essays, word counter for students, word counter for blogs, SEO word counter, word count checker, online text analyzer",
     path: "/word-counter"
   },
   "pdf-to-word": {
