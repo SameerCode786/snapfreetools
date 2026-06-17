@@ -1342,48 +1342,6 @@ export default function ImageCompressor() {
                               </div>
                             )}
 
-                            {/* Target size preset */}
-                            {activeTab === "compressor" && (
-                              <div className="flex flex-col gap-0.5">
-                                <label className="text-[9px] uppercase font-black text-slate-400 tracking-wider">Target Size</label>
-                                <div className="relative">
-                                  <select
-                                    value={item.targetSizeOption}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => handleSingleConfigChange(item.id, { targetSizeOption: e.target.value })}
-                                    className="appearance-none bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-semibold text-slate-700 pr-6 hover:border-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                                  >
-                                    {TARGET_SIZE_OPTIONS.map((o) => (
-                                      <option key={o.value} value={o.value}>{o.label}</option>
-                                    ))}
-                                  </select>
-                                  <ChevronDown size={10} className="absolute right-2 top-2 text-slate-400 pointer-events-none" />
-                                </div>
-                                <span className="text-[8px] font-bold text-slate-450 mt-0.5">
-                                  Recommended Target: {getRecommendedTargetLabel(item.originalSize)}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Quality slider (Compressor mode only) */}
-                            {activeTab === "compressor" && item.targetSizeOption === "auto" && (
-                              <div className="flex-1 flex flex-col gap-0.5">
-                                <div className="flex items-center justify-between text-[9px] uppercase font-black text-slate-400 tracking-wider">
-                                  <span>Quality</span>
-                                  <span className="text-emerald-500 font-bold text-xs">{Math.round(item.quality * 100)}%</span>
-                                </div>
-                                <input
-                                  type="range"
-                                  min="0.1"
-                                  max="1"
-                                  step="0.05"
-                                  value={item.quality}
-                                  onClick={(e) => e.stopPropagation()}
-                                  onChange={(e) => handleSingleConfigChange(item.id, { quality: parseFloat(e.target.value) })}
-                                  className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-                                />
-                              </div>
-                            )}
                           </div>
 
                           {/* INITIAL UPLOAD / READY TO COMPRESS STATE (Hides calculated values until completed) */}
@@ -1607,7 +1565,7 @@ export default function ImageCompressor() {
                     )}
 
                     {/* Quality selector (Compressor mode only) */}
-                    {activeTab === "compressor" && globalTargetSize === "auto" && (
+                    {activeTab === "compressor" && (
                       <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center text-[10px] uppercase font-black text-slate-400 tracking-wider">
                           <span>Quality preset: {Math.round(globalQuality * 100)}%</span>
