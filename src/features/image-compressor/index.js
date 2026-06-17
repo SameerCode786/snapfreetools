@@ -285,10 +285,19 @@ function getCompressionRecommendation(size, mp, width, height) {
 }
 
 function getRecommendedTargetLabel(size) {
-  if (size < 500 * 1024) return "Auto Optimize";
-  if (size <= 2 * 1024 * 1024) return "200 KB";
-  if (size <= 5 * 1024 * 1024) return "500 KB";
-  return "1 MB";
+  if (size < 200 * 1024) {
+    return "✅ No Compression Needed";
+  }
+  if (size <= 1024 * 1024) {
+    return "✅ Recommended: 200 KB (Best for websites)";
+  }
+  if (size <= 3 * 1024 * 1024) {
+    return "✅ Recommended: 500 KB (Balanced quality & size)";
+  }
+  if (size <= 10 * 1024 * 1024) {
+    return "✅ Recommended: 1 MB (High quality optimization)";
+  }
+  return "✅ Recommended: 1 MB (Large file detected)";
 }
 
 function getSliderExplanation(q) {
@@ -1557,8 +1566,8 @@ export default function ImageCompressor() {
                           <ChevronDown size={14} className="absolute right-3 top-2.5 text-slate-400 pointer-events-none" />
                         </div>
                         {queue.length > 0 && (
-                          <span className="text-[9px] font-bold text-slate-400 mt-1 block">
-                            Recommended Target: {getRecommendedTargetLabel(queue[0].originalSize)}
+                          <span className="text-[10px] font-bold text-slate-500 mt-1 block">
+                            {getRecommendedTargetLabel(queue[0].originalSize)}
                           </span>
                         )}
                       </div>
