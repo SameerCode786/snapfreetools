@@ -962,68 +962,117 @@ export default function ImageCompressor() {
         // Stage 3: Generate Format
         await new Promise(r => setTimeout(r, 250));
         const targetFormatMime = item.targetFormat;
-        let actualFormatMime = targetFormatMime;
+        const targetFormatName = targetFormatMime.split("/")[1].toUpperCase().replace("JPEG", "JPG");
+        let finalBlob = null;
+        let finalMime = targetFormatMime;
         let isFallback = false;
-
-        // Check AVIF encoding support
-        if (targetFormatMime === "image/avif" && !avifSupported) {
-          actualFormatMime = "image/webp";
-          isFallback = true;
-        }
 
         updatedQueue[i] = {
           ...updatedQueue[i],
-          conversionStage: `Generating ${actualFormatMime.split("/")[1].toUpperCase().replace("JPEG", "JPG")}...`,
+          conversionStage: `Generating ${targetFormatName}...`,
           conversionProgress: 70
         };
         setQueue([...updatedQueue]);
 
-        // Canvas Rendering
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Could not extract canvas 2D context");
+        if (targetFormatMime === "image/avif") {
+          try {
+            // Instantiate worker dynamically (lazy-loaded Web Worker)
+            const worker = new Worker(new URL('./utils/avif.worker.js', import.meta.url));
 
-        // Clear alpha transparency for JPEG targets
-        if (actualFormatMime === "image/jpeg") {
-          ctx.fillStyle = "#FFFFFF";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+            // Fetch the static WASM binary locally from /public
+            const wasmResponse = await fetch('/wasm/avif_enc.wasm');
+            if (!wasmResponse.ok) throw new Error("Local AVIF encoder asset missing");
+            const wasmBuffer = await wasmResponse.arrayBuffer();
 
-        ctx.drawImage(img, 0, 0);
+            // Initialize worker WASM module
+            worker.postMessage({ type: 'init', wasmBuffer }, [wasmBuffer]);
+            await new Promise((resolve, reject) => {
+              worker.onmessage = (e) => {
+                if (e.data.type === 'init-ready') resolve();
+                else if (e.data.type === 'error') reject(new Error(e.data.message));
+              };
+              worker.onerror = (e) => reject(new Error(e.message || "Worker runtime compilation failed"));
+            });
 
-        // Convert context to blob
-        const qualityUsed = 0.90; // High premium quality preset for conversion
-        const convertedBlob = await new Promise((resolve, reject) => {
-          canvas.toBlob(
-            (blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error("toBlob returned empty"));
-            },
-            actualFormatMime,
-            actualFormatMime === "image/png" ? undefined : qualityUsed
-          );
-        });
+            // Extract pixels from canvas
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error("Could not extract canvas 2D context");
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        // Verify blob matches target format MIME
-        let finalBlob = convertedBlob;
-        let finalMime = convertedBlob.type;
+            // Encode raw pixels to AVIF format in background thread
+            worker.postMessage({ type: 'encode', imageData }, [imageData.data.buffer]);
+            const encodedBuffer = await new Promise((resolve, reject) => {
+              worker.onmessage = (e) => {
+                if (e.data.type === 'success') resolve(e.data.buffer);
+                else if (e.data.type === 'error') reject(new Error(e.data.message));
+              };
+              worker.onerror = (e) => reject(new Error(e.message || "Failed during WebAssembly encoding"));
+            });
 
-        if (actualFormatMime === "image/avif" && convertedBlob.type !== "image/avif") {
-          isFallback = true;
-          finalMime = "image/webp";
-          const fallbackBlob = await new Promise((resolve, reject) => {
+            // Terminate worker resources
+            worker.terminate();
+
+            // Wrap in real verified AVIF blob
+            finalBlob = new Blob([encodedBuffer], { type: "image/avif" });
+            finalMime = "image/avif";
+
+          } catch (err) {
+            console.warn("AVIF encoding failed, falling back to WebP:", err);
+            isFallback = true;
+            finalMime = "image/webp";
+
+            // Fallback: WebP canvas compression
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error("Could not extract canvas 2D context during fallback");
+            ctx.drawImage(img, 0, 0);
+
+            const fallbackBlob = await new Promise((resolve, reject) => {
+              canvas.toBlob(
+                (blob) => {
+                  if (blob) resolve(blob);
+                  else reject(new Error("WebP fallback toBlob returned empty"));
+                },
+                "image/webp",
+                0.90
+              );
+            });
+            finalBlob = fallbackBlob;
+          }
+        } else {
+          // Standard Jpeg / PNG / WebP conversions
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Could not extract canvas 2D context");
+
+          // Paint solid white backfill for JPEGs
+          if (targetFormatMime === "image/jpeg") {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+          ctx.drawImage(img, 0, 0);
+
+          const qualityUsed = 0.90;
+          finalBlob = await new Promise((resolve, reject) => {
             canvas.toBlob(
               (blob) => {
                 if (blob) resolve(blob);
-                else reject(new Error("Fallback WebP conversion failed"));
+                else reject(new Error("toBlob returned empty"));
               },
-              "image/webp",
-              qualityUsed
+              targetFormatMime,
+              targetFormatMime === "image/png" ? undefined : qualityUsed
             );
           });
-          finalBlob = fallbackBlob;
+          finalMime = finalBlob.type;
         }
 
         // Stage 4: Finalizing
@@ -1483,7 +1532,7 @@ export default function ImageCompressor() {
                                 {activeTab === "compressor" ? (
                                   `Original: ${formatSize(item.originalSize)} (${item.originalWidth}×${item.originalHeight}px • ${item.originalMegapixels}MP • ${item.originalAspectRatio})`
                                 ) : (
-                                  `Original Format: ${item.originalFormat} • Dimensions: ${item.originalWidth}×${item.originalHeight}px`
+                                  `Original: ${item.originalFormat} → Target: ${item.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")} • ${item.originalWidth}×${item.originalHeight}px`
                                 )}
                               </p>
                             </div>
@@ -1514,9 +1563,9 @@ export default function ImageCompressor() {
                           </div>
 
                           {/* Individual Controls */}
-                          <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 pt-1 border-t border-slate-100/60 pt-2">
-                            {activeTab === "compressor" ? (
-                              /* Detected Format Badge instead of dropdown */
+                          {activeTab === "compressor" && (
+                            <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 pt-1 border-t border-slate-100/60 pt-2">
+                              {/* Detected Format Badge instead of dropdown */}
                               <div className="flex flex-col gap-0.5">
                                 <label className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
                                   Detected Format
@@ -1525,54 +1574,8 @@ export default function ImageCompressor() {
                                   {item.originalFormat}
                                 </span>
                               </div>
-                            ) : (
-                              /* Redesigned Premium SaaS Target Selector */
-                              <div className="flex flex-col gap-2 w-full">
-                                <div className="flex flex-col md:flex-row md:items-center gap-x-6 gap-y-2">
-                                  {/* Original Format Locked */}
-                                  <div className="flex flex-col gap-0.5">
-                                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
-                                      Your Image Format
-                                    </span>
-                                    <span className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold bg-slate-100 border border-slate-200 rounded-lg text-slate-700 uppercase">
-                                      {item.originalFormat}
-                                    </span>
-                                  </div>
-
-                                  <div className="hidden md:flex items-center text-slate-300 self-end mb-1 font-bold">→</div>
-
-                                  {/* Target Format Buttons */}
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-[9px] uppercase font-black text-slate-450 tracking-wider">
-                                      Convert To
-                                    </span>
-                                    <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
-                                      {FORMAT_OPTIONS.filter((f) => {
-                                        const fName = f.label === "JPG" ? "JPG" : f.label;
-                                        return fName !== item.originalFormat;
-                                      }).map((f) => {
-                                        const isSelected = item.targetFormat === f.value;
-                                        return (
-                                          <button
-                                            key={f.value}
-                                            onClick={() => handleSingleConfigChange(item.id, { targetFormat: f.value })}
-                                            className={`px-3 py-1 text-[10px] font-bold rounded-lg border transition-all ${
-                                              isSelected
-                                                ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
-                                                : "bg-white border-slate-200 text-slate-600 hover:border-emerald-350 hover:bg-emerald-50/5 active:scale-95"
-                                            }`}
-                                          >
-                                            {f.label}
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                          </div>
+                            </div>
+                          )}
 
                           {/* INITIAL UPLOAD / READY TO COMPRESS STATE (Hides calculated values until completed) */}
                           {item.status !== "done" && item.status !== "failed" && activeTab === "compressor" && (
@@ -1739,27 +1742,46 @@ export default function ImageCompressor() {
                   {/* Preset Quick Settings */}
                   <div className="space-y-4">
                     {/* Format Target (Converter mode only) */}
-                    {activeTab === "converter" && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
-                          Batch Output Format
-                        </label>
-                        <div className="flex flex-wrap gap-1.5">
-                          {["image/webp", "image/avif", "image/jpeg", "image/png"].map((opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => {
-                                setGlobalFormat(opt);
-                                applyGlobalSettings(globalQuality, opt, globalTargetSize);
-                              }}
-                              className={`px-3 py-1.5 text-[10px] font-bold rounded border transition-all ${globalFormat === opt
-                                  ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
-                                  : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300"
-                                }`}
-                            >
-                              {opt.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
-                            </button>
-                          ))}
+                    {activeTab === "converter" && activeCompareItem && (
+                      <div className="space-y-4">
+                        {/* Original Format Locked */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                            Your Image Format
+                          </label>
+                          <div>
+                            <span className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold bg-slate-200 border border-slate-300 rounded-lg text-slate-700 uppercase tracking-wide">
+                              {activeCompareItem.originalFormat}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Target Format Buttons */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
+                            Convert To
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {FORMAT_OPTIONS.filter((f) => {
+                              const fName = f.label === "JPG" ? "JPG" : f.label;
+                              return fName !== activeCompareItem.originalFormat;
+                            }).map((f) => {
+                              const isSelected = activeCompareItem.targetFormat === f.value;
+                              return (
+                                <button
+                                  key={f.value}
+                                  onClick={() => handleSingleConfigChange(activeCompareItem.id, { targetFormat: f.value })}
+                                  className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition-all ${
+                                    isSelected
+                                      ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
+                                      : "bg-white border-slate-200 text-slate-650 hover:border-emerald-350 hover:bg-emerald-50/5 active:scale-95"
+                                  }`}
+                                >
+                                  {f.label}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     )}
