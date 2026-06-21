@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Image as ImageIcon, 
-  Upload, 
-  Download, 
-  Loader2, 
-  X, 
-  Shield, 
-  Zap, 
+import {
+  Image as ImageIcon,
+  Upload,
+  Download,
+  Loader2,
+  X,
+  Shield,
+  Zap,
   ArrowRight,
   CheckCircle2,
   Info,
@@ -286,18 +286,18 @@ function getCompressionRecommendation(size, mp, width, height) {
 
 function getRecommendedTargetLabel(size) {
   if (size < 200 * 1024) {
-    return "✅ No Compression Needed";
+    return "No Compression Needed";
   }
   if (size <= 1024 * 1024) {
-    return "✅ Recommended: 200 KB (Best for websites)";
+    return "Recommended: 200 KB (Best for websites)";
   }
   if (size <= 3 * 1024 * 1024) {
-    return "✅ Recommended: 500 KB (Balanced quality & size)";
+    return "Recommended: 500 KB (Balanced quality & size)";
   }
   if (size <= 10 * 1024 * 1024) {
-    return "✅ Recommended: 1 MB (High quality optimization)";
+    return "Recommended: 1 MB (High quality optimization)";
   }
-  return "✅ Recommended: 1 MB (Large file detected)";
+  return "Recommended: 1 MB (Large file detected)";
 }
 
 function getSliderExplanation(q) {
@@ -346,7 +346,7 @@ function getAspectRatio(width, height) {
   const divisor = gcd(width, height);
   const wRatio = width / divisor;
   const hRatio = height / divisor;
-  
+
   const decimal = width / height;
   if (Math.abs(decimal - 1.777) < 0.02) return "16:9";
   if (Math.abs(decimal - 1.333) < 0.02) return "4:3";
@@ -355,7 +355,7 @@ function getAspectRatio(width, height) {
   if (Math.abs(decimal - 1.6) < 0.02) return "16:10";
   if (Math.abs(decimal - 2.333) < 0.02) return "21:9";
   if (Math.abs(decimal - 1.25) < 0.02) return "5:4";
-  
+
   return wRatio < 50 && hRatio < 50 ? `${wRatio}:${hRatio}` : `${decimal.toFixed(2)}:1`;
 }
 
@@ -406,7 +406,7 @@ async function compressPNGScale(img, scale) {
 export default function ImageCompressor() {
   const [queue, setQueue] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  
+
   // Global settings overrides
   const [activeTab, setActiveTab] = useState("compressor");
   const [globalQuality, setGlobalQuality] = useState(0.8);
@@ -414,6 +414,24 @@ export default function ImageCompressor() {
   const [globalTargetSize, setGlobalTargetSize] = useState("auto");
   const [isProcessing, setIsProcessing] = useState(false);
   const [toast, setToast] = useState(null);
+
+  // AVIF encoding capability flag
+  const [avifSupported, setAvifSupported] = useState(false);
+
+  useEffect(() => {
+    const checkAVIF = async () => {
+      const supported = await new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1;
+        canvas.height = 1;
+        canvas.toBlob((blob) => {
+          resolve(blob && blob.type === "image/avif");
+        }, "image/avif");
+      });
+      setAvifSupported(supported);
+    };
+    checkAVIF();
+  }, []);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -431,15 +449,17 @@ export default function ImageCompressor() {
     } else {
       setGlobalTargetSize("auto");
       setGlobalQuality(0.85);
-      const defaultConverterFormat = globalFormat === "auto" ? "image/webp" : globalFormat;
+      const currentGlobalMime = globalFormat === "auto" ? "image/webp" : globalFormat;
       if (globalFormat === "auto") {
         setGlobalFormat("image/webp");
       }
       setQueue((prev) =>
         prev.map((item) => {
-          let tFormat = item.targetFormat;
-          if (tFormat === item.file.type || globalFormat === "auto") {
-            tFormat = "image/webp";
+          const origMime = item.file.type || "image/jpeg";
+          let tFormat = currentGlobalMime;
+          if (tFormat === origMime) {
+            // Target format cannot match the source format
+            tFormat = origMime === "image/webp" ? "image/png" : "image/webp";
           }
           return {
             ...item,
@@ -534,7 +554,7 @@ export default function ImageCompressor() {
           const recommendation = getRecommendedFormat(rawFormat, hasAlpha, file.size);
           const mp = parseFloat(((w * h) / 1000000).toFixed(2));
           const compRec = getCompressionRecommendation(file.size, mp, w, h);
-          
+
           newQueueItems.push({
             id: crypto.randomUUID(),
             file,
@@ -560,15 +580,20 @@ export default function ImageCompressor() {
             ratio: "1:1",
             accuracy: 0,
             status: "idle",
-            
-            targetFormat: file.type || "image/jpeg",
+
+            targetFormat: activeTab === "converter" 
+              ? (FORMAT_OPTIONS.find((f) => f.value !== (file.type || "image/jpeg"))?.value || "image/webp")
+              : (file.type || "image/jpeg"),
             targetSizeOption: "auto",
             quality: 0.8,
             recommendedFormat: recommendation.format,
             recommendationReason: recommendation.reason,
             compressionRecommendation: compRec.label,
             compressionReason: compRec.reason,
-            finalQuality: 0.8
+            finalQuality: 0.8,
+            conversionProgress: 0,
+            conversionStage: "",
+            isAvifFallbackActive: false
           });
           resolve();
         };
@@ -619,6 +644,15 @@ export default function ImageCompressor() {
         } else {
           tFormat = item.file.type || "image/jpeg";
         }
+
+        // Converter rules: target format cannot match source format
+        if (activeTab === "converter") {
+          const origMime = item.file.type || "image/jpeg";
+          if (tFormat === origMime) {
+            tFormat = origMime === "image/webp" ? "image/png" : "image/webp";
+          }
+        }
+
         return {
           ...item,
           quality,
@@ -698,9 +732,9 @@ export default function ImageCompressor() {
           // Target size mode requested (Bisection Binary Search)
           const targetBytes = Number(item.targetSizeOption);
           const isSameFormat = (targetFormatStr === "image/jpeg" && item.originalFormat === "JPG") ||
-                               (targetFormatStr === "image/png" && item.originalFormat === "PNG") ||
-                               (targetFormatStr === "image/webp" && item.originalFormat === "WEBP") ||
-                               (targetFormatStr === "image/avif" && item.originalFormat === "AVIF");
+            (targetFormatStr === "image/png" && item.originalFormat === "PNG") ||
+            (targetFormatStr === "image/webp" && item.originalFormat === "WEBP") ||
+            (targetFormatStr === "image/avif" && item.originalFormat === "AVIF");
 
           if (item.originalSize <= targetBytes) {
             if (isSameFormat) {
@@ -851,7 +885,7 @@ export default function ImageCompressor() {
           const savedBytes = Math.max(0, item.originalSize - compressedBlob.size);
           const savedPercent = parseFloat(((savedBytes / item.originalSize) * 100).toFixed(1));
           const compressionRatio = (item.originalSize / compressedBlob.size).toFixed(1);
-          
+
           let accuracy = 100;
           if (item.targetSizeOption !== "auto") {
             const target = Number(item.targetSizeOption);
@@ -885,7 +919,163 @@ export default function ImageCompressor() {
       }
       setQueue([...updatedQueue]);
     }
-    
+
+    setIsProcessing(false);
+  };
+
+  // Perform client-side format conversions with simulated progress tracking
+  const processConversionQueue = async () => {
+    setIsProcessing(true);
+    const updatedQueue = [...queue];
+
+    for (let i = 0; i < updatedQueue.length; i++) {
+      const item = updatedQueue[i];
+      if (item.status !== "idle") continue;
+
+      updatedQueue[i] = {
+        ...item,
+        status: "processing",
+        conversionStage: "Preparing Image...",
+        conversionProgress: 10,
+        isAvifFallbackActive: false
+      };
+      setQueue([...updatedQueue]);
+
+      try {
+        // Stage 1: Load Image
+        const img = new Image();
+        img.src = item.originalPreview;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error("Failed to load image resource"));
+        });
+
+        // Stage 2: Analyze Pixels
+        await new Promise(r => setTimeout(r, 250));
+        updatedQueue[i] = {
+          ...updatedQueue[i],
+          conversionStage: "Analyzing Pixels...",
+          conversionProgress: 35
+        };
+        setQueue([...updatedQueue]);
+
+        // Stage 3: Generate Format
+        await new Promise(r => setTimeout(r, 250));
+        const targetFormatMime = item.targetFormat;
+        let actualFormatMime = targetFormatMime;
+        let isFallback = false;
+
+        // Check AVIF encoding support
+        if (targetFormatMime === "image/avif" && !avifSupported) {
+          actualFormatMime = "image/webp";
+          isFallback = true;
+        }
+
+        updatedQueue[i] = {
+          ...updatedQueue[i],
+          conversionStage: `Generating ${actualFormatMime.split("/")[1].toUpperCase().replace("JPEG", "JPG")}...`,
+          conversionProgress: 70
+        };
+        setQueue([...updatedQueue]);
+
+        // Canvas Rendering
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Could not extract canvas 2D context");
+
+        // Clear alpha transparency for JPEG targets
+        if (actualFormatMime === "image/jpeg") {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.drawImage(img, 0, 0);
+
+        // Convert context to blob
+        const qualityUsed = 0.90; // High premium quality preset for conversion
+        const convertedBlob = await new Promise((resolve, reject) => {
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error("toBlob returned empty"));
+            },
+            actualFormatMime,
+            actualFormatMime === "image/png" ? undefined : qualityUsed
+          );
+        });
+
+        // Verify blob matches target format MIME
+        let finalBlob = convertedBlob;
+        let finalMime = convertedBlob.type;
+
+        if (actualFormatMime === "image/avif" && convertedBlob.type !== "image/avif") {
+          isFallback = true;
+          finalMime = "image/webp";
+          const fallbackBlob = await new Promise((resolve, reject) => {
+            canvas.toBlob(
+              (blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error("Fallback WebP conversion failed"));
+              },
+              "image/webp",
+              qualityUsed
+            );
+          });
+          finalBlob = fallbackBlob;
+        }
+
+        // Stage 4: Finalizing
+        await new Promise(r => setTimeout(r, 200));
+        updatedQueue[i] = {
+          ...updatedQueue[i],
+          conversionStage: "Finalizing...",
+          conversionProgress: 90
+        };
+        setQueue([...updatedQueue]);
+
+        // URL management: revoke old converted previews
+        if (item.processedPreview) {
+          URL.revokeObjectURL(item.processedPreview);
+        }
+        const outUrl = URL.createObjectURL(finalBlob);
+
+        const savedBytes = item.originalSize - finalBlob.size;
+        const savedPercent = parseFloat(((savedBytes / item.originalSize) * 100).toFixed(1));
+        const ratio = (item.originalSize / finalBlob.size).toFixed(1);
+
+        updatedQueue[i] = {
+          ...updatedQueue[i],
+          status: "done",
+          processedFile: finalBlob,
+          processedSize: finalBlob.size,
+          processedWidth: img.naturalWidth,
+          processedHeight: img.naturalHeight,
+          processedAspectRatio: getAspectRatio(img.naturalWidth, img.naturalHeight),
+          processedMegapixels: parseFloat(((img.naturalWidth * img.naturalHeight) / 1000000).toFixed(2)),
+          processedPreview: outUrl,
+          savingsBytes: savedBytes,
+          savingsPercent: savedPercent,
+          ratio: `${ratio}:1`,
+          targetFormat: finalMime,
+          isAvifFallbackActive: isFallback,
+          conversionStage: "Conversion Completed",
+          conversionProgress: 100
+        };
+
+      } catch (err) {
+        console.error(err);
+        updatedQueue[i] = {
+          ...item,
+          status: "failed",
+          conversionStage: "Conversion Failed",
+          conversionProgress: 0
+        };
+      }
+      setQueue([...updatedQueue]);
+    }
+
     setIsProcessing(false);
   };
 
@@ -903,7 +1093,9 @@ export default function ImageCompressor() {
     } else {
       if (!item.processedFile) return;
       const ext = item.targetFormat.split("/")[1].replace("jpeg", "jpg");
-      const newName = getNewFileName(item.name, ext);
+      const newName = activeTab === "converter" 
+        ? getConvertedFileName(item.name, ext)
+        : getNewFileName(item.name, ext);
       const link = document.createElement("a");
       link.href = item.processedPreview;
       link.download = newName;
@@ -918,10 +1110,16 @@ export default function ImageCompressor() {
     return `${base}._compressed.${ext}`;
   };
 
+  const getConvertedFileName = (origName, ext) => {
+    const lastDotIdx = origName.lastIndexOf(".");
+    const base = lastDotIdx !== -1 ? origName.substring(0, lastDotIdx) : origName;
+    return `${base}.${ext}`;
+  };
+
   const downloadAll = () => {
     const completed = queue.filter((item) => item.status === "done");
     if (completed.length === 0) return;
-    
+
     completed.forEach((item, idx) => {
       setTimeout(() => {
         downloadSingle(item);
@@ -1077,7 +1275,7 @@ export default function ImageCompressor() {
       />
 
       <div className="max-w-6xl mx-auto px-2 md:px-4 space-y-12 text-slate-800 antialiased">
-        
+
         {/* HERO HEADER - Strict single H1 element */}
         <div className="text-center space-y-4 pt-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-200">
@@ -1097,22 +1295,20 @@ export default function ImageCompressor() {
           <div className="inline-flex p-1 bg-slate-100 border border-slate-200 rounded-2xl shadow-sm max-w-md w-full sm:w-auto">
             <button
               onClick={() => handleTabChange("compressor")}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 ${
-                activeTab === "compressor"
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 ${activeTab === "compressor"
                   ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
                   : "text-slate-500 hover:text-slate-800"
-              }`}
+                }`}
             >
               <ImageIcon size={16} className={activeTab === "compressor" ? "text-emerald-500" : ""} />
               Image Compressor
             </button>
             <button
               onClick={() => handleTabChange("converter")}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 ${
-                activeTab === "converter"
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 ${activeTab === "converter"
                   ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
                   : "text-slate-500 hover:text-slate-800"
-              }`}
+                }`}
             >
               <ArrowRight size={16} className={activeTab === "converter" ? "text-emerald-500" : ""} />
               Image Converter
@@ -1132,15 +1328,14 @@ export default function ImageCompressor() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`p-4 rounded-xl border flex items-start gap-3 shadow-md max-w-xl mx-auto text-sm font-semibold ${
-                toast.type === "error"
+              className={`p-4 rounded-xl border flex items-start gap-3 shadow-md max-w-xl mx-auto text-sm font-semibold ${toast.type === "error"
                   ? "bg-rose-50 border-rose-200 text-rose-700"
                   : toast.type === "warning"
-                  ? "bg-amber-50 border-amber-200 text-amber-700"
-                  : toast.type === "success"
-                  ? "bg-emerald-50 border-emerald-250 text-emerald-700"
-                  : "bg-slate-50 border-slate-200 text-slate-700"
-              }`}
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : toast.type === "success"
+                      ? "bg-emerald-50 border-emerald-250 text-emerald-700"
+                      : "bg-slate-50 border-slate-200 text-slate-700"
+                }`}
             >
               {toast.type === "error" ? (
                 <AlertCircle size={18} className="shrink-0 mt-0.5 text-rose-500" />
@@ -1236,15 +1431,15 @@ export default function ImageCompressor() {
           ) : (
             /* ACTIVE QUEUE WORKSPACE (Results-First UX) */
             <div className="flex flex-col lg:grid lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
-              
+
               {/* LEFT COLUMN: FILE PROCESSING QUEUE LIST */}
               <div className="lg:col-span-8 p-4 md:p-6 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="font-bold text-slate-900 flex items-center gap-2 text-xs md:text-sm">
                     <span>Uploaded Files ({queue.length})</span>
                   </h3>
-                  <button 
-                    onClick={triggerUpload} 
+                  <button
+                    onClick={triggerUpload}
                     className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:text-emerald-500 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all"
                   >
                     <Plus size={14} /> Add More
@@ -1256,17 +1451,18 @@ export default function ImageCompressor() {
                     const isSelected = item.id === selectedId;
                     const gradeInfo = getQualityGrade(item.finalQuality);
                     const ext = item.targetFormat.split("/")[1].replace("jpeg", "jpg");
-                    const newName = getNewFileName(item.name, ext);
+                    const newName = activeTab === "converter"
+                      ? getConvertedFileName(item.name, ext)
+                      : getNewFileName(item.name, ext);
 
                     return (
                       <div
                         key={item.id}
                         onClick={() => setSelectedId(item.id)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col md:flex-row gap-4 ${
-                          isSelected
+                        className={`p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col md:flex-row gap-4 ${isSelected
                             ? "border-emerald-500 bg-emerald-50/10 shadow-sm"
                             : "border-slate-200 hover:border-slate-350 bg-white"
-                        }`}
+                          }`}
                       >
                         {/* Thumbnail View */}
                         <div className="w-16 h-16 bg-slate-50 border border-slate-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center relative">
@@ -1301,7 +1497,7 @@ export default function ImageCompressor() {
                               <X size={14} />
                             </button>
                           </div>
-                            {/* Recommendation Badge */}
+                          {/* Recommendation Badge */}
                           <div className="flex flex-col gap-1.5 items-start">
                             <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-emerald-100">
                               <Sparkles size={11} className="shrink-0" />
@@ -1330,23 +1526,48 @@ export default function ImageCompressor() {
                                 </span>
                               </div>
                             ) : (
-                              /* Target format dropdown */
-                              <div className="flex flex-col gap-0.5">
-                                <label className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
-                                  Convert To
-                                </label>
-                                <div className="relative">
-                                  <select
-                                    value={item.targetFormat}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => handleSingleConfigChange(item.id, { targetFormat: e.target.value })}
-                                    className="appearance-none bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-semibold text-slate-700 pr-6 hover:border-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                                  >
-                                    {FORMAT_OPTIONS.map((f) => (
-                                      <option key={f.value} value={f.value}>{f.label}</option>
-                                    ))}
-                                  </select>
-                                  <ChevronDown size={10} className="absolute right-2 top-2 text-slate-400 pointer-events-none" />
+                              /* Redesigned Premium SaaS Target Selector */
+                              <div className="flex flex-col gap-2 w-full">
+                                <div className="flex flex-col md:flex-row md:items-center gap-x-6 gap-y-2">
+                                  {/* Original Format Locked */}
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
+                                      Your Image Format
+                                    </span>
+                                    <span className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold bg-slate-100 border border-slate-200 rounded-lg text-slate-700 uppercase">
+                                      {item.originalFormat}
+                                    </span>
+                                  </div>
+
+                                  <div className="hidden md:flex items-center text-slate-300 self-end mb-1 font-bold">→</div>
+
+                                  {/* Target Format Buttons */}
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-[9px] uppercase font-black text-slate-450 tracking-wider">
+                                      Convert To
+                                    </span>
+                                    <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                      {FORMAT_OPTIONS.filter((f) => {
+                                        const fName = f.label === "JPG" ? "JPG" : f.label;
+                                        return fName !== item.originalFormat;
+                                      }).map((f) => {
+                                        const isSelected = item.targetFormat === f.value;
+                                        return (
+                                          <button
+                                            key={f.value}
+                                            onClick={() => handleSingleConfigChange(item.id, { targetFormat: f.value })}
+                                            className={`px-3 py-1 text-[10px] font-bold rounded-lg border transition-all ${
+                                              isSelected
+                                                ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
+                                                : "bg-white border-slate-200 text-slate-600 hover:border-emerald-350 hover:bg-emerald-50/5 active:scale-95"
+                                            }`}
+                                          >
+                                            {f.label}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -1370,8 +1591,8 @@ export default function ImageCompressor() {
                                     )}
                                   </span>
                                   <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">
-                                    {item.status === "processing" 
-                                      ? "Running local optimization..." 
+                                    {item.status === "processing"
+                                      ? "Running local optimization..."
                                       : "Compression settings selected and ready to process."}
                                   </span>
                                 </div>
@@ -1531,11 +1752,10 @@ export default function ImageCompressor() {
                                 setGlobalFormat(opt);
                                 applyGlobalSettings(globalQuality, opt, globalTargetSize);
                               }}
-                              className={`px-3 py-1.5 text-[10px] font-bold rounded border transition-all ${
-                                globalFormat === opt
+                              className={`px-3 py-1.5 text-[10px] font-bold rounded border transition-all ${globalFormat === opt
                                   ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
                                   : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300"
-                              }`}
+                                }`}
                             >
                               {opt.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
                             </button>
@@ -1624,8 +1844,8 @@ export default function ImageCompressor() {
                         </div>
                       </div>
                       <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-emerald-400 transition-all duration-500" 
+                        <div
+                          className="h-full bg-emerald-400 transition-all duration-500"
                           style={{ width: `${totalSavingsPercent}%` }}
                         />
                       </div>
@@ -1660,12 +1880,29 @@ export default function ImageCompressor() {
                       </button>
                     )
                   ) : (
-                    queue.some((i) => i.status === "done") && (
+                    /* Converter actions button */
+                    !isWorkflowFinished ? (
                       <button
-                        onClick={downloadAll}
+                        onClick={processConversionQueue}
+                        disabled={isProcessing}
                         className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-500/10 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
-                        <Download size={16} /> Download All Completed
+                        {isProcessing ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" /> Converting...
+                          </>
+                        ) : (
+                          <>
+                            <Zap size={16} /> Convert Image
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={queue.length > 1 ? downloadAll : () => downloadSingle(queue[0])}
+                        className="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-500/10 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                      >
+                        <Download size={16} /> {queue.length > 1 ? "Download All Converted" : `Download ${queue[0].targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")} Image`}
                       </button>
                     )
                   )}
@@ -1738,7 +1975,7 @@ export default function ImageCompressor() {
                   </div>
 
                   {/* Compare View Box */}
-                  <div 
+                  <div
                     ref={sliderRef}
                     onMouseMove={handleSliderMove}
                     onTouchMove={handleSliderMove}
@@ -1748,12 +1985,11 @@ export default function ImageCompressor() {
                     onTouchMoveCapture={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onTouchEnd={handleMouseUp}
-                    className={`aspect-video w-full border border-slate-200 rounded-2xl bg-slate-900 overflow-hidden relative select-none ${
-                      zoom > 1 ? "cursor-grab active:cursor-grabbing" : ""
-                    }`}
+                    className={`aspect-video w-full border border-slate-200 rounded-2xl bg-slate-900 overflow-hidden relative select-none ${zoom > 1 ? "cursor-grab active:cursor-grabbing" : ""
+                      }`}
                   >
                     {/* Underlay container */}
-                    <div 
+                    <div
                       className="w-full h-full flex items-center justify-center"
                       style={{
                         transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
@@ -1763,10 +1999,10 @@ export default function ImageCompressor() {
                       {/* Processed (Right Side) */}
                       <div className="absolute inset-0 flex items-center justify-center p-2 bg-slate-950/20">
                         {activeCompareItem.processedPreview ? (
-                          <img 
-                            src={activeCompareItem.processedPreview} 
-                            alt="Processed View" 
-                            className="w-full h-full object-contain pointer-events-none" 
+                          <img
+                            src={activeCompareItem.processedPreview}
+                            alt="Processed View"
+                            className="w-full h-full object-contain pointer-events-none"
                           />
                         ) : (
                           <div className="text-center text-slate-400 text-xs">
@@ -1777,22 +2013,22 @@ export default function ImageCompressor() {
                       </div>
 
                       {/* Original (Left Side, Clipped) */}
-                      <div 
+                      <div
                         className="absolute inset-0 flex items-center justify-center p-2 bg-slate-950/20"
                         style={{
                           clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`
                         }}
                       >
-                        <img 
-                          src={activeCompareItem.originalPreview} 
-                          alt="Original View" 
-                          className="w-full h-full object-contain pointer-events-none" 
+                        <img
+                          src={activeCompareItem.originalPreview}
+                          alt="Original View"
+                          className="w-full h-full object-contain pointer-events-none"
                         />
                       </div>
                     </div>
 
                     {/* Vertical drag handle line */}
-                    <div 
+                    <div
                       className="absolute inset-y-0 w-0.5 bg-white shadow-lg pointer-events-none"
                       style={{ left: `${sliderPos}%` }}
                     >
@@ -1822,92 +2058,92 @@ export default function ImageCompressor() {
                   <h4 className="text-[10px] uppercase font-black text-slate-400 tracking-wider">
                     Premium SaaS Metrics Dashboard
                   </h4>
-                  
+
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {(() => {
                       const isDone = activeCompareItem.status === "done" && activeCompareItem.processedFile;
                       const isProcessing = activeCompareItem.status === "processing";
                       const isIncrease = isDone && activeCompareItem.processedSize >= activeCompareItem.originalSize;
-                      
+
                       const stats = !isDone ? [
-                        { 
-                          label: "Original Size", 
+                        {
+                          label: "Original Size",
                           value: formatSize(activeCompareItem.originalSize),
                           tip: "Raw byte size of the uploaded image before browser optimization."
                         },
-                        { 
-                          label: "Original Format", 
+                        {
+                          label: "Original Format",
                           value: activeCompareItem.originalFormat,
                           tip: "The detected original image format."
                         },
-                        { 
-                          label: "Dimensions", 
+                        {
+                          label: "Dimensions",
                           value: `${activeCompareItem.originalWidth} × ${activeCompareItem.originalHeight}`,
                           tip: "Pixel width and height resolution of the original file."
                         },
-                        { 
-                          label: "Aspect Ratio", 
+                        {
+                          label: "Aspect Ratio",
                           value: activeCompareItem.originalAspectRatio,
                           tip: "Proportional relation between the pixel width and height."
                         },
-                        { 
-                          label: "Megapixels", 
+                        {
+                          label: "Megapixels",
                           value: `${activeCompareItem.originalMegapixels} MP`,
                           tip: "Calculated image resolution density indicator (width * height in millions)."
                         },
-                        { 
-                          label: "Status", 
+                        {
+                          label: "Status",
                           value: isProcessing ? "Compressing..." : "Ready to Compress",
                           tip: "Current processing status of the image."
                         }
                       ] : [
-                        { 
-                          label: "Original Size", 
+                        {
+                          label: "Original Size",
                           value: formatSize(activeCompareItem.originalSize),
                           tip: "Raw byte size of the uploaded image before browser optimization."
                         },
-                        { 
-                          label: "Optimized Size", 
+                        {
+                          label: "Optimized Size",
                           value: formatSize(Math.min(activeCompareItem.originalSize, activeCompareItem.processedSize)),
                           tip: "Resulting byte weight after processing inside the canvas thread."
                         },
-                        { 
-                          label: "Bytes Saved", 
+                        {
+                          label: "Bytes Saved",
                           value: formatSize(Math.max(0, activeCompareItem.originalSize - activeCompareItem.processedSize)),
                           tip: "Amount of memory space cleared off the file footprint."
                         },
-                        { 
-                          label: "Savings %", 
+                        {
+                          label: "Savings %",
                           value: `-${Math.max(0, activeCompareItem.savingsPercent)}%`,
                           tip: "Percentage decrease compared to the original image dimensions."
                         },
-                        { 
-                          label: "Compression Ratio", 
+                        {
+                          label: "Compression Ratio",
                           value: isIncrease ? "1:1" : activeCompareItem.ratio,
                           tip: "Proportional compression multiplier (e.g., 2.5 times smaller)."
                         },
-                        { 
-                          label: "Output Format", 
+                        {
+                          label: "Output Format",
                           value: activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG"),
                           tip: "Target export type of the resulting image asset."
                         },
-                        { 
-                          label: "Dimensions", 
+                        {
+                          label: "Dimensions",
                           value: `${activeCompareItem.processedWidth} × ${activeCompareItem.processedHeight}`,
                           tip: "Pixel width and height resolution of the generated file."
                         },
-                        { 
-                          label: "Aspect Ratio", 
+                        {
+                          label: "Aspect Ratio",
                           value: activeCompareItem.processedAspectRatio,
                           tip: "Proportional relation between the pixel width and height."
                         },
-                        { 
-                          label: "Megapixels", 
+                        {
+                          label: "Megapixels",
                           value: `${activeCompareItem.processedMegapixels} MP`,
                           tip: "Calculated image resolution density indicator (width * height in millions)."
                         },
-                        { 
-                          label: "Status", 
+                        {
+                          label: "Status",
                           value: "Compression Complete",
                           tip: "Current processing status of the image."
                         }
@@ -1918,10 +2154,10 @@ export default function ImageCompressor() {
                       <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 relative group hover:border-emerald-300 transition-colors">
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
                           {stat.label}
-                          <Info 
-                            size={11} 
-                            className="text-slate-300 hover:text-emerald-500 cursor-help shrink-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded" 
-                            title={stat.tip} 
+                          <Info
+                            size={11}
+                            className="text-slate-300 hover:text-emerald-500 cursor-help shrink-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded"
+                            title={stat.tip}
                             tabIndex={0}
                             role="img"
                             aria-label={stat.tip}
@@ -1964,94 +2200,167 @@ export default function ImageCompressor() {
               </div>
 
               {/* Card Body Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                {/* Left Panel: Original */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Original Image</span>
-                  <div className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center border border-slate-200">
-                    <img 
-                      src={activeCompareItem.originalPreview} 
-                      alt="Original Preview" 
-                      className="w-full h-full object-contain pointer-events-none" 
-                    />
-                    <span className="absolute top-3 left-3 bg-slate-900/80 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm border border-slate-800">
-                      {activeCompareItem.originalFormat}
-                    </span>
-                    <div className="absolute bottom-0 inset-x-0 bg-slate-900/60 backdrop-blur-xs px-4 py-2.5 text-white text-xs truncate font-medium border-t border-white/5">
-                      {activeCompareItem.name}
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Panel: Original */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Original Image</span>
+                    <div className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center border border-slate-200">
+                      <img
+                        src={activeCompareItem.originalPreview}
+                        alt="Original Preview"
+                        className="w-full h-full object-contain pointer-events-none"
+                      />
+                      <span className="absolute top-3 left-3 bg-slate-900/80 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm border border-slate-800">
+                        {activeCompareItem.originalFormat}
+                      </span>
+                      <div className="absolute bottom-0 inset-x-0 bg-slate-900/60 backdrop-blur-xs px-4 py-2.5 text-white text-xs truncate font-medium border-t border-white/5">
+                        {activeCompareItem.name}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Right Panel: Converted Preview */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Converted Preview</span>
-                  <div className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center border border-slate-200">
-                    <AnimatePresence mode="wait">
-                      {activeCompareItem.status === "done" && activeCompareItem.processedPreview ? (
-                        <motion.div
-                          key="done"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.3 }}
-                          className="absolute inset-0 flex items-center justify-center bg-slate-900"
-                        >
-                          <img 
-                            src={activeCompareItem.processedPreview} 
-                            alt="Converted Preview" 
-                            className="w-full h-full object-contain pointer-events-none" 
-                          />
-                          <span className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-sm">
-                            Converted to {activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
-                          </span>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="overlay"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute inset-0 flex flex-col items-center justify-center"
-                        >
-                          <img 
-                            src={activeCompareItem.originalPreview} 
-                            alt="Original Preview Blurred" 
-                            className="w-full h-full object-contain blur-md opacity-40 pointer-events-none" 
-                          />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-950/45 text-center">
-                            {activeCompareItem.status === "processing" ? (
-                              <motion.div
-                                key="processing"
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="space-y-3"
-                              >
-                                <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
-                                <p className="text-white font-bold text-xs">Converting Image...</p>
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                key="ready"
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="space-y-2"
-                              >
-                                <ImageIcon size={32} className="text-emerald-400 mx-auto opacity-80" />
-                                <p className="text-white font-bold text-sm">Ready to Convert</p>
-                                <p className="text-slate-300 text-[10px]">Select a target format and click Convert Image</p>
-                              </motion.div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {/* Right Panel: Converted Preview */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Converted Preview</span>
+                    <div className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center border border-slate-200">
+                      <AnimatePresence mode="wait">
+                        {activeCompareItem.status === "done" && activeCompareItem.processedPreview ? (
+                          <motion.div
+                            key="done"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 flex items-center justify-center bg-slate-900"
+                          >
+                            <img
+                              src={activeCompareItem.processedPreview}
+                              alt="Converted Preview"
+                              className="w-full h-full object-contain pointer-events-none"
+                            />
+                            <span className="absolute top-3 right-3 bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-sm animate-pulse">
+                              Converted to {activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
+                            </span>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 flex flex-col items-center justify-center"
+                          >
+                            <img
+                              src={activeCompareItem.originalPreview}
+                              alt="Original Preview Blurred"
+                              className="w-full h-full object-contain blur-md opacity-40 pointer-events-none"
+                            />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-slate-950/45 text-center">
+                              {activeCompareItem.status === "processing" ? (
+                                <motion.div
+                                  key="processing"
+                                  initial={{ scale: 0.9, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  className="space-y-4 w-full max-w-[200px] mx-auto text-center"
+                                >
+                                  <div className="relative w-10 h-10 mx-auto flex items-center justify-center">
+                                    <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+                                    <div className="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <p className="text-white font-bold text-xs leading-none">{activeCompareItem.conversionStage || "Converting..."}</p>
+                                    <p className="text-slate-400 text-[9px] font-semibold">{activeCompareItem.conversionProgress || 0}% completed</p>
+                                  </div>
+                                  <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                                    <motion.div
+                                      className="h-full bg-emerald-500"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${activeCompareItem.conversionProgress || 0}%` }}
+                                      transition={{ duration: 0.25 }}
+                                    />
+                                  </div>
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="ready"
+                                  initial={{ scale: 0.9, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  className="space-y-2"
+                                >
+                                  <ImageIcon size={32} className="text-emerald-400 mx-auto opacity-80" />
+                                  <p className="text-white font-bold text-sm">Ready to Convert</p>
+                                  <p className="text-slate-300 text-[10px]">Select a target format and click Convert Image</p>
+                                </motion.div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    {activeCompareItem.isAvifFallbackActive && (
+                      <div className="mt-2 bg-amber-50 border border-amber-250 text-amber-850 px-3 py-2.5 rounded-xl flex items-start gap-2 text-xs font-semibold leading-relaxed shadow-xs">
+                        <AlertCircle size={14} className="text-amber-500 shrink-0 mt-0.5 animate-bounce" />
+                        <div>
+                          AVIF export is not supported by your browser. The file was generated as WEBP instead.
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Conversion Results Card (Renders only after successful conversion) */}
+                {activeCompareItem.status === "done" && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-emerald-50/20 border border-emerald-250/60 rounded-2xl p-5 space-y-4 shadow-sm"
+                  >
+                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                      <CheckCircle2 size={16} className="text-emerald-500" />
+                      <span>✓ Conversion Completed</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
+                      <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
+                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Original Format</span>
+                        <span className="font-bold text-slate-800 uppercase block">{activeCompareItem.originalFormat}</span>
+                      </div>
+                      <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
+                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Converted Format</span>
+                        <span className="font-bold text-emerald-700 uppercase block">
+                          {activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
+                        </span>
+                      </div>
+                      <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
+                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Original Size</span>
+                        <span className="font-bold text-slate-800 block">{formatSize(activeCompareItem.originalSize)}</span>
+                      </div>
+                      <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
+                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Converted Size</span>
+                        <span className="font-bold text-slate-800 block">{formatSize(activeCompareItem.processedSize)}</span>
+                      </div>
+                      <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1 col-span-2 sm:col-span-1">
+                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">File Difference</span>
+                        <span className={`font-bold block ${activeCompareItem.savingsBytes >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+                          {activeCompareItem.savingsBytes >= 0 ? "-" : "+"}{formatSize(Math.abs(activeCompareItem.savingsBytes))} ({activeCompareItem.savingsPercent}%)
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-150 pt-3 text-[10px] font-semibold text-slate-400">
+                      <div className="flex items-center gap-1">
+                        <Shield size={12} className="text-emerald-500" />
+                        <span>Output Type: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-650 font-mono font-bold">{activeCompareItem.targetFormat}</code></span>
+                      </div>
+                      <div>
+                        Secure Browser Execution
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
-              {/* Premium Result Panel */}
+              {/* Premium Result Panel Footer */}
               <div className="border-t border-slate-200 p-4 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-xs font-semibold text-slate-650">
                   <div className="font-bold text-slate-800 truncate max-w-xs" title={activeCompareItem.name}>
@@ -2081,11 +2390,11 @@ export default function ImageCompressor() {
                       onClick={() => downloadSingle(activeCompareItem)}
                       className="w-full sm:w-auto px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md active:scale-98 transition-all flex items-center justify-center gap-2"
                     >
-                      <Download size={14} /> Download Converted Image
+                      <Download size={14} /> Download {activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")} Image
                     </button>
                   ) : (
                     <button
-                      onClick={processQueue}
+                      onClick={processConversionQueue}
                       disabled={isProcessing}
                       className="w-full sm:w-auto px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md active:scale-98 transition-all flex items-center justify-center gap-2"
                     >
