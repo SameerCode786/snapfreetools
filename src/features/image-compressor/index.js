@@ -1382,7 +1382,7 @@ export default function ImageCompressor() {
                   : toast.type === "warning"
                     ? "bg-amber-50 border-amber-200 text-amber-700"
                     : toast.type === "success"
-                      ? "bg-emerald-50 border-emerald-250 text-emerald-700"
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                       : "bg-slate-50 border-slate-200 text-slate-700"
                 }`}
             >
@@ -1392,7 +1392,7 @@ export default function ImageCompressor() {
                 <Info size={18} className="shrink-0 mt-0.5 text-emerald-500" />
               )}
               <div className="flex-1">{toast.message}</div>
-              <button onClick={() => setToast(null)} className="text-slate-400 hover:text-slate-650 transition-colors">
+              <button onClick={() => setToast(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                 <X size={16} />
               </button>
             </motion.div>
@@ -1419,7 +1419,7 @@ export default function ImageCompressor() {
         </AnimatePresence>
 
         {/* MAIN TOOL WORKSPACE CONTAINER - H2 Heading */}
-        <div className="bg-white rounded-3xl border border-slate-250 shadow-sm overflow-hidden min-h-[400px] flex flex-col">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px] flex flex-col">
           <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-700 tracking-tight m-0">
               {activeTab === "compressor" ? "Compress Image Online" : "Convert JPG, PNG, WEBP & AVIF"}
@@ -1454,11 +1454,11 @@ export default function ImageCompressor() {
 
                 <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto pt-6 border-t border-slate-100 w-full mt-8 text-xs font-semibold text-slate-500 text-center">
                   <div>
-                    <span className="block text-[10px] uppercase text-slate-450 font-bold tracking-wider mb-1">Max Upload Size</span>
+                    <span className="block text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1">Max Upload Size</span>
                     15 MB per image
                   </div>
                   <div>
-                    <span className="block text-[10px] uppercase text-slate-450 font-bold tracking-wider mb-1">Supported Formats</span>
+                    <span className="block text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1">Supported Formats</span>
                     JPG, JPEG, PNG, WEBP, AVIF
                   </div>
                   <div className="col-span-2 pt-2 text-[10px] text-slate-400 font-medium">
@@ -1510,7 +1510,7 @@ export default function ImageCompressor() {
                         onClick={() => setSelectedId(item.id)}
                         className={`p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col md:flex-row gap-4 ${isSelected
                             ? "border-emerald-500 bg-emerald-50/10 shadow-sm"
-                            : "border-slate-200 hover:border-slate-350 bg-white"
+                            : "border-slate-200 hover:border-slate-300 bg-white"
                           }`}
                       >
                         {/* Thumbnail View */}
@@ -1541,7 +1541,7 @@ export default function ImageCompressor() {
                                 e.stopPropagation();
                                 deleteItem(item.id);
                               }}
-                              className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-650"
+                              className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600"
                             >
                               <X size={14} />
                             </button>
@@ -1580,7 +1580,7 @@ export default function ImageCompressor() {
                           {/* INITIAL UPLOAD / READY TO COMPRESS STATE (Hides calculated values until completed) */}
                           {item.status !== "done" && item.status !== "failed" && activeTab === "compressor" && (
                             <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs font-semibold space-y-3">
-                              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-650">
+                              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-600">
                                 <div>
                                   <span className="text-[9px] font-black uppercase text-slate-400 block">Status</span>
                                   <span className="font-bold text-slate-800 flex items-center gap-1.5">
@@ -1618,7 +1618,7 @@ export default function ImageCompressor() {
                           {/* DOWNLOAD EXPERIENCE (Details card on completion) */}
                           {item.status === "done" && item.processedFile && (
                             <div className="bg-emerald-50/40 rounded-xl p-3 border border-emerald-100 text-xs font-semibold space-y-3">
-                              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-650">
+                              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-600">
                                 <div>
                                   <span className="text-[9px] font-black uppercase text-slate-400 block">Original Name</span>
                                   <span className="truncate block font-bold text-slate-800">{item.name}</span>
@@ -1652,7 +1652,7 @@ export default function ImageCompressor() {
                                     </div>
                                     <div>
                                       <span className="text-[9px] font-black uppercase text-slate-400 block">Savings %</span>
-                                      <span className="font-bold text-emerald-755">
+                                      <span className="font-bold text-emerald-700">
                                         {Math.max(0, item.savingsPercent)}%
                                       </span>
                                     </div>
@@ -1721,7 +1721,7 @@ export default function ImageCompressor() {
                     <span className="hidden sm:inline">|</span>
                     <span>• <strong>Supported formats:</strong> JPG, JPEG, PNG, WEBP, AVIF</span>
                   </p>
-                  <p className="text-slate-450">
+                  <p className="text-slate-400">
                     Files never leave your browser. Processing is 100% local.
                   </p>
                 </div>
@@ -1774,7 +1774,7 @@ export default function ImageCompressor() {
                                   className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border transition-all ${
                                     isSelected
                                       ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
-                                      : "bg-white border-slate-200 text-slate-650 hover:border-emerald-350 hover:bg-emerald-50/5 active:scale-95"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50/5 active:scale-95"
                                   }`}
                                 >
                                   {f.label}
@@ -1944,7 +1944,7 @@ export default function ImageCompressor() {
         {/* COMPARISON METRICS DASHBOARD (COMPRESSOR) OR PREMIUM CONVERSION PREVIEW CARD (CONVERTER) */}
         {activeCompareItem && (
           activeTab === "compressor" ? (
-            <div className="bg-white rounded-3xl border border-slate-250 shadow-sm p-4 md:p-6 space-y-6">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 md:p-6 space-y-6">
               <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-slate-900 text-xs md:text-sm">
@@ -1969,7 +1969,7 @@ export default function ImageCompressor() {
                       <button
                         onClick={() => { setZoom((z) => Math.max(1, z - 0.5)); setPan({ x: 0, y: 0 }); }}
                         disabled={zoom <= 1}
-                        className="p-1 border border-slate-250 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                        className="p-1 border border-slate-200 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                         title="Zoom Out"
                       >
                         <Minimize2 size={13} />
@@ -1980,7 +1980,7 @@ export default function ImageCompressor() {
                       <button
                         onClick={() => setZoom((z) => Math.min(5, z + 0.5))}
                         disabled={zoom >= 5}
-                        className="p-1 border border-slate-250 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                        className="p-1 border border-slate-200 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                         title="Zoom In"
                       >
                         <Maximize2 size={13} />
@@ -1988,7 +1988,7 @@ export default function ImageCompressor() {
                       <button
                         onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
                         disabled={zoom === 1 && pan.x === 0 && pan.y === 0}
-                        className="p-1 border border-slate-250 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                        className="p-1 border border-slate-200 rounded hover:border-emerald-300 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                         title="Reset View"
                       >
                         <RotateCcw size={13} />
@@ -2054,7 +2054,7 @@ export default function ImageCompressor() {
                       className="absolute inset-y-0 w-0.5 bg-white shadow-lg pointer-events-none"
                       style={{ left: `${sliderPos}%` }}
                     >
-                      <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-white border border-slate-350 rounded-full flex items-center justify-center shadow-lg pointer-events-none">
+                      <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-white border border-slate-300 rounded-full flex items-center justify-center shadow-lg pointer-events-none">
                         <span className="text-[10px] text-slate-500 font-black flex gap-0.5">
                           <span>‹</span><span>›</span>
                         </span>
@@ -2205,7 +2205,7 @@ export default function ImageCompressor() {
             </div>
           ) : (
             /* Dedicated SaaS Conversion Preview Workspace */
-            <div className="bg-white rounded-3xl border border-slate-250 shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
               {/* Card Header */}
               <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div>
@@ -2322,7 +2322,7 @@ export default function ImageCompressor() {
                       </AnimatePresence>
                     </div>
                     {activeCompareItem.isAvifFallbackActive && (
-                      <div className="mt-2 bg-amber-50 border border-amber-250 text-amber-850 px-3 py-2.5 rounded-xl flex items-start gap-2 text-xs font-semibold leading-relaxed shadow-xs">
+                      <div className="mt-2 bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2.5 rounded-xl flex items-start gap-2 text-xs font-semibold leading-relaxed shadow-xs">
                         <AlertCircle size={14} className="text-amber-500 shrink-0 mt-0.5 animate-bounce" />
                         <div>
                           AVIF export is not supported by your browser. The file was generated as WEBP instead.
@@ -2337,7 +2337,7 @@ export default function ImageCompressor() {
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-emerald-50/20 border border-emerald-250/60 rounded-2xl p-5 space-y-4 shadow-sm"
+                    className="bg-emerald-50/20 border border-emerald-200/60 rounded-2xl p-5 space-y-4 shadow-sm"
                   >
                     <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
                       <CheckCircle2 size={16} className="text-emerald-500" />
@@ -2345,34 +2345,34 @@ export default function ImageCompressor() {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
                       <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
-                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Original Format</span>
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Original Format</span>
                         <span className="font-bold text-slate-800 uppercase block">{activeCompareItem.originalFormat}</span>
                       </div>
                       <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
-                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Converted Format</span>
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Converted Format</span>
                         <span className="font-bold text-emerald-700 uppercase block">
                           {activeCompareItem.targetFormat.split("/")[1].toUpperCase().replace("JPEG", "JPG")}
                         </span>
                       </div>
                       <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
-                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Original Size</span>
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Original Size</span>
                         <span className="font-bold text-slate-800 block">{formatSize(activeCompareItem.originalSize)}</span>
                       </div>
                       <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1">
-                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">Converted Size</span>
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Converted Size</span>
                         <span className="font-bold text-slate-800 block">{formatSize(activeCompareItem.processedSize)}</span>
                       </div>
                       <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-1 col-span-2 sm:col-span-1">
-                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider block">File Difference</span>
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">File Difference</span>
                         <span className={`font-bold block ${activeCompareItem.savingsBytes >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
                           {activeCompareItem.savingsBytes >= 0 ? "-" : "+"}{formatSize(Math.abs(activeCompareItem.savingsBytes))} ({activeCompareItem.savingsPercent}%)
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-150 pt-3 text-[10px] font-semibold text-slate-400">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-3 text-[10px] font-semibold text-slate-400">
                       <div className="flex items-center gap-1">
                         <Shield size={12} className="text-emerald-500" />
-                        <span>Output Type: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-650 font-mono font-bold">{activeCompareItem.targetFormat}</code></span>
+                        <span>Output Type: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono font-bold">{activeCompareItem.targetFormat}</code></span>
                       </div>
                       <div>
                         Secure Browser Execution
@@ -2384,7 +2384,7 @@ export default function ImageCompressor() {
 
               {/* Premium Result Panel Footer */}
               <div className="border-t border-slate-200 p-4 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-xs font-semibold text-slate-650">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-xs font-semibold text-slate-600">
                   <div className="font-bold text-slate-800 truncate max-w-xs" title={activeCompareItem.name}>
                     {activeCompareItem.name}
                   </div>
@@ -2448,7 +2448,7 @@ export default function ImageCompressor() {
               { step: "Step 2", title: "Adjust quality and format", text: "Select a custom target size constraint or choose an exact output format (e.g. JPG to WebP)." },
               { step: "Step 3", title: "Compress and download", text: "Natively process files inside your browser tab and save the optimized assets instantly." }
             ].map((s, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 text-center space-y-2 relative hover:border-emerald-250 transition-colors">
+              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 text-center space-y-2 relative hover:border-emerald-200 transition-colors">
                 <span className="inline-block text-xs font-black bg-emerald-55 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
                   {s.step}
                 </span>
@@ -2473,7 +2473,7 @@ export default function ImageCompressor() {
           <div className="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-250 font-black text-slate-600 uppercase tracking-widest text-[9px]">
+                <tr className="bg-slate-50 border-b border-slate-200 font-black text-slate-600 uppercase tracking-widest text-[9px]">
                   <th className="p-4">Format</th>
                   <th className="p-4">Compression</th>
                   <th className="p-4">Quality</th>
@@ -2545,7 +2545,7 @@ export default function ImageCompressor() {
                 desc: "High-definition camera pictures often exceed 10MB. Compress image to 1MB to clear messaging app limits or email attachment ceilings. Our batch image size reducer scales quality and dimensions smoothly, ensuring that large print-ready photos retain their pixel density and look crystal clear on modern high-DPI displays."
               }
             ].map((g, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 hover:border-slate-350 transition-colors">
+              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 hover:border-slate-300 transition-colors">
                 <h4 className="font-bold text-slate-800 text-sm">{g.title}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed">{g.desc}</p>
               </div>
@@ -2566,7 +2566,7 @@ export default function ImageCompressor() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
             {GEO_CARDS.map((card, idx) => (
-              <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 hover:border-emerald-250 transition-colors">
+              <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 hover:border-emerald-200 transition-colors">
                 <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
                   <span className="w-1.5 h-3 bg-emerald-500 rounded-full shrink-0" />
                   {card.q}
@@ -2593,7 +2593,7 @@ export default function ImageCompressor() {
         </div>
 
         {/* PEOPLE ALSO SEARCH FOR & INTERNAL LINKS */}
-        <div className="border-t border-slate-250 pt-8 pb-4 text-center space-y-4">
+        <div className="border-t border-slate-200 pt-8 pb-4 text-center space-y-4">
           <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
             People Also Search For
           </h4>
@@ -2619,7 +2619,7 @@ export default function ImageCompressor() {
               <Link
                 key={idx}
                 href={link.path}
-                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-650 rounded hover:text-emerald-600 hover:border-emerald-300 transition-colors shadow-sm"
+                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:text-emerald-600 hover:border-emerald-300 transition-colors shadow-sm"
               >
                 {link.label}
               </Link>

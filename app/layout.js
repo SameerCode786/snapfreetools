@@ -17,8 +17,8 @@ const manrope = Manrope({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
-      <body className="flex flex-col min-h-screen text-slate-900 font-sans antialiased">
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning={true}>
+      <body className="flex flex-col min-h-screen text-slate-900 font-sans antialiased" suppressHydrationWarning={true}>
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />

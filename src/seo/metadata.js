@@ -31,11 +31,59 @@ const METADATA_CONFIG = {
     keywords: "image compressor, convert png to jpg, jpg to webp converter, compress image online free, avif converter",
     path: "/image-compressor"
   },
+  "calculators": {
+    title: "Student Calculator Hub - GPA, CGPA & Academic Tools Online",
+    description: "Access our comprehensive suite of student calculators. Calculate GPA, SGPA, CGPA, percentage conversions, required grades, and merit scores instantly.",
+    keywords: "student calculators, gpa tools, cgpa calculator, grade point average, merit aggregate, academic calculators",
+    path: "/calculators"
+  },
   "gpa-calculator": {
-    title: "GPA Calculator – Calculate GPA Easily | SnapFreeTools",
-    description: "Calculate your college or high school GPA based on grades and credit hours easily with our free online GPA calculator.",
-    keywords: "gpa calculator, calculate gpa, gpa calculator 4.0 scale, high school gpa calculator",
+    title: "GPA Calculator - Calculate GPA Online Free",
+    description: "Calculate GPA instantly using our free GPA Calculator. Supports semester GPA, cumulative GPA, grade points and credit hours.",
+    keywords: "gpa calculator, calculate gpa, semester gpa, high school gpa, college gpa, free gpa tool",
     path: "/gpa-calculator"
+  },
+  "cgpa-calculator": {
+    title: "CGPA Calculator - Calculate Cumulative GPA Online",
+    description: "Calculate your Cumulative Grade Point Average (CGPA) quickly. Input past semester grades and credit hours to find your total CGPA.",
+    keywords: "cgpa calculator, cumulative gpa, calculate cgpa, cgpa formula, cgpa converter",
+    path: "/cgpa-calculator"
+  },
+  "sgpa-calculator": {
+    title: "SGPA Calculator - Calculate Semester GPA Online",
+    description: "Easily calculate your Semester Grade Point Average (SGPA) for free. Input course names, credits, and grades to get your SGPA instantly.",
+    keywords: "sgpa calculator, semester gpa, calculate sgpa, sgpa formula, sgpa to cgpa",
+    path: "/sgpa-calculator"
+  },
+  "gpa-to-percentage": {
+    title: "GPA to Percentage Calculator",
+    description: "Convert your GPA score to academic percentages instantly. Supports 4.0 and custom scales conversion online.",
+    keywords: "gpa to percentage, convert gpa to percent, 4.0 gpa in percent, gpa conversion",
+    path: "/gpa-to-percentage"
+  },
+  "percentage-to-gpa": {
+    title: "Percentage to GPA Calculator",
+    description: "Convert academic percentage scores to a 4.0 scale GPA. Ideal for international admission conversions.",
+    keywords: "percentage to gpa, convert percent to gpa, percentage to 4.0 scale, cgpa converter",
+    path: "/percentage-to-gpa"
+  },
+  "required-gpa-calculator": {
+    title: "Required GPA Calculator - Target GPA Goal Planner",
+    description: "Find out exactly what GPA you must earn in future semesters to reach your target GPA. Perfect for graduation and scholarship planning.",
+    keywords: "required gpa calculator, raise my gpa, target gpa planner, gpa needed to graduate",
+    path: "/required-gpa-calculator"
+  },
+  "final-grade-calculator": {
+    title: "Final Grade Calculator - Find Required Exam Score",
+    description: "Calculate the exact grade you need on your final exam to pass your class or earn an A. Quick, customizable grading weights.",
+    keywords: "final grade calculator, what do i need on my final, final exam grade calculator, class grade calculator",
+    path: "/final-grade-calculator"
+  },
+  "merit-calculator": {
+    title: "Merit Calculator - Calculate University Admission Merit",
+    description: "Calculate your admission merit score online. Supports major universities and entry tests with customizable weights (matric, FSc, entry test).",
+    keywords: "merit calculator, aggregate calculator, admission merit formula, engineering merit calculator",
+    path: "/merit-calculator"
   },
   "word-counter": {
     title: "Free Word Counter Tool – Count Words, Characters & Reading Time",

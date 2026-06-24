@@ -44,7 +44,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-          <p>© {new Date().getFullYear()} SnapFreeTools. All rights reserved.</p>
+          <p>© 2026 SnapFreeTools. All rights reserved.</p>
         </div>
       </div>
     </footer>
