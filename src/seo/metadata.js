@@ -92,9 +92,9 @@ const METADATA_CONFIG = {
     path: "/word-counter"
   },
   "pdf-to-word": {
-    title: "PDF to Word Converter – Coming Soon | SnapFreeTools",
-    description: "Convert your PDF documents into editable Microsoft Word files with perfect formatting. Fast, secure, and free converter coming soon.",
-    keywords: "pdf to word, pdf to docx converter, online pdf converter free",
+    title: "PDF to Word Converter – Convert PDF to Word Online Free",
+    description: "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
+    keywords: "pdf to word, pdf to word converter, convert pdf to word, pdf to docx, pdf to word online, pdf to word free, pdf to word ocr, pdf to editable word, pdf to word without losing formatting, pdf to word converter online free, pdf to word no signup, pdf to word no watermark",
     path: "/pdf-to-word"
   }
 };
