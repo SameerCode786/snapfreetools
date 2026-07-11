@@ -47,6 +47,14 @@ const FAQS_DATA = [
   {
     question: "Does this tool add watermark?",
     answer: "No. SnapFreeTools converts your documents cleanly without adding any watermarks, branding stamps, or watermark logos to the final files."
+  },
+  {
+    question: "Why can't some PDFs be converted?",
+    answer: "Some PDFs are created from cameras or scanners and contain only images instead of selectable text. Without OCR, there is no real text available to extract into an editable Word document."
+  },
+  {
+    question: "Does this converter use OCR?",
+    answer: "No. This converter focuses on privacy-first local conversion. Your files stay inside your browser and are never uploaded to external servers. OCR is not currently included."
   }
 ];
 

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   FileText, UploadCloud, CheckCircle, Loader2, Download, 
   RefreshCw, Trash2, ArrowRight, Shield, Zap, Sparkles, 
-  HelpCircle, Eye, AlertCircle, FileEdit, Award, Info
+  HelpCircle, Eye, AlertCircle, FileEdit, Award, Info, Rocket
 } from "lucide-react";
 import Link from "next/link";
 import ToolLayout from "@/layouts/tool-layout";
@@ -19,6 +19,8 @@ export default function PDFToWord({ faqs = [] }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [docBlob, setDocBlob] = useState(null);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [scannedPDFDetected, setScannedPDFDetected] = useState(false);
+  const [showOcrDialog, setShowOcrDialog] = useState(false);
   const fileInputRef = useRef(null);
 
   // Maximum file size: 25MB
@@ -47,6 +49,8 @@ export default function PDFToWord({ faqs = [] }) {
     setConversionState("idle");
     setProgress(0);
     setDocBlob(null);
+    setScannedPDFDetected(false);
+    setShowOcrDialog(false);
     
     // Estimate page count client-side by reading raw file text
     const reader = new FileReader();
@@ -98,6 +102,8 @@ export default function PDFToWord({ faqs = [] }) {
     setConversionState("idle");
     setProgress(0);
     setDocBlob(null);
+    setScannedPDFDetected(false);
+    setShowOcrDialog(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -155,7 +161,7 @@ export default function PDFToWord({ faqs = [] }) {
       // Check if document has selectable text
       if (totalTextLength === 0) {
         setConversionState("idle");
-        setFileError("No selectable text was found. This PDF may be scanned or image-based and requires OCR.");
+        setScannedPDFDetected(true);
         return;
       }
 
@@ -230,6 +236,117 @@ export default function PDFToWord({ faqs = [] }) {
       console.error("Client-side PDF compilation error:", err);
       setConversionState("idle");
       setFileError(`Conversion failed: ${err.message || "An unexpected error occurred during processing."}`);
+    }
+  };
+
+  const handleConvertAsImages = async () => {
+    if (!file) return;
+
+    setConversionState("converting");
+    setProgress(0);
+    setScannedPDFDetected(false);
+    setFileError(null);
+
+    try {
+      setStatusMessage("Preparing pages...");
+      setProgress(10);
+
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      const numPages = pdfDoc.numPages;
+      setPageCount(numPages);
+
+      const docx = await import("docx");
+      const { Document, Paragraph, ImageRun, PageBreak, Packer } = docx;
+
+      const docChildren = [];
+
+      for (let i = 1; i <= numPages; i++) {
+        setStatusMessage(`Rendering PDF pages (Page ${i} of ${numPages})...`);
+        const progressIncrement = Math.round((i / numPages) * 50) + 15; // 15% to 65%
+        setProgress(progressIncrement);
+
+        const page = await pdfDoc.getPage(i);
+        
+        // Render PDF page to canvas
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
+
+        // Get blob data from canvas
+        const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.90));
+        
+        // Extract array buffer from blob
+        const imgBuffer = await imageBlob.arrayBuffer();
+
+        // Standard margin net A4 width is 450pt
+        const ratio = viewport.height / viewport.width;
+        const imgWidth = 450;
+        const imgHeight = 450 * ratio;
+
+        // Add a PageBreak before subsequent pages
+        if (i > 1) {
+          docChildren.push(new Paragraph({
+            children: [new PageBreak()]
+          }));
+        }
+
+        setStatusMessage(`Embedding images into Word (Page ${i} of ${numPages})...`);
+        
+        // Add paragraph containing the image
+        docChildren.push(new Paragraph({
+          children: [
+            new ImageRun({
+              data: imgBuffer,
+              transformation: {
+                width: imgWidth,
+                height: imgHeight
+              }
+            })
+          ],
+          alignment: docx.AlignmentType.CENTER,
+          spacing: {
+            before: 200,
+            after: 200
+          }
+        }));
+      }
+
+      setStatusMessage("Generating DOCX...");
+      setProgress(85);
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: docChildren
+          }
+        ]
+      });
+
+      setStatusMessage("Preparing download...");
+      setProgress(95);
+
+      const blob = await Packer.toBlob(doc);
+      setDocBlob(blob);
+      setProgress(100);
+      setConversionState("completed");
+    } catch (err) {
+      console.error("Scanned PDF Image Conversion Error:", err);
+      setConversionState("idle");
+      setScannedPDFDetected(true);
+      setFileError(`Image conversion failed: ${err.message || "An unexpected error occurred."}`);
     }
   };
 
@@ -316,7 +433,131 @@ export default function PDFToWord({ faqs = [] }) {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                {!file ? (
+                {scannedPDFDetected ? (
+                  /* Premium Scanned PDF Decision Panel */
+                  <div className="space-y-8">
+                    {/* Header */}
+                    <div className="text-center space-y-3">
+                      <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                        <FileText size={28} />
+                      </div>
+                      <div className="space-y-1">
+                        <h2 className="text-xl font-black text-slate-900">Scanned PDF Detected</h2>
+                        <p className="text-xs text-slate-500 font-semibold leading-relaxed max-w-md mx-auto">
+                          This document appears to contain scanned pages or images instead of selectable text. Choose how you would like to continue.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Options Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      
+                      {/* Option 1: Convert as Images */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-400/50 hover:shadow-md transition-all duration-300 group">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-extrabold text-sm text-slate-800">Convert as Images</h3>
+                            <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-emerald-100/50">
+                              Free
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                            Your PDF pages will be inserted into a Microsoft Word document as high-quality images.
+                          </p>
+                          <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Benefits:</p>
+                            <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
+                              <li className="flex items-center gap-1.5 text-emerald-600">✔ Preserves the original appearance</li>
+                              <li className="flex items-center gap-1.5 text-emerald-600">✔ Fast conversion</li>
+                              <li className="flex items-center gap-1.5 text-emerald-600">✔ No OCR required</li>
+                              <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% Browser Processing</li>
+                            </ul>
+                          </div>
+                          <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Limitations:</p>
+                            <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
+                              <li>• Text will NOT be editable.</li>
+                              <li>• Text will NOT be searchable.</li>
+                              <li>• Images can still be resized, moved, or deleted inside Microsoft Word.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleConvertAsImages}
+                          className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl text-xs shadow-md shadow-amber-500/10 hover:shadow-lg transition-all mt-6 flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          Convert as Images
+                          <ArrowRight size={14} />
+                        </button>
+                      </div>
+
+                      {/* Option 2: Apply OCR & Convert */}
+                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col justify-between opacity-75">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-extrabold text-sm text-slate-800">Apply OCR & Convert</h3>
+                            <span className="text-[9px] bg-slate-200 text-slate-600 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-slate-350/50">
+                              Soon
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                            OCR (Optical Character Recognition) scans image-based text and converts it into editable Microsoft Word content.
+                          </p>
+                          <div className="space-y-1.5 border-t border-slate-200 pt-3">
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR can recognize:</p>
+                            <ul className="text-[10px] text-slate-550 font-semibold space-y-1.5">
+                              <li className="flex items-center gap-1.5 text-slate-600">✔ Printed documents</li>
+                              <li className="flex items-center gap-1.5 text-slate-600">✔ Books</li>
+                              <li className="flex items-center gap-1.5 text-slate-600">✔ Invoices</li>
+                              <li className="flex items-center gap-1.5 text-slate-600">✔ Forms</li>
+                              <li className="flex items-center gap-1.5 text-slate-600">✔ Reports</li>
+                            </ul>
+                          </div>
+                          <div className="space-y-1.5 border-t border-slate-200 pt-3">
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR may not perfectly preserve:</p>
+                            <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
+                              <li>• Complex layouts</li>
+                              <li>• Tables</li>
+                              <li>• Handwriting</li>
+                              <li>• Low-quality scans</li>
+                              <li>• Multi-column formatting</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="space-y-2 mt-6">
+                          <button
+                            onClick={() => setShowOcrDialog(true)}
+                            className="w-full bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1 cursor-pointer border border-slate-300/40"
+                          >
+                            Apply OCR
+                          </button>
+                          <p className="text-[9px] text-slate-450 font-extrabold text-center uppercase tracking-wider">Coming Soon</p>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Information Notice */}
+                    <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 space-y-2">
+                      <h4 className="font-extrabold text-xs text-blue-800 flex items-center gap-1.5">
+                        <Info size={16} className="shrink-0" /> Which option should I choose?
+                      </h4>
+                      <p className="text-[11px] text-blue-700 leading-relaxed font-semibold">
+                        Choose <strong>"Convert as Images"</strong> if you only need the document inside Word while preserving its visual appearance. Choose <strong>"Apply OCR"</strong> if you need editable text. OCR support is planned for a future release.
+                      </p>
+                    </div>
+
+                    {/* Reset/Cancel Button */}
+                    <div className="text-center pt-2">
+                      <button
+                        onClick={removeFile}
+                        className="text-xs text-slate-450 hover:text-slate-600 transition-colors font-bold underline cursor-pointer"
+                      >
+                        Cancel & Upload New PDF
+                      </button>
+                    </div>
+                  </div>
+                ) : !file ? (
                   /* Dropzone */
                   <div
                     onDragOver={handleDragOver}
@@ -383,10 +624,26 @@ export default function PDFToWord({ faqs = [] }) {
                 )}
 
                 {fileError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs font-bold">
-                    <AlertCircle size={16} />
-                    {fileError}
-                  </div>
+                  fileError.includes("No selectable text") ? (
+                    <div className="bg-red-50 border border-red-200 text-red-800 p-6 rounded-2xl space-y-3 text-left">
+                      <div className="flex items-center gap-2 text-red-700 font-extrabold text-sm uppercase tracking-wider">
+                        <AlertCircle size={18} />
+                        Scanned PDF Detected
+                      </div>
+                      <div className="text-xs text-red-750 space-y-2 leading-relaxed font-semibold">
+                        <p className="font-extrabold text-red-900">No selectable text was found in this PDF.</p>
+                        <p>This appears to be a scanned or image-based document.</p>
+                        <p>Our browser-based converter extracts real selectable text only.</p>
+                        <p>Image-based PDFs require OCR (Optical Character Recognition), which is not included in the current browser version.</p>
+                        <p>Please use a text-based PDF or convert your scanned document with an OCR tool before trying again.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs font-bold">
+                      <AlertCircle size={16} />
+                      {fileError}
+                    </div>
+                  )
                 )}
               </motion.div>
             )}
@@ -477,6 +734,95 @@ export default function PDFToWord({ faqs = [] }) {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* User Guidance & Guidance Information Cards */}
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Text-based vs Scanned PDFs Card */}
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-6">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <FileEdit className="text-amber-500 shrink-0" size={20} />
+                Text-based vs Scanned PDFs
+              </h3>
+              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-1">Understanding PDF Layouts & Parser Support</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-6">
+              <div className="space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                <h4 className="font-extrabold text-xs text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle size={14} className="shrink-0" /> Text-based PDF (Supported)
+                </h4>
+                <ul className="text-xs text-slate-650 font-semibold space-y-2">
+                  <li className="flex items-center gap-2">✔ Editable digital PDFs</li>
+                  <li className="flex items-center gap-2">✔ Resume PDFs</li>
+                  <li className="flex items-center gap-2">✔ Articles</li>
+                  <li className="flex items-center gap-2">✔ Notes</li>
+                  <li className="flex items-center gap-2">✔ Invoices</li>
+                  <li className="flex items-center gap-2">✔ eBooks</li>
+                </ul>
+                <p className="text-[11px] text-slate-500 font-semibold leading-relaxed pt-1">
+                  These PDFs contain selectable text and can be converted into editable Word (.docx) documents.
+                </p>
+              </div>
+
+              <div className="space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                <h4 className="font-extrabold text-xs text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <AlertCircle size={14} className="shrink-0" /> Scanned PDF (OCR Required)
+                </h4>
+                <p className="text-[11px] text-slate-700 font-extrabold leading-relaxed">
+                  Scanned PDFs are photographs or image-based documents.
+                </p>
+                <div className="text-[11px] text-slate-600 font-semibold space-y-1">
+                  <p className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">Examples:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Mobile camera scans</li>
+                    <li>Printed paper scans</li>
+                    <li>Handwritten document scans</li>
+                    <li>Image-only PDFs</li>
+                  </ul>
+                </div>
+                <p className="text-[11px] text-slate-500 font-semibold leading-relaxed pt-1">
+                  These files do not contain selectable text. Because this converter runs 100% locally inside your browser and protects your privacy, OCR is not currently included. If no selectable text is detected, conversion will stop safely.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Privacy Notice Card */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <h3 className="font-black text-slate-900 flex items-center gap-2 text-base">
+                  <Shield className="text-emerald-500 shrink-0" size={20} />
+                  100% Private Conversion
+                </h3>
+                <ul className="text-xs text-slate-655 font-semibold space-y-2.5">
+                  <li className="flex items-center gap-2 text-slate-700">✔ Files never leave your device.</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ Everything runs locally in your browser.</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ No uploads to our servers.</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ No account required.</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ No file storage.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Future Roadmap Card */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <h3 className="font-black text-slate-900 flex items-center gap-2 text-base">
+                  <Rocket className="text-amber-500 shrink-0" size={18} />
+                  Coming Soon
+                </h3>
+                <ul className="text-xs text-slate-655 font-semibold space-y-2.5 text-slate-700">
+                  <li className="flex items-center gap-2">• OCR support for scanned PDFs</li>
+                  <li className="flex items-center gap-2">• Better table preservation</li>
+                  <li className="flex items-center gap-2">• Improved multi-column layout conversion</li>
+                  <li className="flex items-center gap-2">• Advanced formatting preservation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* AI Quick Answer Box */}
@@ -663,8 +1009,44 @@ export default function PDFToWord({ faqs = [] }) {
                 Calculate your semester GPA, aggregate merit, and grade percentages instantly.
               </p>
             </Link>
-          </div>
         </div>
+
+        {/* OCR Coming Soon Modal Dialog */}
+        <AnimatePresence>
+          {showOcrDialog && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            >
+              <motion.div 
+                initial={{ scale: 0.95, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 10 }}
+                className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 md:p-8 max-w-md w-full space-y-6 text-center"
+              >
+                <div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                  <Rocket size={24} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-slate-950">OCR Coming Soon</h3>
+                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                    OCR conversion for scanned PDFs is currently under development. The current version of SnapFreeTools focuses on privacy-first browser processing. Future updates will support editable OCR conversion without compromising user privacy.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowOcrDialog(false)}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-md shadow-slate-900/10 hover:shadow-lg cursor-pointer"
+                >
+                  OK
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </ToolLayout>
