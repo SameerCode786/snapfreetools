@@ -21,7 +21,20 @@ export default function PDFToWord({ faqs = [] }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [scannedPDFDetected, setScannedPDFDetected] = useState(false);
   const [showOcrDialog, setShowOcrDialog] = useState(false);
+  const [showOcrConfirmation, setShowOcrConfirmation] = useState(false);
+  const [ocrConfidenceWarning, setOcrConfidenceWarning] = useState(null);
+  const [isOcrCompleted, setIsOcrCompleted] = useState(false);
   const fileInputRef = useRef(null);
+  const activeOcrJobRef = useRef(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (activeOcrJobRef.current) {
+        activeOcrJobRef.current.cancel();
+        activeOcrJobRef.current = null;
+      }
+    };
+  }, []);
 
   // Maximum file size: 25MB
   const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -45,12 +58,19 @@ export default function PDFToWord({ faqs = [] }) {
       return;
     }
 
+    if (activeOcrJobRef.current) {
+      activeOcrJobRef.current.cancel();
+      activeOcrJobRef.current = null;
+    }
     setFile(selectedFile);
     setConversionState("idle");
     setProgress(0);
     setDocBlob(null);
     setScannedPDFDetected(false);
     setShowOcrDialog(false);
+    setShowOcrConfirmation(false);
+    setOcrConfidenceWarning(null);
+    setIsOcrCompleted(false);
     
     // Estimate page count client-side by reading raw file text
     const reader = new FileReader();
@@ -96,6 +116,10 @@ export default function PDFToWord({ faqs = [] }) {
   };
 
   const removeFile = () => {
+    if (activeOcrJobRef.current) {
+      activeOcrJobRef.current.cancel();
+      activeOcrJobRef.current = null;
+    }
     setFile(null);
     setPageCount(null);
     setFileError(null);
@@ -104,6 +128,9 @@ export default function PDFToWord({ faqs = [] }) {
     setDocBlob(null);
     setScannedPDFDetected(false);
     setShowOcrDialog(false);
+    setShowOcrConfirmation(false);
+    setOcrConfidenceWarning(null);
+    setIsOcrCompleted(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -350,6 +377,161 @@ export default function PDFToWord({ faqs = [] }) {
     }
   };
 
+  const handleStartOcrConversion = async () => {
+    if (!file) return;
+
+    // Estimate/Validate pages limit (10 pages)
+    if (pageCount !== null && pageCount > 10) {
+      setFileError("This OCR version supports up to 10 scanned pages per document. Please split larger PDFs and try again.");
+      setShowOcrConfirmation(false);
+      return;
+    }
+
+    setConversionState("converting");
+    setProgress(0);
+    setFileError(null);
+    setOcrConfidenceWarning(null);
+    setShowOcrConfirmation(false);
+    setIsOcrCompleted(false);
+
+    try {
+      setStatusMessage("Preparing OCR engine...");
+      setProgress(5);
+
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      const numPages = pdfDoc.numPages;
+      setPageCount(numPages);
+
+      if (numPages > 10) {
+        throw new Error("limit_exceeded");
+      }
+
+      // Initialize OCR engine run
+      const { runOCR } = await import("./utils/ocr-engine");
+      const job = runOCR({
+        pdfDoc,
+        onProgress: (stage, page, total, percent) => {
+          setStatusMessage(stage);
+          setProgress(percent);
+        }
+      });
+
+      activeOcrJobRef.current = job;
+
+      const { ocrResults, averageConfidence } = await job.promise;
+      activeOcrJobRef.current = null;
+
+      // 5. Building editable DOCX
+      setStatusMessage("Building editable DOCX...");
+      setProgress(90);
+
+      // Collect recognized text lengths
+      let totalTextLength = 0;
+      ocrResults.forEach(r => {
+        r.paragraphs.forEach(p => {
+          totalTextLength += p.trim().length;
+        });
+      });
+
+      if (totalTextLength === 0) {
+        throw new Error("no_readable_text");
+      }
+
+      const docx = await import("docx");
+      const { Document, Paragraph, TextRun, PageBreak, Packer } = docx;
+
+      const docChildren = [];
+
+      for (let i = 0; i < ocrResults.length; i++) {
+        const pageResult = ocrResults[i];
+
+        // Add a PageBreak before subsequent pages
+        if (i > 0) {
+          docChildren.push(new Paragraph({
+            children: [new PageBreak()]
+          }));
+        }
+
+        const paragraphs = pageResult.paragraphs.map(pText => {
+          return new Paragraph({
+            children: [
+              new TextRun({
+                text: pText,
+                size: 24, // 12pt
+                font: "Arial"
+              })
+            ],
+            spacing: {
+              after: 160 // 8pt padding
+            }
+          });
+        });
+
+        docChildren.push(...paragraphs);
+      }
+
+      setStatusMessage("Finalizing download...");
+      setProgress(95);
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: docChildren
+          }
+        ]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      setDocBlob(blob);
+
+      if (averageConfidence < 60) {
+        setOcrConfidenceWarning("OCR completed, but some text may require manual review because the scan quality was low.");
+      }
+
+      setIsOcrCompleted(true);
+      setProgress(100);
+      setConversionState("completed");
+
+    } catch (err) {
+      activeOcrJobRef.current = null;
+      console.error("OCR execution error:", err);
+      
+      if (err.message === "cancelled") {
+        setConversionState("idle");
+        setScannedPDFDetected(true);
+        setProgress(0);
+        return;
+      }
+
+      setConversionState("idle");
+      setScannedPDFDetected(true);
+
+      if (err.message === "limit_exceeded") {
+        setFileError("This OCR version supports up to 10 scanned pages per document. Please split larger PDFs and try again.");
+      } else if (err.message === "no_readable_text") {
+        setFileError("OCR could not detect readable text. Please try a clearer or higher-resolution scan.");
+      } else {
+        setFileError(`OCR compilation failed: ${err.message || "An unexpected error occurred during processing."}`);
+      }
+    }
+  };
+
+  const handleCancelConversion = () => {
+    if (activeOcrJobRef.current) {
+      activeOcrJobRef.current.cancel();
+      activeOcrJobRef.current = null;
+    }
+    setConversionState("idle");
+    setScannedPDFDetected(true);
+    setShowOcrConfirmation(false);
+    setProgress(0);
+  };
+
   const handleDownload = () => {
     if (!docBlob || !file) return;
 
@@ -359,7 +541,7 @@ export default function PDFToWord({ faqs = [] }) {
     
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${cleanName}-converted.docx`;
+    a.download = isOcrCompleted ? `${cleanName}-ocr-converted.docx` : `${cleanName}-converted.docx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -434,108 +616,164 @@ export default function PDFToWord({ faqs = [] }) {
                 className="space-y-6"
               >
                 {scannedPDFDetected ? (
-                  /* Premium Scanned PDF Decision Panel */
-                  <div className="space-y-8">
-                    {/* Header */}
-                    <div className="text-center space-y-3">
-                      <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                        <FileText size={28} />
-                      </div>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-black text-slate-900">Scanned PDF Detected</h2>
-                        <p className="text-xs text-slate-500 font-semibold leading-relaxed max-w-md mx-auto">
-                          This document appears to contain scanned pages or images instead of selectable text. Choose how you would like to continue.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Options Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* Option 1: Convert as Images */}
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-400/50 hover:shadow-md transition-all duration-300 group">
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-extrabold text-sm text-slate-800">Convert as Images</h3>
-                            <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-emerald-100/50">
-                              Free
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
-                            Your PDF pages will be inserted into a Microsoft Word document as high-quality images.
-                          </p>
-                          <div className="space-y-1.5 border-t border-slate-50 pt-3">
-                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Benefits:</p>
-                            <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
-                              <li className="flex items-center gap-1.5 text-emerald-600">✔ Preserves the original appearance</li>
-                              <li className="flex items-center gap-1.5 text-emerald-600">✔ Fast conversion</li>
-                              <li className="flex items-center gap-1.5 text-emerald-600">✔ No OCR required</li>
-                              <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% Browser Processing</li>
-                            </ul>
-                          </div>
-                          <div className="space-y-1.5 border-t border-slate-50 pt-3">
-                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Limitations:</p>
-                            <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
-                              <li>• Text will NOT be editable.</li>
-                              <li>• Text will NOT be searchable.</li>
-                              <li>• Images can still be resized, moved, or deleted inside Microsoft Word.</li>
-                            </ul>
-                          </div>
+                  showOcrConfirmation ? (
+                    /* Premium OCR Confirmation Panel */
+                    <div className="space-y-6 text-left">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                          <Rocket size={24} />
                         </div>
+                        <div>
+                          <h3 className="font-extrabold text-slate-900 text-base">Convert Scanned PDF with OCR</h3>
+                          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">OCR Language: English</p>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-4 text-xs text-slate-650 font-semibold leading-relaxed">
+                        <p className="text-slate-800 font-bold">
+                          OCR scans each PDF page and converts recognized English text into an editable Word document. Processing time depends on the number of pages and scan quality.
+                        </p>
+
+                        {/* Privacy notice box */}
+                        <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-xl p-4 flex gap-2.5 text-emerald-855">
+                          <Shield size={16} className="shrink-0 mt-0.5" />
+                          <p className="text-[11px]">
+                            <strong>Privacy Notice:</strong> Your scanned PDF and recognized text stay inside your browser. Nothing is uploaded to SnapFreeTools or any third-party OCR service.
+                          </p>
+                        </div>
+
+                        {/* Limitation notice box */}
+                        <div className="bg-amber-50/50 border border-amber-100/60 rounded-xl p-4 flex gap-2.5 text-amber-800">
+                          <Info size={16} className="shrink-0 mt-0.5" />
+                          <p className="text-[11px]">
+                            <strong>Limitation Notice:</strong> Complex tables, multi-column layouts, handwriting, decorative fonts, and low-quality scans may not convert perfectly.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex flex-col sm:flex-row gap-3 pt-4">
                         <button
-                          onClick={handleConvertAsImages}
-                          className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl text-xs shadow-md shadow-amber-500/10 hover:shadow-lg transition-all mt-6 flex items-center justify-center gap-1.5 cursor-pointer"
+                          onClick={handleStartOcrConversion}
+                          className="flex-1 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-3 px-6 rounded-xl text-xs shadow-md shadow-amber-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          Convert as Images
+                          Start OCR Conversion
                           <ArrowRight size={14} />
                         </button>
+                        <button
+                          onClick={() => setShowOcrConfirmation(false)}
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl text-xs transition-all flex items-center justify-center cursor-pointer"
+                        >
+                          Cancel
+                        </button>
                       </div>
-
-                      {/* Option 2: Apply OCR & Convert */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col justify-between opacity-75">
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-extrabold text-sm text-slate-800">Apply OCR & Convert</h3>
-                            <span className="text-[9px] bg-slate-200 text-slate-600 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-slate-350/50">
-                              Soon
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
-                            OCR (Optical Character Recognition) scans image-based text and converts it into editable Microsoft Word content.
-                          </p>
-                          <div className="space-y-1.5 border-t border-slate-200 pt-3">
-                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR can recognize:</p>
-                            <ul className="text-[10px] text-slate-550 font-semibold space-y-1.5">
-                              <li className="flex items-center gap-1.5 text-slate-600">✔ Printed documents</li>
-                              <li className="flex items-center gap-1.5 text-slate-600">✔ Books</li>
-                              <li className="flex items-center gap-1.5 text-slate-600">✔ Invoices</li>
-                              <li className="flex items-center gap-1.5 text-slate-600">✔ Forms</li>
-                              <li className="flex items-center gap-1.5 text-slate-600">✔ Reports</li>
-                            </ul>
-                          </div>
-                          <div className="space-y-1.5 border-t border-slate-200 pt-3">
-                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR may not perfectly preserve:</p>
-                            <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
-                              <li>• Complex layouts</li>
-                              <li>• Tables</li>
-                              <li>• Handwriting</li>
-                              <li>• Low-quality scans</li>
-                              <li>• Multi-column formatting</li>
-                            </ul>
-                          </div>
-                        </div>
-                        <div className="space-y-2 mt-6">
-                          <button
-                            onClick={() => setShowOcrDialog(true)}
-                            className="w-full bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1 cursor-pointer border border-slate-300/40"
-                          >
-                            Apply OCR
-                          </button>
-                          <p className="text-[9px] text-slate-450 font-extrabold text-center uppercase tracking-wider">Coming Soon</p>
-                        </div>
-                      </div>
-
                     </div>
+                  ) : (
+                    /* Premium Scanned PDF Decision Panel */
+                    <div className="space-y-8">
+                      {/* Header */}
+                      <div className="text-center space-y-3">
+                        <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                          <FileText size={28} />
+                        </div>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-black text-slate-900">Scanned PDF Detected</h2>
+                          <p className="text-xs text-slate-500 font-semibold leading-relaxed max-w-md mx-auto">
+                            This document appears to contain scanned pages or images instead of selectable text. Choose how you would like to continue.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Options Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        {/* Option 1: Convert as Images */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-400/50 hover:shadow-md transition-all duration-300 group">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-extrabold text-sm text-slate-800">Convert as Images</h3>
+                              <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-emerald-100/50">
+                                Free
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                              Your PDF pages will be inserted into a Microsoft Word document as high-quality images.
+                            </p>
+                            <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Benefits:</p>
+                              <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Preserves the original appearance</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Fast conversion</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ No OCR required</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% Browser Processing</li>
+                              </ul>
+                            </div>
+                            <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Limitations:</p>
+                              <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
+                                <li>• Text will NOT be editable.</li>
+                                <li>• Text will NOT be searchable.</li>
+                                <li>• Images can still be resized, moved, or deleted inside Microsoft Word.</li>
+                              </ul>
+                            </div>
+                          </div>
+                          <button
+                            onClick={handleConvertAsImages}
+                            className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl text-xs shadow-md shadow-amber-500/10 hover:shadow-lg transition-all mt-6 flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            Convert as Images
+                            <ArrowRight size={14} />
+                          </button>
+                        </div>
+
+                        {/* Option 2: Apply OCR & Convert */}
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-400/50 hover:shadow-md transition-all duration-300 group">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-extrabold text-sm text-slate-800">Apply OCR & Convert</h3>
+                              <span className="text-[9px] bg-amber-50 text-amber-700 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border border-amber-100/50">
+                                Editable Text
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                              OCR (Optical Character Recognition) scans image-based text and converts it into editable Microsoft Word content.
+                            </p>
+                            <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR can recognize:</p>
+                              <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Printed documents</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Books</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Invoices</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Forms</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Reports</li>
+                              </ul>
+                            </div>
+                            <div className="space-y-1.5 border-t border-slate-50 pt-3">
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR may not perfectly preserve:</p>
+                              <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
+                                <li>• Complex layouts</li>
+                                <li>• Tables</li>
+                                <li>• Handwriting</li>
+                                <li>• Low-quality scans</li>
+                                <li>• Multi-column formatting</li>
+                              </ul>
+                            </div>
+                          </div>
+                          <div className="space-y-2 mt-6">
+                            <button
+                              onClick={() => setShowOcrConfirmation(true)}
+                              className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white font-bold py-2.5 rounded-xl text-xs shadow-md shadow-amber-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              Apply OCR
+                              <ArrowRight size={14} />
+                            </button>
+                            <p className="text-[9px] text-slate-500 font-extrabold text-center uppercase tracking-wider">Editable Text</p>
+                          </div>
+                        </div>
+
+                      </div>
 
                     {/* Information Notice */}
                     <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 space-y-2">
@@ -557,7 +795,8 @@ export default function PDFToWord({ faqs = [] }) {
                       </button>
                     </div>
                   </div>
-                ) : !file ? (
+                )
+              ) : !file ? (
                   /* Dropzone */
                   <div
                     onDragOver={handleDragOver}
@@ -707,13 +946,22 @@ export default function PDFToWord({ faqs = [] }) {
                   </div>
                   <div className="text-left min-w-0 flex-1">
                     <p className="text-xs font-bold text-slate-700 truncate">
-                      {file ? file.name.replace(/\.[^/.]+$/, "") + "-converted.docx" : "document-converted.docx"}
+                      {file ? file.name.replace(/\.[^/.]+$/, "") + (isOcrCompleted ? "-ocr-converted.docx" : "-converted.docx") : "document-converted.docx"}
                     </p>
                     <p className="text-[10px] text-slate-400 font-semibold">
                       Word Document (.docx)
                     </p>
                   </div>
                 </div>
+
+                {ocrConfidenceWarning && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 max-w-md mx-auto flex gap-3 text-left">
+                    <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
+                    <p className="text-[11px] text-amber-800 font-semibold leading-relaxed">
+                      {ocrConfidenceWarning}
+                     </p>
+                   </div>
+                 )}
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto pt-2">
                   <button
@@ -1009,6 +1257,7 @@ export default function PDFToWord({ faqs = [] }) {
                 Calculate your semester GPA, aggregate merit, and grade percentages instantly.
               </p>
             </Link>
+          </div>
         </div>
 
         {/* OCR Coming Soon Modal Dialog */}
