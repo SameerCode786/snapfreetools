@@ -21,37 +21,32 @@ export default function ToolLayout({ title, description, children }) {
         </div>
 
         {/* Sidebar Panel for Adsense and Scaling Navigation */}
-        <aside className="lg:col-span-3 space-y-8">
+        <aside className="lg:col-span-3 space-y-4 lg:sticky lg:top-[90px] self-start">
           {/* Ad slot placeholder */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 text-center min-h-[250px] flex flex-col justify-center items-center">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Advertisement</span>
-            <div className="w-full h-48 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 text-sm font-medium">
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 text-center min-h-[150px] flex flex-col justify-center items-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Advertisement</span>
+            <div className="w-full h-28 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 text-sm font-medium">
               Ad Banner Slot
             </div>
           </div>
 
           {/* Quick links to other tools */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-4">Other Free Tools</h3>
-            <ul className="space-y-3 text-sm">
+          <div className="bg-white p-5 rounded-3xl border border-slate-200">
+            <h3 className="font-bold text-slate-900 mb-3 text-sm">Other Free Tools</h3>
+            <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/image-compressor" className="text-slate-600 hover:text-primary transition-colors block py-1 font-medium">
+                <Link href="/image-compressor" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
                   🖼️ Image Compressor
                 </Link>
               </li>
               <li>
-                <Link href="/gpa-calculator" className="text-slate-600 hover:text-primary transition-colors block py-1 font-medium">
+                <Link href="/gpa-calculator" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
                   🎓 GPA Calculator
                 </Link>
               </li>
               <li>
-                <Link href="/word-counter" className="text-slate-600 hover:text-primary transition-colors block py-1 font-medium">
+                <Link href="/word-counter" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
                   ✍️ Word Counter
-                </Link>
-              </li>
-              <li>
-                <Link href="/pdf-to-word" className="text-slate-600 hover:text-primary transition-colors block py-1 font-medium">
-                  📄 PDF to Word Converter
                 </Link>
               </li>
             </ul>

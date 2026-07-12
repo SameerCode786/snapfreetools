@@ -1067,33 +1067,24 @@ export default function PDFToWord({ faqs = [] }) {
           
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-slate-900">How to Convert PDF to Word</h2>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Converting your PDF documents into editable Microsoft Word files is incredibly straightforward. Follow these three steps:
-            </p>
             <ol className="list-decimal pl-5 space-y-2 text-slate-600 text-sm font-medium">
-              <li>
-                <strong>Upload Document:</strong> Drag and drop your PDF file directly into the converter box above, or click "Browse File" to select a file from your device directory.
-              </li>
-              <li>
-                <strong>Convert Process:</strong> Click the "Convert to Word" button. Our script begins reading document parameters, mapping structural layouts, and processing textual content.
-              </li>
-              <li>
-                <strong>Save Output:</strong> Click the "Download Word File" button once the conversion completes to save your editable .docx file locally.
-              </li>
+              <li>Upload your PDF file.</li>
+              <li>Click Convert to start the process.</li>
+              <li>Download your editable DOCX document.</li>
             </ol>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-slate-900">Why Use a PDF to Word Converter?</h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              Although PDF is the standard choice for sharing files securely across platforms, it is notorious for being hard to edit. Storing documents in PDF restricts quick text edits, paragraph formatting, and copy-paste routines. Converting PDF to Word enables you to edit, format, and share documents seamlessly without needing professional layout tools.
+              Converting your PDF to Word provides fully editable DOCX files. This lets you make quick revisions, adjust layout formatting, and copy text freely without compatibility barriers.
             </p>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-slate-900">PDF to DOCX vs PDF to DOC</h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              When exporting documents from PDF, you can choose between .doc and .docx formats. Understanding the differences helps you choose the correct format:
+              Choose the correct Word format based on size, layout complexity, and version compatibility.
             </p>
             <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white">
               <table className="min-w-full text-left text-xs font-semibold text-slate-600">
@@ -1131,23 +1122,26 @@ export default function PDFToWord({ faqs = [] }) {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl font-black text-slate-900">Can scanned PDFs be converted to Word?</h2>
+            <h2 className="text-2xl font-black text-slate-900">Can scanned PDFs be converted?</h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              Yes. Typical converters extract simple text layers directly from documents. However, image-only scanned files lack text layers, requiring **OCR (Optical Character Recognition)** software. OCR algorithms identify shapes, map characters, and compile them into editable text layers within the final Word output.
+              Yes. Typical converters cannot read scanned PDF files directly because they lack a selectable text layer.
+            </p>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Using OCR (Optical Character Recognition) lets the system identify characters in image files and convert them into editable text.
             </p>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-slate-900">PDF to Word without losing formatting</h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              One of the primary challenges in PDF conversions is keeping styles, margins, and shapes aligned. Standard text parses throw all text segments into single rows, breaking layouts. Modern layout analyzers map paragraph flows, table structures, and images, keeping column widths and margins identical to the original PDF container.
+              Our converter maps paragraph flows, tables, and images sequentially, keeping margins and alignments matches as close as possible to the original PDF layout.
             </p>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-slate-900">Is this PDF to Word converter secure?</h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              Yes, security is a core pillar of SnapFreeTools. Any metadata parsing or extraction occurs using secure HTTPS channels. Files are never shared or indexed, and all processed documents are completely wiped from our system automatically, ensuring strict privacy protection for personal and corporate files.
+              Yes. Everything runs secure via local browser processing to guarantee absolute privacy with no unnecessary storage of your personal files on external servers.
             </p>
           </div>
         </div>

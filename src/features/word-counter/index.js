@@ -510,36 +510,36 @@ export default function WordCounter({ faqs = [] }) {
           </div>
 
           {/* Right Sidebar (Right 3 columns) */}
-          <aside className="lg:col-span-3 space-y-8">
+          <aside className="lg:col-span-3 space-y-4 lg:sticky lg:top-[90px] self-start">
             {/* Ad Placeholder banner */}
-            <div className="bg-white p-6 rounded-xl border border-slate-200 text-center min-h-[250px] flex flex-col justify-center items-center">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Advertisement</span>
-              <div className="w-full h-48 bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 text-sm font-medium">
+            <div className="bg-white p-5 rounded-xl border border-slate-200 text-center min-h-[180px] flex flex-col justify-center items-center">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Advertisement</span>
+              <div className="w-full h-36 bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 text-sm font-medium">
                 Ad Banner Slot
               </div>
             </div>
 
             {/* Other tools link list */}
-            <div className="bg-white p-6 rounded-xl border border-slate-200">
-              <h3 className="font-bold text-slate-900 mb-4 text-sm">Other Free Tools</h3>
-              <ul className="space-y-3 text-xs font-medium">
+            <div className="bg-white p-5 rounded-xl border border-slate-200">
+              <h3 className="font-bold text-slate-900 mb-3 text-sm">Other Free Tools</h3>
+              <ul className="space-y-2 text-xs font-medium">
                 <li>
-                  <Link href="/image-compressor" className="text-slate-600 hover:text-slate-800 transition-colors block py-1">
+                  <Link href="/image-compressor" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
                     🖼️ Image Compressor
                   </Link>
                 </li>
                 <li>
-                  <Link href="/gpa-calculator" className="text-slate-600 hover:text-slate-800 transition-colors block py-1">
+                  <Link href="/gpa-calculator" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
                     🎓 GPA Calculator
                   </Link>
                 </li>
                 <li>
-                  <Link href="/word-counter" className="text-slate-600 hover:text-slate-800 transition-colors block py-1">
+                  <Link href="/word-counter" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
                     ✍️ Word Counter
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pdf-to-word" className="text-slate-600 hover:text-slate-800 transition-colors block py-1">
+                  <Link href="/pdf-to-word" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
                     📄 PDF to Word Converter
                   </Link>
                 </li>
