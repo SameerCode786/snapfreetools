@@ -587,18 +587,18 @@ export default function PDFToWord({ faqs = [] }) {
           <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 flex gap-3">
             <AlertCircle size={20} className="text-red-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-bold text-xs text-red-800 uppercase tracking-wider">OCR Scanned Limitation</h4>
+              <h4 className="font-bold text-xs text-red-800 uppercase tracking-wider">Scanned PDFs</h4>
               <p className="text-[11px] text-red-700 leading-relaxed font-semibold mt-1">
-                Scanned PDFs or image-based files cannot be converted to editable text as OCR processing is not supported client-side.
+                Scanned or image-based PDFs require OCR to extract editable text.
               </p>
             </div>
           </div>
           <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex gap-3">
             <Info size={20} className="text-amber-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-bold text-xs text-amber-800 uppercase tracking-wider">Layout Simplification</h4>
+              <h4 className="font-bold text-xs text-amber-800 uppercase tracking-wider">Layout Flow</h4>
               <p className="text-[11px] text-amber-700 leading-relaxed font-semibold mt-1">
-                Multi-column templates, floating text tags, and tables will be simplified to a single-column layout flow to preserve editability.
+                Complex layouts are simplified to single-column blocks to preserve editability.
               </p>
             </div>
           </div>
@@ -633,14 +633,14 @@ export default function PDFToWord({ faqs = [] }) {
                       {/* Content */}
                       <div className="space-y-4 text-xs text-slate-650 font-semibold leading-relaxed">
                         <p className="text-slate-800 font-bold">
-                          OCR scans each PDF page and converts recognized English text into an editable Word document. Processing time depends on the number of pages and scan quality.
+                          Convert scanned English text into an editable Word document.
                         </p>
 
                         {/* Privacy notice box */}
                         <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-xl p-4 flex gap-2.5 text-emerald-855">
                           <Shield size={16} className="shrink-0 mt-0.5" />
                           <p className="text-[11px]">
-                            <strong>Privacy Notice:</strong> Your scanned PDF and recognized text stay inside your browser. Nothing is uploaded to SnapFreeTools or any third-party OCR service.
+                            <strong>100% Private:</strong> Files are processed inside your browser and are never uploaded.
                           </p>
                         </div>
 
@@ -648,7 +648,7 @@ export default function PDFToWord({ faqs = [] }) {
                         <div className="bg-amber-50/50 border border-amber-100/60 rounded-xl p-4 flex gap-2.5 text-amber-800">
                           <Info size={16} className="shrink-0 mt-0.5" />
                           <p className="text-[11px]">
-                            <strong>Limitation Notice:</strong> Complex tables, multi-column layouts, handwriting, decorative fonts, and low-quality scans may not convert perfectly.
+                            <strong>Note:</strong> Low-quality scans, tables, and handwriting may affect accuracy.
                           </p>
                         </div>
                       </div>
@@ -681,7 +681,7 @@ export default function PDFToWord({ faqs = [] }) {
                         <div className="space-y-1">
                           <h2 className="text-xl font-black text-slate-900">Scanned PDF Detected</h2>
                           <p className="text-xs text-slate-500 font-semibold leading-relaxed max-w-md mx-auto">
-                            This document appears to contain scanned pages or images instead of selectable text. Choose how you would like to continue.
+                            Choose how you would like to convert your scanned or image-based document.
                           </p>
                         </div>
                       </div>
@@ -699,23 +699,19 @@ export default function PDFToWord({ faqs = [] }) {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
-                              Your PDF pages will be inserted into a Microsoft Word document as high-quality images.
+                              Insert PDF pages into Word as high-quality images to preserve the original visual layout.
                             </p>
                             <div className="space-y-1.5 border-t border-slate-50 pt-3">
                               <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Benefits:</p>
                               <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Preserves the original appearance</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Fast conversion</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ No OCR required</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% Browser Processing</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% accurate layout preservation</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Fast, browser-only conversion</li>
                               </ul>
                             </div>
                             <div className="space-y-1.5 border-t border-slate-50 pt-3">
                               <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Limitations:</p>
                               <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
-                                <li>• Text will NOT be editable.</li>
-                                <li>• Text will NOT be searchable.</li>
-                                <li>• Images can still be resized, moved, or deleted inside Microsoft Word.</li>
+                                <li>• Text is not editable or searchable</li>
                               </ul>
                             </div>
                           </div>
@@ -738,26 +734,19 @@ export default function PDFToWord({ faqs = [] }) {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
-                              OCR (Optical Character Recognition) scans image-based text and converts it into editable Microsoft Word content.
+                              Extract scanned characters and convert them into fully editable text content.
                             </p>
                             <div className="space-y-1.5 border-t border-slate-50 pt-3">
-                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR can recognize:</p>
-                              <ul className="text-[10px] text-slate-650 font-semibold space-y-1.5">
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Printed documents</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Books</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Invoices</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Forms</li>
-                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Reports</li>
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Features:</p>
+                              <ul className="text-[10px] text-slate-655 font-semibold space-y-1.5">
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ Scans text, books, and invoices</li>
+                                <li className="flex items-center gap-1.5 text-emerald-600">✔ 100% browser-based OCR</li>
                               </ul>
                             </div>
                             <div className="space-y-1.5 border-t border-slate-50 pt-3">
-                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">OCR may not perfectly preserve:</p>
+                              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Limitations:</p>
                               <ul className="text-[10px] text-slate-500 font-semibold space-y-1">
-                                <li>• Complex layouts</li>
-                                <li>• Tables</li>
-                                <li>• Handwriting</li>
-                                <li>• Low-quality scans</li>
-                                <li>• Multi-column formatting</li>
+                                <li>• Tables and complex layouts may simplify</li>
                               </ul>
                             </div>
                           </div>
@@ -781,7 +770,7 @@ export default function PDFToWord({ faqs = [] }) {
                         <Info size={16} className="shrink-0" /> Which option should I choose?
                       </h4>
                       <p className="text-[11px] text-blue-700 leading-relaxed font-semibold">
-                        Choose <strong>"Convert as Images"</strong> if you only need the document inside Word while preserving its visual appearance. Choose <strong>"Apply OCR"</strong> if you need editable text. OCR support is planned for a future release.
+                        Choose <strong>"Convert as Images"</strong> to preserve layout, or <strong>"Apply OCR"</strong> if you need editable text.
                       </p>
                     </div>
 
@@ -983,7 +972,6 @@ export default function PDFToWord({ faqs = [] }) {
             )}
           </AnimatePresence>
         </div>
-
         {/* User Guidance & Guidance Information Cards */}
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Text-based vs Scanned PDFs Card */}
@@ -993,7 +981,7 @@ export default function PDFToWord({ faqs = [] }) {
                 <FileEdit className="text-amber-500 shrink-0" size={20} />
                 Text-based vs Scanned PDFs
               </h3>
-              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-1">Understanding PDF Layouts & Parser Support</p>
+              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-1">Understanding PDF Layouts</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-6">
@@ -1002,15 +990,11 @@ export default function PDFToWord({ faqs = [] }) {
                   <CheckCircle size={14} className="shrink-0" /> Text-based PDF (Supported)
                 </h4>
                 <ul className="text-xs text-slate-650 font-semibold space-y-2">
-                  <li className="flex items-center gap-2">✔ Editable digital PDFs</li>
-                  <li className="flex items-center gap-2">✔ Resume PDFs</li>
-                  <li className="flex items-center gap-2">✔ Articles</li>
-                  <li className="flex items-center gap-2">✔ Notes</li>
-                  <li className="flex items-center gap-2">✔ Invoices</li>
-                  <li className="flex items-center gap-2">✔ eBooks</li>
+                  <li className="flex items-center gap-2">✔ Digital PDFs, resumes, and articles</li>
+                  <li className="flex items-center gap-2">✔ Digital invoices, notes, and eBooks</li>
                 </ul>
                 <p className="text-[11px] text-slate-500 font-semibold leading-relaxed pt-1">
-                  These PDFs contain selectable text and can be converted into editable Word (.docx) documents.
+                  Contain selectable text that converts directly into editable Word documents.
                 </p>
               </div>
 
@@ -1018,20 +1002,12 @@ export default function PDFToWord({ faqs = [] }) {
                 <h4 className="font-extrabold text-xs text-red-700 uppercase tracking-wider flex items-center gap-1.5">
                   <AlertCircle size={14} className="shrink-0" /> Scanned PDF (OCR Required)
                 </h4>
-                <p className="text-[11px] text-slate-700 font-extrabold leading-relaxed">
-                  Scanned PDFs are photographs or image-based documents.
-                </p>
-                <div className="text-[11px] text-slate-600 font-semibold space-y-1">
-                  <p className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">Examples:</p>
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li>Mobile camera scans</li>
-                    <li>Printed paper scans</li>
-                    <li>Handwritten document scans</li>
-                    <li>Image-only PDFs</li>
-                  </ul>
-                </div>
+                <ul className="text-xs text-slate-650 font-semibold space-y-2">
+                  <li className="flex items-center gap-2">✔ Mobile scans and paper copies</li>
+                  <li className="flex items-center gap-2">✔ Handwritten scans and images</li>
+                </ul>
                 <p className="text-[11px] text-slate-500 font-semibold leading-relaxed pt-1">
-                  These files do not contain selectable text. Because this converter runs 100% locally inside your browser and protects your privacy, OCR is not currently included. If no selectable text is detected, conversion will stop safely.
+                  Contain no selectable text. Requires OCR translation to extract characters.
                 </p>
               </div>
             </div>
@@ -1046,11 +1022,9 @@ export default function PDFToWord({ faqs = [] }) {
                   100% Private Conversion
                 </h3>
                 <ul className="text-xs text-slate-655 font-semibold space-y-2.5">
-                  <li className="flex items-center gap-2 text-slate-700">✔ Files never leave your device.</li>
-                  <li className="flex items-center gap-2 text-slate-700">✔ Everything runs locally in your browser.</li>
-                  <li className="flex items-center gap-2 text-slate-700">✔ No uploads to our servers.</li>
-                  <li className="flex items-center gap-2 text-slate-700">✔ No account required.</li>
-                  <li className="flex items-center gap-2 text-slate-700">✔ No file storage.</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ Files never leave your browser</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ No server uploads or data logging</li>
+                  <li className="flex items-center gap-2 text-slate-700">✔ No registration required</li>
                 </ul>
               </div>
             </div>
@@ -1063,10 +1037,9 @@ export default function PDFToWord({ faqs = [] }) {
                   Coming Soon
                 </h3>
                 <ul className="text-xs text-slate-655 font-semibold space-y-2.5 text-slate-700">
-                  <li className="flex items-center gap-2">• OCR support for scanned PDFs</li>
-                  <li className="flex items-center gap-2">• Better table preservation</li>
-                  <li className="flex items-center gap-2">• Improved multi-column layout conversion</li>
-                  <li className="flex items-center gap-2">• Advanced formatting preservation</li>
+                  <li className="flex items-center gap-2">• Enhanced table layout formatting</li>
+                  <li className="flex items-center gap-2">• Complex multi-column page translation</li>
+                  <li className="flex items-center gap-2">• Advanced font matching systems</li>
                 </ul>
               </div>
             </div>
@@ -1074,7 +1047,7 @@ export default function PDFToWord({ faqs = [] }) {
         </div>
 
         {/* AI Quick Answer Box */}
-        <div className="bg-amber-50/50 border border-amber-100 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto space-y-3">
+        <div className="bg-amber-50/50 border border-amber-100 rounded-3xl p-6 md:p-8 max-w-3xl mx-auto space-y-3">
           <div className="flex items-center gap-2 text-amber-800">
             <Sparkles size={20} className="shrink-0" />
             <h3 className="font-extrabold text-sm uppercase tracking-wider">AI Quick Answer</h3>
@@ -1084,7 +1057,7 @@ export default function PDFToWord({ faqs = [] }) {
               What is the best way to convert PDF to Word?
             </h4>
             <p className="text-slate-600 text-sm leading-relaxed font-semibold">
-              The best way to convert PDF to Word is to upload your PDF, convert it into an editable DOCX file, and download the Word document while preserving text, layout, tables, and formatting as much as possible.
+              Upload your document to our secure browser-based converter to instantly generate an editable DOCX file while preserving original layouts.
             </p>
           </div>
         </div>
