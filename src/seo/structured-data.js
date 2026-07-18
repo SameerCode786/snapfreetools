@@ -100,3 +100,41 @@ export function JsonLd({ schema }) {
     />
   );
 }
+
+export function getAboutSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "SnapFreeTools",
+      "url": "https://snapfreetools.com",
+      "description": "SnapFreeTools provides free, accessible online productivity utilities."
+    },
+    "name": "About SnapFreeTools",
+    "url": "https://snapfreetools.com/about",
+    "description": "Learn why SnapFreeTools was created and how our free online PDF, calculator, image, and text tools make everyday digital tasks easier."
+  };
+}
+
+export function getAboutBreadcrumbSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://snapfreetools.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About",
+        "item": "https://snapfreetools.com/about"
+      }
+    ]
+  };
+}
+

@@ -2,14 +2,14 @@ const SITE_URL = "https://snapfreetools.com";
 
 const METADATA_CONFIG = {
   home: {
-    title: "SnapFreeTools - Free Online Productivity Tools",
-    description: "SnapFreeTools provides a collection of clean, fast, and secure tools to help you get your work done faster. Word counter, image compressor, and more.",
+    title: "Free Online Tools for PDF, Calculators, Images & Text | SnapFreeTools",
+    description: "Use free online tools to convert PDFs, calculate GPA, compress images, count words, and complete everyday tasks quickly with SnapFreeTools.",
     keywords: "online tools, free tools, productivity tools, image compressor, word counter, gpa calculator, pdf to word",
     path: ""
   },
   about: {
-    title: "About Us | SnapFreeTools",
-    description: "Learn about SnapFreeTools' mission to provide fast, secure, and free online productivity tools without subscriptions.",
+    title: "About SnapFreeTools | Free Online Productivity Tools",
+    description: "Learn why SnapFreeTools was created and how our free online PDF, calculator, image, and text tools make everyday digital tasks easier.",
     keywords: "about snapfreetools, free online tools mission, no signup tools",
     path: "/about"
   },

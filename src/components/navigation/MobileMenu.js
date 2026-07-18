@@ -2,43 +2,63 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import * as Icons from "lucide-react";
-import { CALCULATORS } from "@/features/student-hub/shared/constants/calculatorList";
+import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function MobileMenu({ onClose }) {
   const [activeCategory, setActiveCategory] = useState(null);
 
   const categories = [
-    { name: "Academic Calculators", items: CALCULATORS.filter(c => c.category === "Academic Calculators") },
-    { name: "Student & Admission", items: CALCULATORS.filter(c => c.category === "Student & Admission Tools") },
-    { name: "Financial Tools", items: CALCULATORS.filter(c => c.category === "Financial Calculators") },
-    { name: "Utility Tools", items: CALCULATORS.filter(c => c.category === "Utility Calculators") }
+    { 
+      name: "Featured Tools", 
+      items: ALL_TOOLS.filter(t => t.featured && t.status === "live"),
+      key: "featured"
+    },
+    { 
+      name: "Calculators", 
+      items: ALL_TOOLS.filter(t => t.group === "Calculators"),
+      key: "calculators"
+    },
+    { 
+      name: "PDF Tools", 
+      items: ALL_TOOLS.filter(t => t.group === "PDF Tools"),
+      key: "pdf"
+    },
+    { 
+      name: "Text Tools", 
+      items: ALL_TOOLS.filter(t => t.group === "Text Tools"),
+      key: "text"
+    },
+    { 
+      name: "Image Tools", 
+      items: ALL_TOOLS.filter(t => t.group === "Image Tools"),
+      key: "image"
+    }
   ];
 
-  const toggleCategory = (catName) => {
-    if (activeCategory === catName) {
+  const toggleCategory = (catKey) => {
+    if (activeCategory === catKey) {
       setActiveCategory(null);
     } else {
-      setActiveCategory(catName);
+      setActiveCategory(catKey);
     }
   };
 
   return (
     <div className="space-y-2 mt-2 border-t border-slate-100 pt-2">
       <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-2">
-        Calculator Ecosystem
+        Tools Directories
       </div>
       {categories.map((category) => {
-        const isOpen = activeCategory === category.name;
-        const categoryKey = category.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        const buttonId = `mobile-menu-btn-${categoryKey}`;
-        const contentId = `mobile-menu-content-${categoryKey}`;
+        const isOpen = activeCategory === category.key;
+        const buttonId = `mobile-menu-btn-${category.key}`;
+        const contentId = `mobile-menu-content-${category.key}`;
         
         return (
-          <div key={category.name} className="border-b border-slate-50 last:border-0">
+          <div key={category.key} className="border-b border-slate-50 last:border-0">
             <button
               id={buttonId}
-              onClick={() => toggleCategory(category.name)}
+              onClick={() => toggleCategory(category.key)}
               aria-expanded={isOpen}
               aria-controls={contentId}
               className="w-full flex justify-between items-center py-2 px-3 text-sm font-bold text-slate-700 hover:text-amber-600 transition-colors outline-none focus-visible:text-amber-600"
@@ -62,10 +82,11 @@ export default function MobileMenu({ onClose }) {
                   <div className="py-2.5 space-y-1">
                     {category.items.map((item) => {
                       const IconComponent = Icons[item.icon] || Icons.HelpCircle;
+                      const isLive = item.status === "live";
                       
-                      return item.future ? (
+                      return !isLive ? (
                         <div
-                          key={item.slug}
+                          key={item.id}
                           className="flex items-center gap-2.5 py-2 px-2.5 text-xs text-slate-400 cursor-not-allowed font-medium"
                         >
                           <IconComponent size={14} className="opacity-70" />
@@ -74,12 +95,12 @@ export default function MobileMenu({ onClose }) {
                         </div>
                       ) : (
                         <Link
-                          key={item.slug}
+                          key={item.id}
                           href={`/${item.slug}`}
                           onClick={onClose}
                           className="flex items-center gap-2.5 py-2 px-2.5 text-xs font-semibold text-slate-600 hover:text-amber-600 hover:bg-white rounded-lg transition-all outline-none focus-visible:bg-white focus-visible:text-amber-600"
                         >
-                          <IconComponent size={14} className="text-slate-400 group-hover:text-amber-500" />
+                          <IconComponent size={14} className="text-slate-400" />
                           <span>{item.name}</span>
                         </Link>
                       );
@@ -94,4 +115,3 @@ export default function MobileMenu({ onClose }) {
     </div>
   );
 }
-
