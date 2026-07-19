@@ -21,9 +21,15 @@ const METADATA_CONFIG = {
   },
   "privacy-policy": {
     title: "Privacy Policy | SnapFreeTools",
-    description: "Read our privacy policy. We process data client-side inside your browser. Your files never touch our servers.",
+    description: "Read how SnapFreeTools handles browser-based tool data, contact information, cookies, analytics, advertising technologies, security, retention, and user privacy choices.",
     keywords: "privacy policy, data safety, client-side tools, private converter",
     path: "/privacy-policy"
+  },
+  "terms": {
+    title: "Terms of Use | SnapFreeTools",
+    description: "Read the Terms of Use for SnapFreeTools. Understand permitted use, browser-side processing, file responsibility, intellectual property, and service limitations.",
+    keywords: "terms of use, terms and conditions, legal terms, snapfreetools rules",
+    path: "/terms"
   },
   "image-compressor": {
     title: "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools",

@@ -2,8 +2,9 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Mail, PlusCircle, Briefcase, AlertCircle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, PlusCircle, Briefcase, AlertCircle, CheckCircle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { submitContactForm } from "./contact.service";
 
 const CATEGORIES = [
   { value: "general", label: "General Question" },
@@ -26,10 +27,12 @@ export default function ContactFeature() {
     category: "",
     message: "",
     privacyAccepted: false,
-    website: "" // honeypot
+    website: "", // honeypot
+    submissionStartedAt: Date.now()
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
+  const [referenceId, setReferenceId] = useState("");
   const [openFaq, setOpenFaq] = useState(0);
 
   const fieldRefs = {
@@ -94,15 +97,23 @@ export default function ContactFeature() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.website) return; 
+    if (formData.website) return;
+
+    if (!process.env.NEXT_PUBLIC_CONTACT_API_URL) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Configuration Error: NEXT_PUBLIC_CONTACT_API_URL is missing.");
+      }
+      setStatus("temporary-fallback");
+      return;
+    }
 
     const newErrors = {};
     let firstInvalid = null;
     
     Object.keys(formData).forEach(key => {
-      if (key === "website") return;
+      if (key === "website" || key === "submissionStartedAt") return;
       const error = validateField(key, formData[key]);
       if (error) {
         newErrors[key] = error;
@@ -117,7 +128,36 @@ export default function ContactFeature() {
       return;
     }
 
-    setStatus("temporary-fallback");
+    setStatus("submitting");
+
+    try {
+      const res = await submitContactForm(formData);
+      setStatus("success");
+      setReferenceId(res.referenceId);
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        category: "",
+        message: "",
+        privacyAccepted: false,
+        website: "",
+        submissionStartedAt: Date.now()
+      });
+    } catch (err) {
+      if (err.status === 400 && err.data?.errors) {
+        setErrors(err.data.errors);
+        const firstErr = Object.keys(err.data.errors)[0];
+        if (firstErr && fieldRefs[firstErr]?.current) {
+          fieldRefs[firstErr].current.focus();
+        }
+        setStatus("idle");
+      } else if (err.status === 429) {
+        setStatus("rate-limited");
+      } else {
+        setStatus("error");
+      }
+    }
   };
 
   const faqs = [
@@ -129,7 +169,6 @@ export default function ContactFeature() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-24">
-      {/* Hero Section */}
       <section className="pt-20 pb-12 px-4 text-center max-w-4xl mx-auto">
         <span className="text-xs font-bold tracking-widest text-emerald-600 uppercase mb-4 block">CONTACT SNAPFREETOOLS</span>
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">How can we help?</h1>
@@ -146,7 +185,6 @@ export default function ContactFeature() {
 
       <div className="max-w-6xl mx-auto px-4 mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Panel */}
           <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm relative p-8">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent pointer-events-none" />
             <div className="relative z-10">
@@ -190,9 +228,83 @@ export default function ContactFeature() {
             </div>
           </div>
 
-          {/* Right Form Area */}
           <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-            {status === "temporary-fallback" ? (
+            {status === "success" && (
+              <div className="text-center py-16 px-4" aria-live="polite">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">Message received</h2>
+                <p className="text-slate-600 mb-4 max-w-md mx-auto leading-relaxed">
+                  Thank you for contacting SnapFreeTools. Your message has been received and will be reviewed as soon as reasonably possible.
+                </p>
+                {referenceId && (
+                  <p className="text-sm font-mono text-slate-500 mb-8 bg-slate-50 py-2 px-4 rounded inline-block">
+                    Reference ID: {referenceId}
+                  </p>
+                )}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button 
+                    onClick={() => setStatus("idle")}
+                    className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    Send another message
+                  </button>
+                  <Link 
+                    href="/calculators"
+                    className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all flex items-center justify-center"
+                  >
+                    Browse Tools
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="text-center py-16 px-4" aria-live="polite">
+                <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">We couldn’t send your message</h2>
+                <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
+                  Please try again or contact us directly at <strong className="text-slate-800">sameerwebdeveloper41@gmail.com</strong>.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button 
+                    onClick={() => setStatus("idle")}
+                    className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center"
+                  >
+                    Try again
+                  </button>
+                  <a 
+                    href={`mailto:sameerwebdeveloper41@gmail.com?subject=${encodeURIComponent(formData.subject || "Contact from SnapFreeTools")}&body=${encodeURIComponent(formData.message)}`}
+                    className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Mail size={18} /> Email us directly
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {status === "rate-limited" && (
+              <div className="text-center py-16 px-4" aria-live="polite">
+                <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">Too many requests</h2>
+                <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
+                  You have submitted too many messages recently. Please try again later.
+                </p>
+                <button 
+                  onClick={() => setStatus("idle")}
+                  className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Return to form
+                </button>
+              </div>
+            )}
+
+            {status === "temporary-fallback" && (
               <div className="text-center py-16 px-4" aria-live="polite">
                 <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <AlertCircle size={32} />
@@ -216,7 +328,9 @@ export default function ContactFeature() {
                   </button>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {(status === "idle" || status === "submitting") && (
               <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -229,9 +343,10 @@ export default function ContactFeature() {
                       value={formData.name}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      disabled={status === "submitting"}
                       aria-invalid={!!errors.name}
                       aria-describedby={errors.name ? "name-error" : undefined}
-                      className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+                      className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'} disabled:opacity-50`}
                       placeholder="Your name"
                     />
                     {errors.name && <p id="name-error" className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -246,9 +361,10 @@ export default function ContactFeature() {
                       value={formData.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      disabled={status === "submitting"}
                       aria-invalid={!!errors.email}
                       aria-describedby={errors.email ? "email-error" : undefined}
-                      className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+                      className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'} disabled:opacity-50`}
                       placeholder="you@example.com"
                     />
                     {errors.email && <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -265,9 +381,10 @@ export default function ContactFeature() {
                     value={formData.subject}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={status === "submitting"}
                     aria-invalid={!!errors.subject}
                     aria-describedby={errors.subject ? "subject-error" : undefined}
-                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.subject ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all ${errors.subject ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'} disabled:opacity-50`}
                     placeholder="Briefly describe your request"
                   />
                   {errors.subject && <p id="subject-error" className="text-red-500 text-sm mt-1">{errors.subject}</p>}
@@ -282,9 +399,10 @@ export default function ContactFeature() {
                     value={formData.category}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={status === "submitting"}
                     aria-invalid={!!errors.category}
                     aria-describedby={errors.category ? "category-error" : undefined}
-                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all appearance-none ${errors.category ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all appearance-none ${errors.category ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'} disabled:opacity-50`}
                   >
                     <option value="">Select a category</option>
                     {CATEGORIES.map(c => (
@@ -307,9 +425,10 @@ export default function ContactFeature() {
                     value={formData.message}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={status === "submitting"}
                     aria-invalid={!!errors.message}
                     aria-describedby={errors.message ? "message-error" : "message-help"}
-                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all resize-y ${errors.message ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`}
+                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 focus:bg-white focus:outline-none transition-all resize-y ${errors.message ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'} disabled:opacity-50`}
                     placeholder="Tell us how we can help. For a bug report, include the tool name and the steps that caused the issue."
                   ></textarea>
                   {errors.message ? (
@@ -329,9 +448,10 @@ export default function ContactFeature() {
                       checked={formData.privacyAccepted}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      disabled={status === "submitting"}
                       aria-invalid={!!errors.privacyAccepted}
                       aria-describedby={errors.privacyAccepted ? "privacy-error" : undefined}
-                      className="w-4 h-4 text-emerald-600 bg-slate-100 border-slate-300 rounded focus:ring-emerald-500"
+                      className="w-4 h-4 text-emerald-600 bg-slate-100 border-slate-300 rounded focus:ring-emerald-500 disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -342,17 +462,24 @@ export default function ContactFeature() {
                   </div>
                 </div>
 
-                {/* Honeypot field */}
                 <div style={{ display: 'none' }} aria-hidden="true">
                   <label htmlFor="website">Website</label>
-                  <input type="text" id="website" name="website" tabIndex="-1" autoComplete="off" value={formData.website} onChange={handleChange} />
+                  <input type="text" id="website" name="website" tabIndex="-1" autoComplete="off" value={formData.website} onChange={handleChange} disabled={status === "submitting"} />
                 </div>
 
                 <button 
                   type="submit"
-                  className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-md focus:ring-4 focus:ring-slate-200"
+                  disabled={status === "submitting"}
+                  className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-md focus:ring-4 focus:ring-slate-200 disabled:opacity-70 flex items-center justify-center gap-2"
                 >
-                  Submit Request
+                  {status === "submitting" ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Sending message...
+                    </>
+                  ) : (
+                    "Submit Request"
+                  )}
                 </button>
               </form>
             )}
@@ -360,7 +487,6 @@ export default function ContactFeature() {
         </div>
       </div>
 
-      {/* Info Cards */}
       <div className="max-w-6xl mx-auto px-4 mb-20 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center mb-4">
@@ -385,7 +511,6 @@ export default function ContactFeature() {
         </div>
       </div>
 
-      {/* FAQ */}
       <div className="max-w-3xl mx-auto px-4 mb-20">
         <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">Frequently Asked Questions</h2>
         <div className="space-y-4">
@@ -423,7 +548,6 @@ export default function ContactFeature() {
         </div>
       </div>
 
-      {/* Privacy & Trust */}
       <div className="max-w-4xl mx-auto px-4 mb-20">
         <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
@@ -460,7 +584,6 @@ export default function ContactFeature() {
         </div>
       </div>
 
-      {/* Final CTA */}
       <div className="text-center px-4 mb-8">
         <h2 className="text-2xl font-bold text-slate-900 mb-3">Looking for a tool instead?</h2>
         <p className="text-slate-600 mb-6">Browse available calculators, PDF tools, text tools, and image utilities.</p>
