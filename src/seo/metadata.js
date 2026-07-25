@@ -31,6 +31,30 @@ const METADATA_CONFIG = {
     keywords: "terms of use, terms and conditions, legal terms, snapfreetools rules",
     path: "/terms"
   },
+  "cookie-policy": {
+    title: "Cookie Policy | SnapFreeTools",
+    description: "Learn how SnapFreeTools uses browser storage, cookies, preferences, and how analytics, advertising, Google AdSense, and consent controls may be used in the future.",
+    keywords: "cookie policy, local storage, browser cache, tracking disclosure",
+    path: "/cookie-policy"
+  },
+  "disclaimer": {
+    title: "Disclaimer | SnapFreeTools",
+    description: "Read the SnapFreeTools Disclaimer covering calculator estimates, PDF and OCR limitations, image processing, user responsibility, and important result verification.",
+    keywords: "disclaimer, legal notice, tool limitations, snapfreetools disclaimer",
+    path: "/disclaimer"
+  },
+  "advertising-disclosure": {
+    title: "Advertising Disclosure | SnapFreeTools",
+    description: "Learn about advertising transparency on SnapFreeTools. Read about planned Google AdSense integration, editorial independence, and user privacy choices.",
+    keywords: "advertising disclosure, adsense transparency, editorial independence, snapfreetools ads",
+    path: "/advertising-disclosure"
+  },
+  "dmca": {
+    title: "DMCA Copyright Policy | SnapFreeTools",
+    description: "Read the SnapFreeTools DMCA Copyright Policy. Learn how we handle copyright complaints, intellectual property notices, and review processes.",
+    keywords: "dmca policy, copyright notice, report infringement, intellectual property, snapfreetools copyright",
+    path: "/dmca"
+  },
   "image-compressor": {
     title: "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools",
     description: "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality. Professional tool with client-side browser processing.",

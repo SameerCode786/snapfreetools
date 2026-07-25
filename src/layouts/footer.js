@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Facebook, Twitter, Github, Mail, Linkedin } from "lucide-react";
 import { FOOTER_NAVIGATION } from "@/config/footerNavigation";
 import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
+import CookieSettingsButton from "@/components/consent/CookieSettingsButton";
 
 export default function Footer() {
   // Read popular tools dynamically from unified registry
@@ -182,7 +183,7 @@ export default function Footer() {
           <p className="text-[10px] font-extrabold text-slate-400/80 uppercase tracking-widest hidden md:block select-none">
             {FOOTER_NAVIGATION.bottom.tagline}
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-4">
             {FOOTER_NAVIGATION.bottom.links.map((link) => (
               <Link 
                 key={link.name}
@@ -192,6 +193,7 @@ export default function Footer() {
                 {link.name}
               </Link>
             ))}
+            <CookieSettingsButton className="hover:text-slate-300 transition-colors outline-none font-semibold flex items-center gap-1.5" />
           </div>
         </div>
       </div>

@@ -1,9 +1,16 @@
-const crypto = require('crypto');
-
 const generateReferenceId = () => {
-  const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-  const suffix = crypto.randomBytes(3).toString('hex').toUpperCase();
-  return `CNT-${dateStr}-${suffix}`;
+  const date = new Date();
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let randomPart = '';
+  for (let i = 0; i < 6; i++) {
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  
+  return `SFT-${year}${month}${day}-${randomPart}`;
 };
 
 module.exports = generateReferenceId;

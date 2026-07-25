@@ -1,7 +1,13 @@
-const env = require('../config/env');
 const logger = {
-  info: (msg, meta = {}) => { console.log(JSON.stringify({ level: 'info', timestamp: new Date().toISOString(), message: msg, ...meta })); },
-  warn: (msg, meta = {}) => { console.warn(JSON.stringify({ level: 'warn', timestamp: new Date().toISOString(), message: msg, ...meta })); },
-  error: (msg, meta = {}) => { console.error(JSON.stringify({ level: 'error', timestamp: new Date().toISOString(), message: msg, ...meta })); }
+  info: (msg, meta = {}) => {
+    console.log(`[INFO] ${msg}`, Object.keys(meta).length ? meta : '');
+  },
+  warn: (msg, meta = {}) => {
+    console.warn(`[WARN] ${msg}`, Object.keys(meta).length ? meta : '');
+  },
+  error: (msg, meta = {}) => {
+    console.error(`[ERROR] ${msg}`, Object.keys(meta).length ? meta : '');
+  }
 };
+
 module.exports = logger;

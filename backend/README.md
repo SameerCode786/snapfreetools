@@ -1,59 +1,49 @@
-# SnapFreeTools Contact API Backend
+# SnapFreeTools Backend
 
-## Purpose
-This backend serves as the secure contact form endpoint for SnapFreeTools. It provides request validation, spam protection, rate limiting, and email delivery via Nodemailer. No database is utilized; all requests are safely handled in memory and dispatched via SMTP. Email providers retain delivered messages.
+Standalone Express API handling contact form submissions.
 
-## Architecture
-- **Express.js** API using **CommonJS** modules.
-- **Zod** for robust input validation.
-- **Nodemailer** for email delivery.
-- **express-rate-limit**, **helmet**, and **cors** for security.
+## Setup Instructions
 
-## Local Setup
-1. \`cd backend\`
-2. \`npm install\`
-3. Copy \`.env.example\` to \`.env\`
-4. Configure your \`.env\` file. **DO NOT COMMIT \`.env\` to version control.**
+### Frontend
 
-### Environment Variables
-Ensure all required environment variables are set. 
-- \`FRONTEND_ORIGIN\` (e.g. \`http://localhost:3000\`)
-- \`SMTP_PASS\` (Google App Password)
+1. Create root `.env.local` based on `.env.example`.
+2. Add the following variable:
+   ```env
+   NEXT_PUBLIC_CONTACT_API_URL=http://localhost:5000/api/v1/contact
+   ```
+3. Stop the existing frontend server manually.
+4. Restart it manually because `NEXT_PUBLIC_` variables are only read when Next.js starts. Changes to `.env.local` do not reliably apply until the frontend dev server is restarted.
 
-### Gmail Setup (Important)
-Normal Gmail passwords **MUST NOT** be used. You must enable Google 2-Step Verification on the sender account and generate a 16-character **App Password**. 
+### Backend
 
-## Running Locally
-- \`npm run dev\` - Starts the server with Nodemon on \`http://localhost:5000\`.
-- \`npm start\` - Starts the production server.
+1. Create `backend/.env` from `backend/.env.example`.
+2. Configure `SMTP_USER`.
+3. Enable Google 2-Step Verification and generate a Google App Password.
+4. Set `SMTP_APP_PASSWORD` to the App Password (never commit this to Git).
+5. Set `CONTACT_RECEIVER_EMAIL` to `sameerwebdeveloper41@gmail.com`.
+6. Set `FRONTEND_ORIGIN` to the exact frontend origin being used (e.g. `http://localhost:3000` or `http://localhost:3000,http://192.168.100.8:3000`).
+7. Start the backend manually on port 5000 in a separate terminal:
+   ```bash
+   cd backend
+   npm start
+   ```
+8. Open [http://localhost:5000/api/v1/health](http://localhost:5000/api/v1/health) to check health.
+9. Run `npm run verify:mail` manually to verify SMTP configuration.
+10. Run `npm run test:mail` manually if transport verification passes.
+11. Submit the Contact form from the frontend.
+12. Check Gmail Inbox and Spam folders.
+13. Inspect the backend terminal for safe error messages.
 
-## Running Tests
-- \`npm test\` - Runs the native Node.js test runner (\`node --test\`).
-- \`npm run test:watch\` - Runs tests in watch mode.
+## Verification
 
-## API Contract
-### \`POST /api/v1/contact\`
-Accepts a JSON payload:
-\`\`\`json
-{
-  "name": "Muhammad Sameer",
-  "email": "user@example.com",
-  "subject": "Tool Suggestion",
-  "category": "tool-suggestion",
-  "message": "Detailed message...",
-  "privacyAccepted": true,
-  "website": ""
-}
-\`\`\`
-Returns a 200/201 success response with a Reference ID, or 400 Validation Error, 429 Rate Limit, 502 Delivery Failed.
+Do not run these automatically. 
 
-## Security Warnings
-- Secrets belong **only** in \`.env\`.
-- CORS must be exactly matched to the frontend origin. Wildcards (\`*\`) must not be used in production.
-- Rate Limit is strictly 5 requests per 15 minutes per IP by default.
-- Spam protection checks honeypots, minimum submission time, and link counts.
+To verify your SMTP credentials without running the server:
+```bash
+npm run verify:mail
+```
 
-## Production Deployment Notes
-Prepare for hosting on Render, Railway, Fly.io, or VPS. 
-- Ensure all environment variables are populated in the hosting provider's dashboard.
-- Frontend API URL will be configured as \`NEXT_PUBLIC_CONTACT_API_URL=https://api.snapfreetools.com/api/v1\` in Next.js.
+To send a test email to the configured receiver:
+```bash
+npm run test:mail
+```

@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --test",
-    "test:watch": "node --test --watch"
+    "test:watch": "node --test --watch",
+    "verify:mail": "node scripts/verify-mail.js",
+    "test:mail": "node scripts/test-mail.js"
   },
   "dependencies": {
     "compression": "^1.7.4",

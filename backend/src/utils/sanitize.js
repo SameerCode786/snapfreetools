@@ -1,16 +1,21 @@
-const escapeHTML = (str) => {
-  return str.replace(/[&<>'\"/]/g, tag => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    "'": '&#39;',
-    '"': '&quot;',
-    '/': '&#x2F;'
-  }[tag]));
+const sanitizeHtml = require('sanitize-html');
+
+const sanitizeText = (text) => {
+  if (!text) return '';
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {}
+  }).trim();
 };
 
-const normalizeText = (str) => {
-  return str.replace(/\r\n/g, '\n').trim();
+const escapeHtml = (unsafe) => {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
-module.exports = { escapeHTML, normalizeText };
+module.exports = { sanitizeText, escapeHtml };

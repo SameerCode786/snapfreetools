@@ -1,20 +1,26 @@
-const env = require('../config/env');
-
 const spamProtection = (req, res, next) => {
-  const { website, submissionStartedAt, message } = req.body;
-  if (website && website.trim() !== '') {
-    return res.json({ success: true, message: 'Your message has been received.' });
+  if (req.body._contact_identifier) {
+    // Honeypot triggered
+    return res.status(400).json({
+      success: false,
+      code: 'SPAM_DETECTED',
+      message: 'Unable to process this request.'
+    });
   }
-  if (submissionStartedAt) {
-    const timeDiff = (Date.now() - submissionStartedAt) / 1000;
-    if (timeDiff < env.CONTACT_MIN_SUBMISSION_TIME_SECONDS) {
-      return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: 'Submission too fast. Please try again.' });
+  
+  // Basic content checks
+  const { message } = req.body;
+  if (message && typeof message === 'string') {
+    // Check for extremely repetitive characters
+    const uniqueChars = new Set(message.replace(/\s/g, '').split('')).size;
+    if (message.length > 20 && uniqueChars < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid message content.'
+      });
     }
   }
-  const linkMatches = message.match(/https?:\/\//gi);
-  if (linkMatches && linkMatches.length > env.CONTACT_MAX_LINKS) {
-    return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: 'Too many links in message.' });
-  }
+
   next();
 };
 

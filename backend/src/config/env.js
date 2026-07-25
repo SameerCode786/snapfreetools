@@ -1,35 +1,20 @@
-require('dotenv').config();
-const { z } = require('zod');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().transform(Number).refine(n => !isNaN(n) && n > 0 && n < 65536, 'Invalid PORT'),
-  FRONTEND_ORIGIN: z.string().url('FRONTEND_ORIGIN must be a valid URL'),
-  CONTACT_RECEIVER_EMAIL: z.string().email(),
-  SMTP_HOST: z.string().min(1),
-  SMTP_PORT: z.string().transform(Number),
-  SMTP_SECURE: z.string().transform(v => v === 'true'),
-  SMTP_USER: z.string().min(1),
-  SMTP_PASS: z.string().min(1),
-  SMTP_FROM_NAME: z.string().min(1),
-  SMTP_FROM_EMAIL: z.string().email(),
-  CONTACT_RATE_LIMIT_WINDOW_MINUTES: z.string().transform(Number).default('15'),
-  CONTACT_RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).default('5'),
-  CONTACT_AUTO_REPLY_ENABLED: z.string().transform(v => v === 'true').default('false'),
-  CONTACT_MIN_SUBMISSION_TIME_SECONDS: z.string().transform(Number).default('3'),
-  CONTACT_MAX_LINKS: z.string().transform(Number).default('3')
-});
+const env = {
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  PORT: process.env.PORT || 5000,
+  FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
+  SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+  SMTP_PORT: process.env.SMTP_PORT || 465,
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true' || true,
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_APP_PASSWORD: process.env.SMTP_APP_PASSWORD || '',
+  CONTACT_RECEIVER_EMAIL: process.env.CONTACT_RECEIVER_EMAIL || 'sameerwebdeveloper41@gmail.com',
+  CONTACT_FROM_NAME: process.env.CONTACT_FROM_NAME || 'SnapFreeTools Contact',
+  CONTACT_FROM_EMAIL: process.env.CONTACT_FROM_EMAIL || process.env.SMTP_USER,
+  CONTACT_RATE_LIMIT_WINDOW_MINUTES: parseInt(process.env.CONTACT_RATE_LIMIT_WINDOW_MINUTES || '15', 10),
+  CONTACT_RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.CONTACT_RATE_LIMIT_MAX_REQUESTS || '5', 10)
+};
 
-const parsed = envSchema.safeParse(process.env);
-if (!parsed.success) {
-  console.error('Invalid environment variables:', parsed.error.format());
-  process.exit(1);
-}
-
-if (parsed.data.NODE_ENV === 'production' && parsed.data.SMTP_PASS.includes('your-google')) {
-  console.error('Cannot use placeholder SMTP credentials in production.');
-  process.exit(1);
-}
-
-const envConfig = Object.freeze(parsed.data);
-module.exports = envConfig;
+module.exports = env;

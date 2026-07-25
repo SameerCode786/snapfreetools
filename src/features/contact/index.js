@@ -7,16 +7,16 @@ import Link from "next/link";
 import { submitContactForm } from "./contact.service";
 
 const CATEGORIES = [
-  { value: "general", label: "General Question" },
+  { value: "general-question", label: "General Question" },
   { value: "bug-report", label: "Bug Report" },
+  { value: "tool-support", label: "Tool Support" },
   { value: "feature-request", label: "Feature Request" },
-  { value: "tool-suggestion", label: "Tool Suggestion" },
+  { value: "new-tool-suggestion", label: "New Tool Suggestion" },
   { value: "advertising", label: "Advertising Inquiry" },
   { value: "partnership", label: "Partnership Inquiry" },
-  { value: "privacy", label: "Privacy Question" },
-  { value: "legal", label: "Copyright or Legal" },
-  { value: "accessibility", label: "Accessibility Feedback" },
-  { value: "other", label: "Other" }
+  { value: "business-inquiry", label: "Business Inquiry" },
+  { value: "privacy-request", label: "Privacy Request" },
+  { value: "copyright-request", label: "Copyright Request" }
 ];
 
 export default function ContactFeature() {
@@ -27,7 +27,7 @@ export default function ContactFeature() {
     category: "",
     message: "",
     privacyAccepted: false,
-    website: "", // honeypot
+    _contact_identifier: "", // honeypot
     submissionStartedAt: Date.now()
   });
   const [errors, setErrors] = useState({});
@@ -99,7 +99,7 @@ export default function ContactFeature() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.website) return;
+    if (formData._contact_identifier) return;
 
     if (!process.env.NEXT_PUBLIC_CONTACT_API_URL) {
       if (process.env.NODE_ENV === "development") {
@@ -113,7 +113,7 @@ export default function ContactFeature() {
     let firstInvalid = null;
     
     Object.keys(formData).forEach(key => {
-      if (key === "website" || key === "submissionStartedAt") return;
+      if (key === "_contact_identifier" || key === "submissionStartedAt") return;
       const error = validateField(key, formData[key]);
       if (error) {
         newErrors[key] = error;
@@ -131,7 +131,10 @@ export default function ContactFeature() {
     setStatus("submitting");
 
     try {
-      const res = await submitContactForm(formData);
+      const payload = { ...formData };
+      delete payload.submissionStartedAt;
+
+      const res = await submitContactForm(payload);
       setStatus("success");
       setReferenceId(res.referenceId);
       setFormData({
@@ -141,17 +144,28 @@ export default function ContactFeature() {
         category: "",
         message: "",
         privacyAccepted: false,
-        website: "",
+        _contact_identifier: "",
         submissionStartedAt: Date.now()
       });
     } catch (err) {
-      if (err.status === 400 && err.data?.errors) {
-        setErrors(err.data.errors);
-        const firstErr = Object.keys(err.data.errors)[0];
-        if (firstErr && fieldRefs[firstErr]?.current) {
-          fieldRefs[firstErr].current.focus();
+      if (err.status === 400 && err.data) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(`Contact API rejected request with code: ${err.data.code}`);
         }
-        setStatus("idle");
+        
+        if (err.data.code === 'VALIDATION_ERROR' && err.data.errors) {
+          if (process.env.NODE_ENV === "development") {
+            console.error(`Contact API validation failed for fields: ${Object.keys(err.data.errors).join(', ')}`);
+          }
+          setErrors(err.data.errors);
+          const firstErr = Object.keys(err.data.errors)[0];
+          if (firstErr && fieldRefs[firstErr]?.current) {
+            fieldRefs[firstErr].current.focus();
+          }
+          setStatus("idle");
+        } else {
+          setStatus("error");
+        }
       } else if (err.status === 429) {
         setStatus("rate-limited");
       } else {
@@ -309,9 +323,9 @@ export default function ContactFeature() {
                 <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <AlertCircle size={32} />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-4">Online delivery is being configured</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">Message delivery is unavailable</h2>
                 <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
-                  Please send your message directly to <strong className="text-slate-800">sameerwebdeveloper41@gmail.com</strong> while the secure contact endpoint is being prepared.
+                  We could not connect to the contact service. Please try again later or email us directly.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <a 
@@ -462,9 +476,9 @@ export default function ContactFeature() {
                   </div>
                 </div>
 
-                <div style={{ display: 'none' }} aria-hidden="true">
-                  <label htmlFor="website">Website</label>
-                  <input type="text" id="website" name="website" tabIndex="-1" autoComplete="off" value={formData.website} onChange={handleChange} disabled={status === "submitting"} />
+                <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                  <label htmlFor="_contact_identifier">Website</label>
+                  <input type="text" id="_contact_identifier" name="_contact_identifier" tabIndex="-1" autoComplete="off" value={formData._contact_identifier} onChange={handleChange} disabled={status === "submitting"} />
                 </div>
 
                 <button 
@@ -567,10 +581,10 @@ export default function ContactFeature() {
                 <CheckCircle size={18} className="text-emerald-400" /> No public message display
               </div>
               <div className="flex items-center gap-3 text-slate-200">
-                <CheckCircle size={18} className="text-emerald-400" /> Spam protection included in backend architecture
+                <CheckCircle size={18} className="text-emerald-400" /> Rate limiting and spam checks enabled
               </div>
               <div className="flex items-center gap-3 text-slate-200">
-                <CheckCircle size={18} className="text-emerald-400" /> Secure server validation planned
+                <CheckCircle size={18} className="text-emerald-400" /> Server-side validation enabled
               </div>
             </div>
             <div className="flex gap-4 text-sm">

@@ -168,7 +168,7 @@ export default function PrivacyPolicyFeature() {
                 <li>Preventing abuse</li>
               </ul>
               <p className="text-slate-600 leading-relaxed mb-4">
-                Currently, SnapFreeTools provides a direct-email fallback for contact requests. If the server-based contact endpoint is activated in the future, submitted name, email, subject, category, and message data will be sent to the backend for validation and email delivery. This policy will be updated when that feature becomes active.
+                The contact form backend is currently active. Submitted name, email, subject, category, and message are sent to the backend. Data is validated and used for responding to requests. The message is delivered by the configured email provider. Contact data may remain in the sender/receiver email account according to account retention settings.
               </p>
               <h3 className="text-lg font-bold text-slate-800 mt-6 mb-2">B. Email communications</h3>
               <p className="text-slate-600 leading-relaxed mb-4">
@@ -297,7 +297,7 @@ export default function PrivacyPolicyFeature() {
                 Consent may be requested for analytics or advertising where required by law. Necessary technologies may operate without optional consent where legally permitted. Users should be able to withdraw or update consent as easily as it was given.
               </p>
               <p className="text-slate-600 leading-relaxed">
-                Preference controls will be made available before optional advertising or analytics technologies requiring consent are activated. Future Consent Management Platform (CMP) integration may provide a visible &quot;Manage Cookie Preferences&quot; control.
+                A first-party consent interface is currently active to capture and securely store your privacy preferences in your browser's local storage. You can manage these preferences at any time using the "Cookie Settings" control in the website footer.
               </p>
             </section>
 
@@ -481,8 +481,8 @@ export default function PrivacyPolicyFeature() {
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-slate-800">Contact form backend</td>
-                      <td className="p-4"><span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">Planned</span></td>
-                      <td className="p-4">Contact details sent to server only after activation</td>
+                      <td className="p-4"><span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">Current</span></td>
+                      <td className="p-4">Validates contact submissions and sends them to the configured support email.</td>
                     </tr>
                     <tr>
                       <td className="p-4 font-medium text-slate-800">Google Analytics</td>

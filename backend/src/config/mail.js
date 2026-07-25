@@ -1,19 +1,23 @@
 const nodemailer = require('nodemailer');
 const env = require('./env');
-const logger = require('../utils/logger');
 
-let transporter = null;
+const createTransporter = () => {
+  const config = {
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+  };
 
-const getTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: env.SMTP_HOST,
-      port: env.SMTP_PORT,
-      secure: env.SMTP_SECURE,
-      auth: { user: env.SMTP_USER, pass: env.SMTP_PASS }
-    });
+  if (env.SMTP_USER && env.SMTP_APP_PASSWORD) {
+    config.auth = {
+      user: env.SMTP_USER,
+      pass: env.SMTP_APP_PASSWORD,
+    };
   }
-  return transporter;
+
+  return nodemailer.createTransport(config);
 };
 
-module.exports = { getTransporter };
+const transporter = createTransporter();
+
+module.exports = transporter;
