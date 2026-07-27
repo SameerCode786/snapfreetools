@@ -17,6 +17,7 @@ export default async function sitemap() {
     "/image-compressor",
     "/word-counter",
     "/pdf-to-word",
+    "/word-to-pdf",
     "/pdf-tools"
   ];
 

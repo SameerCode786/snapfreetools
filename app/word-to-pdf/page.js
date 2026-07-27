@@ -1,94 +1,92 @@
-import Link from "next/link";
-import { FileCode, ArrowLeft, FileText, ImageIcon, FileEdit } from "lucide-react";
+import { generatePageMetadata } from "@/seo/metadata";
+import { JsonLd } from "@/seo/structured-data";
 
-export const metadata = {
-  title: "Word to PDF Converter - Convert DOC/DOCX to PDF Free",
-  description: "Convert Word DOC/DOCX documents to PDF online free. Keep formatting, tables, and margins exact with secure local processing.",
-  robots: {
-    index: false,
-    follow: true
+import WordToPDFFeature from "@/features/word-to-pdf";
+
+export function generateMetadata() {
+  return generatePageMetadata("word-to-pdf");
+}
+
+const FAQS_DATA = [
+  {
+    question: "Are my Word files uploaded to a server?",
+    answer: "No. Conversion happens 100% locally in your browser using client-side JavaScript. Your DOCX documents are never uploaded to any remote server or cloud database."
   },
-  alternates: {
-    canonical: "https://snapfreetools.com/word-to-pdf"
+  {
+    question: "Is this Word to PDF converter free?",
+    answer: "Yes, our Word to PDF converter is 100% free with no signup, no daily limits, no subscription, and no watermarks."
+  },
+  {
+    question: "Does it support old .doc files?",
+    answer: "Currently, only modern Microsoft Word (.docx) files are supported. If you have an older .doc file, open it in Word or Google Docs and save it as .docx before converting."
+  },
+  {
+    question: "Will the PDF look exactly like my Word document?",
+    answer: "For standard documents containing headings, paragraphs, lists, inline images, and simple tables, formatting is rendered accurately. Complex floating vector shapes or custom proprietary fonts may vary slightly."
+  },
+  {
+    question: "What is the maximum file size and page limit?",
+    answer: "The maximum file size is 10MB. To ensure smooth browser performance and prevent memory crashes, documents are limited to 20 pages on desktop and 15 pages on mobile."
+  },
+  {
+    question: "Can I use this tool on my mobile phone?",
+    answer: "Yes, the converter works on mobile browsers like Android Chrome and iOS Safari. For large multi-page files, converting on a desktop computer provides the fastest performance."
+  },
+  {
+    question: "Why do some custom fonts look different?",
+    answer: "If your Word document uses custom fonts not available on your device or browser, standard web-safe fallback fonts (such as Arial or Calibri) will be used to ensure legibility."
+  },
+  {
+    question: "Are my files stored anywhere on SnapFreeTools?",
+    answer: "No. SnapFreeTools does not store, collect, or log your document contents. All processed data is cleared automatically when you close or reset the tool."
   }
-};
+];
 
 export default function Page() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://snapfreetools.com/word-to-pdf/#webpage",
+        "url": "https://snapfreetools.com/word-to-pdf",
+        "name": "Word to PDF Converter – Free & Private Online Tool",
+        "description": "Convert DOCX files to PDF directly in your browser. Free, private, fast, and no file upload required.",
+        "isPartOf": {
+          "@id": "https://snapfreetools.com/#website"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://snapfreetools.com/word-to-pdf/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://snapfreetools.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "PDF Tools",
+            "item": "https://snapfreetools.com/pdf-tools"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Word to PDF",
+            "item": "https://snapfreetools.com/word-to-pdf"
+          }
+        ]
+      }
+    ]
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-        <Link href="/" className="hover:text-amber-600 transition-colors">Home</Link>
-        <span>/</span>
-        <Link href="/pdf-tools" className="hover:text-amber-600 transition-colors">PDF Tools</Link>
-        <span>/</span>
-        <span className="text-slate-800">Word to PDF</span>
-      </nav>
-
-      {/* Main Layout Card */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-6">
-        <div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-          <FileCode size={28} />
-        </div>
-
-        <div className="space-y-2">
-          <span className="inline-block text-[10px] font-extrabold text-amber-500 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full uppercase tracking-wider">
-            Coming Soon
-          </span>
-          <h1 className="text-2xl font-black text-slate-900">Word to PDF Converter</h1>
-          <p className="text-sm text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
-            Convert DOC and DOCX files into PDF documents keeping formatting exact. This feature is currently under development.
-          </p>
-        </div>
-
-        <div className="pt-4 border-t border-slate-100 flex flex-wrap justify-center gap-4">
-          <Link 
-            href="/pdf-tools"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-amber-500 transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to PDF Tools
-          </Link>
-        </div>
-      </div>
-
-      {/* Alternative Live Tools */}
-      <div className="space-y-4 pt-4">
-        <h3 className="font-extrabold text-slate-900 text-sm text-center">Try our other live tools:</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link 
-            href="/pdf-to-word" 
-            className="p-5 bg-white border border-slate-200 hover:border-amber-400 hover:shadow-sm rounded-2xl transition-all space-y-2 group block"
-          >
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
-              <FileEdit size={16} />
-            </div>
-            <h4 className="font-bold text-slate-850 text-xs">PDF to Word</h4>
-            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">Convert PDF to editable Word document locally.</p>
-          </Link>
-
-          <Link 
-            href="/image-compressor" 
-            className="p-5 bg-white border border-slate-200 hover:border-amber-400 hover:shadow-sm rounded-2xl transition-all space-y-2 group block"
-          >
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
-              <ImageIcon size={16} />
-            </div>
-            <h4 className="font-bold text-slate-850 text-xs">Image Compressor</h4>
-            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">Compress JPG and PNG images instantly inside browser.</p>
-          </Link>
-
-          <Link 
-            href="/word-counter" 
-            className="p-5 bg-white border border-slate-200 hover:border-amber-400 hover:shadow-sm rounded-2xl transition-all space-y-2 group block"
-          >
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
-              <FileText size={16} />
-            </div>
-            <h4 className="font-bold text-slate-850 text-xs">Word Counter</h4>
-            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">Count words and track keywords density in real time.</p>
-          </Link>
-        </div>
-      </div>
-    </div>
+    <>
+      <JsonLd data={jsonLd} />
+      <WordToPDFFeature faqs={FAQS_DATA} />
+    </>
   );
 }

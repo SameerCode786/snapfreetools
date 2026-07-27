@@ -55,6 +55,12 @@ const METADATA_CONFIG = {
     keywords: "dmca policy, copyright notice, report infringement, intellectual property, snapfreetools copyright",
     path: "/dmca"
   },
+  "accessibility": {
+    title: "Accessibility Statement | SnapFreeTools",
+    description: "Read how SnapFreeTools approaches keyboard access, readable content, responsive design, assistive technology support, known limitations, and accessibility feedback.",
+    keywords: "accessibility statement, keyboard friendly, screen reader support, inclusive design",
+    path: "/accessibility"
+  },
   "image-compressor": {
     title: "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools",
     description: "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality. Professional tool with client-side browser processing.",
@@ -126,6 +132,12 @@ const METADATA_CONFIG = {
     description: "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
     keywords: "pdf to word, pdf to word converter, convert pdf to word, pdf to docx, pdf to word online, pdf to word free, pdf to word ocr, pdf to editable word, pdf to word without losing formatting, pdf to word converter online free, pdf to word no signup, pdf to word no watermark",
     path: "/pdf-to-word"
+  },
+  "word-to-pdf": {
+    title: "Word to PDF Converter – Free & Private Online Tool | SnapFreeTools",
+    description: "Convert DOCX files to PDF directly in your browser. Free, private, fast, and no file upload required.",
+    keywords: "word to pdf, docx to pdf, convert word to pdf online, free word to pdf converter, client side word to pdf, private pdf converter",
+    path: "/word-to-pdf"
   }
 };
 

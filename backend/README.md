@@ -47,3 +47,27 @@ To send a test email to the configured receiver:
 ```bash
 npm run test:mail
 ```
+
+## Word to PDF Converter
+
+Word to PDF relies on LibreOffice Headless running securely on the server.
+
+### Configuration
+Set `WORD_TO_PDF_ENABLED=true` in your `.env` file. Leave `LIBREOFFICE_PATH` empty to use OS defaults.
+File limits (10MB default) and temp directory behavior can also be configured.
+
+### Installation
+**Windows**: Install LibreOffice. The backend will automatically check standard paths like `C:\Program Files\LibreOffice\program\soffice.exe`.
+**Linux**: `sudo apt-get update && sudo apt-get install libreoffice-core --no-install-recommends` (or similar depending on distro).
+**Docker**: For production, consider Dockerizing the API and LibreOffice together for better scaling.
+
+### Verification
+Verify LibreOffice detection and run a test conversion locally:
+```bash
+npm run verify:word-to-pdf <path-to-test.docx>
+```
+
+### Security & Privacy
+The API isolates conversions in unique OS temp directories. Files are automatically swept via `finally` blocks and a cleanup utility to guarantee user privacy.
+
+*Do not forget to update the Privacy Policy when the frontend goes live.*

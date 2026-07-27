@@ -341,14 +341,14 @@ export const ALL_TOOLS = [
     slug: "word-to-pdf",
     group: "PDF Tools",
     category: "Convert to PDF",
-    description: "Convert DOC and DOCX files into PDF documents.",
+    description: "Convert DOCX files into PDF documents directly in your browser.",
     icon: "FileCode",
     featured: false,
     popular: true,
-    status: "coming-soon",
-    future: true,
-    seoTitle: "Word to PDF Converter - Convert DOC/DOCX to PDF Free",
-    seoDescription: "Convert Word DOC/DOCX documents to PDF online free. Keep formatting, tables, and margins exact with secure local processing."
+    status: "live",
+    future: false,
+    seoTitle: "Word to PDF Converter – Free & Private Online Tool | SnapFreeTools",
+    seoDescription: "Convert DOCX files to PDF directly in your browser. Free, private, fast, and no file upload required."
   },
   {
     id: "jpg-to-pdf",
