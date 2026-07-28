@@ -1,5 +1,5 @@
 import Link from "next/link";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 
 export default function MegaMenuColumn({ title, items, onItemClick }) {
   return (

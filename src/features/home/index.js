@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
 import { getFAQSchema, JsonLd } from "@/seo/structured-data";
 

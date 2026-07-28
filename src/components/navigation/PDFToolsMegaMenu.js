@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { motion } from "motion/react";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 import { PDF_TOOLS } from "@/features/pdf-tools/constants/pdfToolsList";
 
 export default function PDFToolsMegaMenu({ onClose }) {

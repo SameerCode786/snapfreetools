@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Star } from "lucide-react";
 import { CALCULATORS } from "../constants/calculatorList";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 
 export default function CalculatorLayout({ 
   title, 

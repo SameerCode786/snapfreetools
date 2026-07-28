@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 import { PDF_TOOLS } from "@/features/pdf-tools/constants/pdfToolsList";
 import { motion, AnimatePresence } from "motion/react";
 

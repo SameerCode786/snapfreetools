@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Search, ChevronRight, Calculator, Star } from "lucide-react";
-import * as Icons from "lucide-react";
+import { Icons } from "@/lib/lucide-icons";
 import { CALCULATORS } from "../shared/constants/calculatorList";
 import FAQSection from "../shared/components/FAQSection";
 
