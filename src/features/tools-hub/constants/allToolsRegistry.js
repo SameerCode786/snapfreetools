@@ -114,8 +114,8 @@ export const ALL_TOOLS = [
     icon: "Coins",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "attendance-calculator",
@@ -127,8 +127,8 @@ export const ALL_TOOLS = [
     icon: "CalendarRange",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "grade-calculator",

@@ -1265,31 +1265,31 @@ export default function ImageCompressor() {
   const webPageSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "@id": "https://snapfreetools.com/image-compressor#webpage",
-    "url": "https://snapfreetools.com/image-compressor",
+    "@id": "https://www.snapfreetools.com/image-compressor#webpage",
+    "url": "https://www.snapfreetools.com/image-compressor",
     "name": "Image Compressor & Converter",
     "description": "Compress and convert images online free. Natively compress JPG, PNG, WebP, and AVIF images to 20KB, 50KB, 100KB, or 200KB.",
     "breadcrumb": {
-      "@id": "https://snapfreetools.com/image-compressor#breadcrumb"
+      "@id": "https://www.snapfreetools.com/image-compressor#breadcrumb"
     }
   };
 
   const breadcrumbListSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "@id": "https://snapfreetools.com/image-compressor#breadcrumb",
+    "@id": "https://www.snapfreetools.com/image-compressor#breadcrumb",
     "itemListElement": [
       {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://snapfreetools.com"
+        "item": "https://www.snapfreetools.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Image Compressor",
-        "item": "https://snapfreetools.com/image-compressor"
+        "item": "https://www.snapfreetools.com/image-compressor"
       }
     ]
   };

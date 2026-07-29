@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import GeoAnswerCard from "@/features/student-hub/shared/components/GeoAnswerCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
@@ -10,7 +10,7 @@ export function generateMetadata() {
     title: "CGPA to Percentage Formula - How to Convert CGPA to % Online",
     description: "Learn how to convert your CGPA to percentage using standard academic formulas. Explanations for 4.0, 5.0, and 10.0 grading scales.",
     alternates: {
-      canonical: "https://snapfreetools.com/cgpa-to-percentage-formula"
+      canonical: "https://www.snapfreetools.com/cgpa-to-percentage-formula"
     }
   };
 }
@@ -32,16 +32,12 @@ export default function Page() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "CGPA to Percentage Formula", url: "https://snapfreetools.com/cgpa-to-percentage-formula" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
 
       <CalculatorLayout
         title="CGPA to Percentage Formula"

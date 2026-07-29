@@ -76,29 +76,29 @@ export default function Page() {
       },
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/pdf-to-word/#webpage",
-        "url": "https://snapfreetools.com/pdf-to-word",
+        "@id": "https://www.snapfreetools.com/pdf-to-word/#webpage",
+        "url": "https://www.snapfreetools.com/pdf-to-word",
         "name": "PDF to Word Converter – Convert PDF to Word Online Free",
         "description": "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
         "breadcrumb": {
-          "@id": "https://snapfreetools.com/pdf-to-word/#breadcrumb"
+          "@id": "https://www.snapfreetools.com/pdf-to-word/#breadcrumb"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/pdf-to-word/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/pdf-to-word/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "PDF to Word Converter",
-            "item": "https://snapfreetools.com/pdf-to-word"
+            "item": "https://www.snapfreetools.com/pdf-to-word"
           }
         ]
       },

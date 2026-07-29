@@ -14,13 +14,13 @@ export default function Page() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://snapfreetools.com/"
+        "item": "https://www.snapfreetools.com/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Contact",
-        "item": "https://snapfreetools.com/contact"
+        "item": "https://www.snapfreetools.com/contact"
       }
     ]
   };
@@ -30,16 +30,16 @@ export default function Page() {
     "@type": "ContactPage",
     "name": "Contact SnapFreeTools | Support, Feedback & Inquiries",
     "description": "Contact SnapFreeTools for tool support, bug reports, feature suggestions, advertising inquiries, partnerships, privacy questions, and general feedback.",
-    "url": "https://snapfreetools.com/contact",
+    "url": "https://www.snapfreetools.com/contact",
     "isPartOf": {
       "@type": "WebSite",
       "name": "SnapFreeTools",
-      "url": "https://snapfreetools.com/"
+      "url": "https://www.snapfreetools.com/"
     },
     "mainEntity": {
       "@type": "Organization",
       "name": "SnapFreeTools",
-      "url": "https://snapfreetools.com/",
+      "url": "https://www.snapfreetools.com/",
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "sameerwebdeveloper41@gmail.com",

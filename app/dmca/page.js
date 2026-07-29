@@ -12,30 +12,30 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/dmca/#webpage",
-        "url": "https://snapfreetools.com/dmca",
+        "@id": "https://www.snapfreetools.com/dmca/#webpage",
+        "url": "https://www.snapfreetools.com/dmca",
         "name": "DMCA Copyright Policy | SnapFreeTools",
         "description": "Read the SnapFreeTools DMCA Copyright Policy. Learn how we handle copyright complaints, intellectual property notices, and review processes.",
         "dateModified": "2026-07-19",
         "isPartOf": {
-          "@id": "https://snapfreetools.com/#website"
+          "@id": "https://www.snapfreetools.com/#website"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/dmca/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/dmca/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "DMCA Copyright Policy",
-            "item": "https://snapfreetools.com/dmca"
+            "item": "https://www.snapfreetools.com/dmca"
           }
         ]
       }

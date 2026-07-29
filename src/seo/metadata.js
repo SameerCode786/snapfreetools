@@ -1,4 +1,4 @@
-const SITE_URL = "https://snapfreetools.com";
+const SITE_URL = "https://www.snapfreetools.com";
 
 const METADATA_CONFIG = {
   home: {
@@ -138,6 +138,18 @@ const METADATA_CONFIG = {
     description: "Convert DOCX files to PDF directly in your browser. Free, private, fast, and no file upload required.",
     keywords: "word to pdf, docx to pdf, convert word to pdf online, free word to pdf converter, client side word to pdf, private pdf converter",
     path: "/word-to-pdf"
+  },
+  "scholarship-calculator": {
+    title: "Scholarship Calculator – Estimate Tuition Savings",
+    description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",
+    keywords: "scholarship calculator, tuition savings, financial aid calculator, university fee calculator, fee after scholarship, student discount",
+    path: "/scholarship-calculator"
+  },
+  "attendance-calculator": {
+    title: "Attendance Calculator – Required Classes & Safe Absences",
+    description: "Calculate attendance percentage, classes needed to reach your target, safe absences, and future attendance projections instantly.",
+    keywords: "attendance calculator, attendance percentage calculator, classes required for 75 attendance, how many classes can I miss, attendance shortage calculator, required attendance calculator, bunk calculator, college attendance calculator, school attendance calculator",
+    path: "/attendance-calculator"
   }
 };
 

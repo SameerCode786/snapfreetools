@@ -16,30 +16,30 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/accessibility/#webpage",
-        "url": "https://snapfreetools.com/accessibility",
+        "@id": "https://www.snapfreetools.com/accessibility/#webpage",
+        "url": "https://www.snapfreetools.com/accessibility",
         "name": "Accessibility Statement | SnapFreeTools",
         "description": "Read how SnapFreeTools approaches keyboard access, readable content, responsive design, assistive technology support, known limitations, and accessibility feedback.",
         "breadcrumb": {
-          "@id": "https://snapfreetools.com/accessibility/#breadcrumb"
+          "@id": "https://www.snapfreetools.com/accessibility/#breadcrumb"
         },
         "dateModified": "2026-07-14T00:00:00+00:00"
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/accessibility/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/accessibility/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Accessibility Statement",
-            "item": "https://snapfreetools.com/accessibility"
+            "item": "https://www.snapfreetools.com/accessibility"
           }
         ]
       }

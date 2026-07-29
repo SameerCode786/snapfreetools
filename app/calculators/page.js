@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/seo/metadata";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import StudentCalculatorHubFeature from "@/features/student-hub/hub";
 
 export function generateMetadata() {
@@ -25,15 +25,12 @@ export default function CalculatorsHubPage() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
       <StudentCalculatorHubFeature faqs={faqs} />
     </>
   );

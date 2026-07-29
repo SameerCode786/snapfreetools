@@ -48,35 +48,35 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/word-to-pdf/#webpage",
-        "url": "https://snapfreetools.com/word-to-pdf",
+        "@id": "https://www.snapfreetools.com/word-to-pdf/#webpage",
+        "url": "https://www.snapfreetools.com/word-to-pdf",
         "name": "Word to PDF Converter – Free & Private Online Tool",
         "description": "Convert DOCX files to PDF directly in your browser. Free, private, fast, and no file upload required.",
         "isPartOf": {
-          "@id": "https://snapfreetools.com/#website"
+          "@id": "https://www.snapfreetools.com/#website"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/word-to-pdf/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/word-to-pdf/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "PDF Tools",
-            "item": "https://snapfreetools.com/pdf-tools"
+            "item": "https://www.snapfreetools.com/pdf-tools"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": "Word to PDF",
-            "item": "https://snapfreetools.com/word-to-pdf"
+            "item": "https://www.snapfreetools.com/word-to-pdf"
           }
         ]
       }

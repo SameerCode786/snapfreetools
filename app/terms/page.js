@@ -12,30 +12,30 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/terms/#webpage",
-        "url": "https://snapfreetools.com/terms",
+        "@id": "https://www.snapfreetools.com/terms/#webpage",
+        "url": "https://www.snapfreetools.com/terms",
         "name": "Terms of Use | SnapFreeTools",
         "description": "Read the Terms of Use for SnapFreeTools. Understand permitted use, browser-side processing, file responsibility, intellectual property, and service limitations.",
         "dateModified": "2026-07-18",
         "isPartOf": {
-          "@id": "https://snapfreetools.com/#website"
+          "@id": "https://www.snapfreetools.com/#website"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/terms/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/terms/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Terms of Use",
-            "item": "https://snapfreetools.com/terms"
+            "item": "https://www.snapfreetools.com/terms"
           }
         ]
       }

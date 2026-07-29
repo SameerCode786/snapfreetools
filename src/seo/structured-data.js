@@ -1,75 +1,54 @@
 import React from "react";
+import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
+
+export function getOrganizationSchema() {
+  return {
+    "@type": "Organization",
+    "name": "SnapFreeTools",
+    "url": "https://www.snapfreetools.com",
+    "logo": "https://www.snapfreetools.com/brand/logo.png",
+    "description": "SnapFreeTools provides free, accessible online productivity utilities."
+  };
+}
 
 export function getWebSiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "SnapFreeTools",
-    "url": "https://snapfreetools.com",
+    "url": "https://www.snapfreetools.com",
     "description": "Free online productivity tools - word counter, image compressor, and more.",
+    "publisher": getOrganizationSchema(),
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://snapfreetools.com/?q={search_term_string}",
+      "target": "https://www.snapfreetools.com/?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
 }
 
 export function getSoftwareApplicationSchema(toolKey) {
-  const toolSchemas = {
-    "image-compressor": {
-      "name": "SnapFree Image Compressor & Converter",
-      "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality using browser-side processing."
-    },
-    "gpa-calculator": {
-      "name": "SnapFree GPA Calculator",
-      "applicationCategory": "EducationalApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Calculate your college or school GPA based on grades and credit hours easily with our free online GPA calculator."
-    },
-    "word-counter": {
-      "name": "SnapFree Word Counter",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Instantly count words, characters, and sentences in your text with reading time estimation."
-    },
-    "pdf-to-word": {
-      "name": "SnapFree PDF to Word Converter",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Convert your PDF documents into editable Microsoft Word files with perfect formatting."
-    }
-  };
+  // Find tool in the active live registry
+  const tool = ALL_TOOLS.find(t => t.slug === toolKey && t.status === "live" && !t.future);
+  if (!tool) return null;
 
-  const schema = toolSchemas[toolKey];
-  if (!schema) return null;
+  // Map our categories to schema.org categories
+  let category = "UtilitiesApplication";
+  if (tool.group === "Calculators") category = "EducationalApplication";
+  if (tool.group === "Image Tools") category = "MultimediaApplication";
 
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    ...schema
+    "name": `SnapFree ${tool.name}`,
+    "applicationCategory": category,
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": tool.description
   };
 }
 
@@ -108,11 +87,11 @@ export function getAboutSchema() {
     "mainEntity": {
       "@type": "Organization",
       "name": "SnapFreeTools",
-      "url": "https://snapfreetools.com",
+      "url": "https://www.snapfreetools.com",
       "description": "SnapFreeTools provides free, accessible online productivity utilities."
     },
     "name": "About SnapFreeTools",
-    "url": "https://snapfreetools.com/about",
+    "url": "https://www.snapfreetools.com/about",
     "description": "Learn why SnapFreeTools was created and how our free online PDF, calculator, image, and text tools make everyday digital tasks easier."
   };
 }
@@ -126,13 +105,13 @@ export function getAboutBreadcrumbSchema() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://snapfreetools.com"
+        "item": "https://www.snapfreetools.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "About",
-        "item": "https://snapfreetools.com/about"
+        "item": "https://www.snapfreetools.com/about"
       }
     ]
   };

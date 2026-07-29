@@ -1,25 +1,22 @@
+import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
+
 export default async function sitemap() {
-  const baseUrl = "https://snapfreetools.com";
+  const baseUrl = "https://www.snapfreetools.com";
   
-  const coreRoutes = [
+  // Extract dynamic routes from the registry where status is 'live' and not future
+  const toolRoutes = ALL_TOOLS
+    .filter(tool => tool.status === "live" && !tool.future)
+    .map(tool => `/${tool.slug}`);
+
+  // Need to ensure unique routes just in case
+  const coreRoutes = Array.from(new Set([
     "",
     "/about",
     "/contact",
     "/calculators",
-    "/gpa-calculator",
-    "/cgpa-calculator",
-    "/sgpa-calculator",
-    "/gpa-to-percentage",
-    "/percentage-to-gpa",
-    "/required-gpa-calculator",
-    "/final-grade-calculator",
-    "/merit-calculator",
-    "/image-compressor",
-    "/word-counter",
-    "/pdf-to-word",
-    "/word-to-pdf",
-    "/pdf-tools"
-  ];
+    "/pdf-tools",
+    ...toolRoutes
+  ]));
 
   const legalRoutes = [
     "/privacy-policy",

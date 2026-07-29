@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ArrowLeft, Star } from "lucide-react";
 import { CALCULATORS } from "../constants/calculatorList";
 import { Icons } from "@/lib/lucide-icons";
+import { JsonLd } from "@/seo/structured-data";
 
 export default function CalculatorLayout({ 
   title, 
   description, 
-  currentSlug, 
+  currentSlug = "", 
   children 
 }) {
   // Get active items from registry
@@ -29,8 +30,34 @@ export default function CalculatorLayout({
       .slice(0, 3);
   }
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.snapfreetools.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Calculators",
+        "item": "https://www.snapfreetools.com/calculators"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": title,
+        "item": `https://www.snapfreetools.com/${currentSlug}`
+      }
+    ]
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <JsonLd schema={breadcrumbSchema} />
       {/* Dynamic Breadcrumbs */}
       <nav className="mb-6 flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
         <Link href="/" className="hover:text-amber-600 transition-colors">Home</Link>

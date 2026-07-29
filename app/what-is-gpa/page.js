@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import GeoAnswerCard from "@/features/student-hub/shared/components/GeoAnswerCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
@@ -10,7 +10,7 @@ export function generateMetadata() {
     title: "What is GPA? Grade Point Average Explained for Students",
     description: "Learn what GPA is, the difference between weighted and unweighted scales, how letter grades map to GPA points, and why tracking your average matters.",
     alternates: {
-      canonical: "https://snapfreetools.com/what-is-gpa"
+      canonical: "https://www.snapfreetools.com/what-is-gpa"
     }
   };
 }
@@ -32,16 +32,12 @@ export default function Page() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "What is GPA?", url: "https://snapfreetools.com/what-is-gpa" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
 
       <CalculatorLayout
         title="What is GPA?"

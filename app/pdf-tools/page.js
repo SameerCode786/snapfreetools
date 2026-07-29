@@ -7,7 +7,7 @@ export const metadata = {
   title: "Free Online PDF Tools - Convert, Merge & Compress PDFs",
   description: "Use free online PDF tools to convert, merge, split, compress, unlock, and protect PDF files quickly and securely.",
   alternates: {
-    canonical: "https://snapfreetools.com/pdf-tools"
+    canonical: "https://www.snapfreetools.com/pdf-tools"
   }
 };
 
@@ -18,35 +18,35 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/pdf-tools/#webpage",
-        "url": "https://snapfreetools.com/pdf-tools",
+        "@id": "https://www.snapfreetools.com/pdf-tools/#webpage",
+        "url": "https://www.snapfreetools.com/pdf-tools",
         "name": "Free Online PDF Tools - Convert, Merge & Compress PDFs",
         "description": "Use free online PDF tools to convert, merge, split, compress, unlock, and protect PDF files quickly and securely.",
         "breadcrumb": {
-          "@id": "https://snapfreetools.com/pdf-tools/#breadcrumb"
+          "@id": "https://www.snapfreetools.com/pdf-tools/#breadcrumb"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/pdf-tools/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/pdf-tools/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "PDF Tools",
-            "item": "https://snapfreetools.com/pdf-tools"
+            "item": "https://www.snapfreetools.com/pdf-tools"
           }
         ]
       },
       {
         "@type": "CollectionPage",
-        "@id": "https://snapfreetools.com/pdf-tools/#collection",
+        "@id": "https://www.snapfreetools.com/pdf-tools/#collection",
         "name": "Free Online PDF Tools",
         "description": "Convert, merge, compress, split, and manage PDF files online with fast, privacy-focused tools.",
         "mainEntity": {
@@ -55,7 +55,7 @@ export default function Page() {
             "@type": "ListItem",
             "position": idx + 1,
             "name": tool.name,
-            "url": `https://snapfreetools.com/${tool.slug}`
+            "url": `https://www.snapfreetools.com/${tool.slug}`
           }))
         }
       }

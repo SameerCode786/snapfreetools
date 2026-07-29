@@ -12,30 +12,30 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/privacy-policy/#webpage",
-        "url": "https://snapfreetools.com/privacy-policy",
+        "@id": "https://www.snapfreetools.com/privacy-policy/#webpage",
+        "url": "https://www.snapfreetools.com/privacy-policy",
         "name": "Privacy Policy | SnapFreeTools",
         "description": "Read how SnapFreeTools handles browser-based tool data, contact information, cookies, analytics, advertising technologies, security, retention, and user privacy choices.",
         "dateModified": "2026-07-18",
         "isPartOf": {
-          "@id": "https://snapfreetools.com/#website"
+          "@id": "https://www.snapfreetools.com/#website"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/privacy-policy/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/privacy-policy/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Privacy Policy",
-            "item": "https://snapfreetools.com/privacy-policy"
+            "item": "https://www.snapfreetools.com/privacy-policy"
           }
         ]
       }

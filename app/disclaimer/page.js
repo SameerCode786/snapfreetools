@@ -12,30 +12,30 @@ export default function Page() {
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/disclaimer/#webpage",
-        "url": "https://snapfreetools.com/disclaimer",
+        "@id": "https://www.snapfreetools.com/disclaimer/#webpage",
+        "url": "https://www.snapfreetools.com/disclaimer",
         "name": "Disclaimer | SnapFreeTools",
         "description": "Read the SnapFreeTools Disclaimer covering calculator estimates, PDF and OCR limitations, image processing, user responsibility, and important result verification.",
         "dateModified": "2026-07-19",
         "isPartOf": {
-          "@id": "https://snapfreetools.com/#website"
+          "@id": "https://www.snapfreetools.com/#website"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/disclaimer/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/disclaimer/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Disclaimer",
-            "item": "https://snapfreetools.com/disclaimer"
+            "item": "https://www.snapfreetools.com/disclaimer"
           }
         ]
       }

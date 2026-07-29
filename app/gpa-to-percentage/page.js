@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/seo/metadata";
 import { JsonLd } from "@/seo/structured-data";
-import { getSoftwareApplicationSchema, getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getSoftwareApplicationSchema, getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import GPAToPercentageFeature from "@/features/student-hub/calculators/gpa-to-percentage";
 
 export function generateMetadata() {
@@ -26,20 +26,16 @@ export default function Page() {
   const appSchema = getSoftwareApplicationSchema(
     "GPA to Percentage Calculator",
     "Convert your Grade Point Average (GPA) to class percentage equivalents instantly using standard or proportional formulas.",
-    "https://snapfreetools.com/gpa-to-percentage"
+    "https://www.snapfreetools.com/gpa-to-percentage"
   );
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "GPA to Percentage Calculator", url: "https://snapfreetools.com/gpa-to-percentage" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={appSchema} />
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
       <GPAToPercentageFeature faqs={faqs} />
     </>
   );

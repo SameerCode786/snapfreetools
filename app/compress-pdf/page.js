@@ -9,7 +9,7 @@ export const metadata = {
     follow: true
   },
   alternates: {
-    canonical: "https://snapfreetools.com/compress-pdf"
+    canonical: "https://www.snapfreetools.com/compress-pdf"
   }
 };
 

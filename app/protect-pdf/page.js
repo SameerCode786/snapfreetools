@@ -9,7 +9,7 @@ export const metadata = {
     follow: true
   },
   alternates: {
-    canonical: "https://snapfreetools.com/protect-pdf"
+    canonical: "https://www.snapfreetools.com/protect-pdf"
   }
 };
 

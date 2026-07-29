@@ -8,6 +8,7 @@ export default function ResultCard({
   subtext,
   onReset,
   onShare,
+  hideShare = false,
   className = "" 
 }) {
   const [toast, setToast] = useState(null);
@@ -66,13 +67,15 @@ export default function ResultCard({
             <span className="hidden sm:inline">Reset</span>
           </button>
         )}
-        <button
-          onClick={handleShareClick}
-          className="bg-white text-amber-600 hover:bg-amber-50 active:scale-95 transition-all font-bold px-5 py-3 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-md"
-        >
-          <Share2 size={18} />
-          Share
-        </button>
+        {!hideShare && (
+          <button
+            onClick={handleShareClick}
+            className="bg-white text-amber-600 hover:bg-amber-50 active:scale-95 transition-all font-bold px-5 py-3 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-md"
+          >
+            <Share2 size={18} />
+            Share
+          </button>
+        )}
       </div>
 
       <AnimatePresence>

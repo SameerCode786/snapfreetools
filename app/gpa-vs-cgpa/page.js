@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import GeoAnswerCard from "@/features/student-hub/shared/components/GeoAnswerCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
@@ -10,7 +10,7 @@ export function generateMetadata() {
     title: "GPA vs CGPA: Key Differences & Calculations Explained",
     description: "Understand the differences between GPA and CGPA. Learn how semester GPA aggregates into cumulative grade average (CGPA) with examples.",
     alternates: {
-      canonical: "https://snapfreetools.com/gpa-vs-cgpa"
+      canonical: "https://www.snapfreetools.com/gpa-vs-cgpa"
     }
   };
 }
@@ -28,16 +28,12 @@ export default function Page() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "GPA vs CGPA", url: "https://snapfreetools.com/gpa-vs-cgpa" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
 
       <CalculatorLayout
         title="GPA vs CGPA"

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import GeoAnswerCard from "@/features/student-hub/shared/components/GeoAnswerCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
@@ -10,7 +10,7 @@ export function generateMetadata() {
     title: "How to Calculate GPA - Step-by-Step Grade Calculation Guide",
     description: "Learn how to calculate your GPA manually with this step-by-step educational guide. Formula, credit weights, and worked examples explained clearly.",
     alternates: {
-      canonical: "https://snapfreetools.com/how-to-calculate-gpa"
+      canonical: "https://www.snapfreetools.com/how-to-calculate-gpa"
     }
   };
 }
@@ -32,16 +32,12 @@ export default function Page() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "How to Calculate GPA", url: "https://snapfreetools.com/how-to-calculate-gpa" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
 
       <CalculatorLayout
         title="How to Calculate GPA"

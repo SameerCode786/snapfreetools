@@ -49,7 +49,13 @@ import {
   FileImage,
   Unlock,
   CaseSensitive,
-  Scaling
+  Scaling,
+  Share2,
+  Copy,
+  Link,
+  MessageCircle,
+  AlertTriangle,
+  TrendingDown
 } from "lucide-react";
 
 export const Icons = {
@@ -103,5 +109,11 @@ export const Icons = {
   FileImage,
   Unlock,
   CaseSensitive,
-  Scaling
+  Scaling,
+  Share2,
+  Copy,
+  Link,
+  MessageCircle,
+  AlertTriangle,
+  TrendingDown
 };

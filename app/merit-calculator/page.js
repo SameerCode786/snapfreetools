@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/seo/metadata";
 import { JsonLd } from "@/seo/structured-data";
-import { getSoftwareApplicationSchema, getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getSoftwareApplicationSchema, getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import MeritCalculatorFeature from "@/features/student-hub/calculators/merit";
 
 export function generateMetadata() {
@@ -26,20 +26,16 @@ export default function Page() {
   const appSchema = getSoftwareApplicationSchema(
     "Admission Merit Calculator",
     "Calculate your university admission aggregate merit score online for standard universities.",
-    "https://snapfreetools.com/merit-calculator"
+    "https://www.snapfreetools.com/merit-calculator"
   );
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "Merit Calculator", url: "https://snapfreetools.com/merit-calculator" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={appSchema} />
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
       <MeritCalculatorFeature faqs={faqs} />
     </>
   );

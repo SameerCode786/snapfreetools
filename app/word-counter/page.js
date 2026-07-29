@@ -108,29 +108,29 @@ export default function Page() {
       },
       {
         "@type": "WebPage",
-        "@id": "https://snapfreetools.com/word-counter/#webpage",
-        "url": "https://snapfreetools.com/word-counter",
+        "@id": "https://www.snapfreetools.com/word-counter/#webpage",
+        "url": "https://www.snapfreetools.com/word-counter",
         "name": "Free Word Counter Tool – Count Words, Characters & Reading Time",
         "description": "Count words, characters, sentences, paragraphs, reading time, and keyword density instantly. Free online word counter tool with advanced text analysis.",
         "breadcrumb": {
-          "@id": "https://snapfreetools.com/word-counter/#breadcrumb"
+          "@id": "https://www.snapfreetools.com/word-counter/#breadcrumb"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://snapfreetools.com/word-counter/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/word-counter/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://snapfreetools.com"
+            "item": "https://www.snapfreetools.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Word Counter",
-            "item": "https://snapfreetools.com/word-counter"
+            "item": "https://www.snapfreetools.com/word-counter"
           }
         ]
       },

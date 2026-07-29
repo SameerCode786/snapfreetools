@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/seo/structured-data";
-import { getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import GeoAnswerCard from "@/features/student-hub/shared/components/GeoAnswerCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
@@ -10,7 +10,7 @@ export function generateMetadata() {
     title: "What is a Good GPA in College and High School?",
     description: "Discover what is considered a good GPA for college admissions, high school rankings, honors societies, graduate applications, and employment.",
     alternates: {
-      canonical: "https://snapfreetools.com/what-is-a-good-gpa"
+      canonical: "https://www.snapfreetools.com/what-is-a-good-gpa"
     }
   };
 }
@@ -32,16 +32,12 @@ export default function Page() {
   ];
 
   const faqSchema = getFAQSchema(faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "What is a Good GPA?", url: "https://snapfreetools.com/what-is-a-good-gpa" }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
 
       <CalculatorLayout
         title="What is a Good GPA?"

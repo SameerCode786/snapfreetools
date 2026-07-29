@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/seo/structured-data";
-import { getSoftwareApplicationSchema, getFAQSchema, getBreadcrumbSchema } from "@/features/student-hub/utils/schemaMappers";
+import { getSoftwareApplicationSchema, getFAQSchema } from "@/features/student-hub/utils/schemaMappers";
 import GPACalculatorFeature from "@/features/student-hub/calculators/gpa";
 import { GRADE_SCALES } from "@/features/student-hub/shared/constants/gradeScales";
 
@@ -129,7 +129,7 @@ export async function generateMetadata({ params }) {
     title: content.title,
     description: content.description,
     alternates: {
-      canonical: `https://snapfreetools.com/gpa-calculator/${slug}`
+      canonical: `https://www.snapfreetools.com/gpa-calculator/${slug}`
     }
   };
 }
@@ -146,22 +146,17 @@ export default async function Page({ params }) {
   const appSchema = getSoftwareApplicationSchema(
     `${scale.name} Calculator`,
     content.description,
-    `https://snapfreetools.com/gpa-calculator/${slug}`
+    `https://www.snapfreetools.com/gpa-calculator/${slug}`
   );
   
   const faqSchema = getFAQSchema(content.faqs);
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: "Home", url: "https://snapfreetools.com" },
-    { name: "Calculators", url: "https://snapfreetools.com/calculators" },
-    { name: "GPA Calculator", url: "https://snapfreetools.com/gpa-calculator" },
-    { name: scale.name, url: `https://snapfreetools.com/gpa-calculator/${slug}` }
-  ]);
+  
 
   return (
     <>
       <JsonLd schema={appSchema} />
       <JsonLd schema={faqSchema} />
-      <JsonLd schema={breadcrumbSchema} />
+      
       
       {/* Dynamic Header details passed down to components */}
       <GPACalculatorFeature 
