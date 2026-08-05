@@ -7,7 +7,8 @@ export default function CircularProgressRing({
   size = 120, 
   strokeWidth = 10, 
   colorClass = "text-emerald-500",
-  trackColorClass = "text-slate-100"
+  trackColorClass = "text-slate-100",
+  ariaLabel
 }) {
   const [progress, setProgress] = useState(0);
   
@@ -41,7 +42,7 @@ export default function CircularProgressRing({
         aria-valuenow={clampedPercentage}
         aria-valuemin="0"
         aria-valuemax="100"
-        aria-label={`Attendance is ${formattedPercent}%`}
+        aria-label={ariaLabel || `Progress is ${formattedPercent}%`}
       >
         <circle
           cx={size / 2}

@@ -145,6 +145,12 @@ const METADATA_CONFIG = {
     keywords: "scholarship calculator, tuition savings, financial aid calculator, university fee calculator, fee after scholarship, student discount",
     path: "/scholarship-calculator"
   },
+  "grade-calculator": {
+    title: "Grade Calculator | Calculate Percentage & Weighted Grades Free",
+    description: "Calculate your grades, percentages, and weighted scores instantly online. Includes multiple subject and what-if simulators.",
+    keywords: "grade calculator, calculate grade from percentage, percentage to grade calculator, marks to grade calculator, letter grade calculator, student grade calculator, weighted grade calculator",
+    path: "/grade-calculator"
+  },
   "attendance-calculator": {
     title: "Attendance Calculator – Required Classes & Safe Absences",
     description: "Calculate attendance percentage, classes needed to reach your target, safe absences, and future attendance projections instantly.",
@@ -186,6 +192,11 @@ export function generatePageMetadata(key) {
       title: seo.title,
       description: seo.description,
       images: ["/brand/og-image.png"],
+    },
+    icons: {
+      icon: "/brand/icon.svg",
+      shortcut: "/brand/icon.svg",
+      apple: "/brand/icon.svg"
     },
     robots: {
       index: true,

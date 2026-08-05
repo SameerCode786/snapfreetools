@@ -140,8 +140,8 @@ export const ALL_TOOLS = [
     icon: "ClipboardList",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "credit-hour-calculator",

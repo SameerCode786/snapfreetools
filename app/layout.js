@@ -22,6 +22,14 @@ export const viewport = {
   themeColor: '#ffffff',
 };
 
+export const metadata = {
+  icons: {
+    icon: "/brand/icon.svg",
+    shortcut: "/brand/icon.svg",
+    apple: "/brand/icon.svg"
+  }
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning={true}>
