@@ -3,16 +3,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Icons } from "@/lib/lucide-icons";
 
-export default function ShareResultButton({ 
-  shareText, 
-  title = "Attendance Calculator Result", 
-  url = "https://www.snapfreetools.com/attendance-calculator",
-  shortText = "I calculated my attendance and requirements using the SnapFreeTools Attendance Calculator."
-}) {
+export default function ShareResultButton({ shareText }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const menuRef = useRef(null);
+
+  const url = "https://www.snapfreetools.com/admission-calculator";
+  const shortText = "I calculated my university admission aggregate and merit percentage using SnapFreeTools!";
 
   // Handle click outside to close the menu
   useEffect(() => {
@@ -42,12 +40,11 @@ export default function ShareResultButton({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: title,
+          title: "Admission Calculator Result",
           text: shareText,
           url: url
         });
       } catch (err) {
-        // Fallback to menu if share sheet was aborted or failed
         if (err.name !== "AbortError") {
           setIsOpen(true);
         }
@@ -83,7 +80,7 @@ export default function ShareResultButton({
         onClick={handleShareClick}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-6 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2 shadow-sm"
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors w-full sm:w-auto text-slate-700 bg-white"
       >
         <Icons.Share2 size={16} />
         Share Result
@@ -133,7 +130,7 @@ export default function ShareResultButton({
             </li>
             <li>
               <a
-                href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareText)}`}
+                href={`mailto:?subject=${encodeURIComponent("Admission Calculator Result")}&body=${encodeURIComponent(shareText)}`}
                 className="flex items-center gap-3 w-full p-3 hover:bg-slate-50 rounded-xl transition-colors text-left"
               >
                 <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -151,7 +148,7 @@ export default function ShareResultButton({
                 <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
                   <Icons.Copy size={16} />
                 </div>
-                {copiedText ? <span className="text-emerald-600 font-bold" aria-live="polite">Result copied!</span> : "Copy Result Text"}
+                {copiedText ? "Copied Result!" : "Copy Result Text"}
               </button>
             </li>
             <li>
@@ -162,7 +159,7 @@ export default function ShareResultButton({
                 <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
                   <Icons.Link size={16} />
                 </div>
-                {copiedLink ? <span className="text-emerald-600 font-bold" aria-live="polite">Link copied!</span> : "Copy Link"}
+                {copiedLink ? "Copied Link!" : "Copy Link"}
               </button>
             </li>
           </ul>

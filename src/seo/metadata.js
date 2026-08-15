@@ -156,6 +156,36 @@ const METADATA_CONFIG = {
     description: "Calculate attendance percentage, classes needed to reach your target, safe absences, and future attendance projections instantly.",
     keywords: "attendance calculator, attendance percentage calculator, classes required for 75 attendance, how many classes can I miss, attendance shortage calculator, required attendance calculator, bunk calculator, college attendance calculator, school attendance calculator",
     path: "/attendance-calculator"
+  },
+  "credit-hour-calculator": {
+    title: "Credit Hour Calculator | Degree Progress & Semester Workload",
+    description: "Calculate total college credit hours, semester workload, and track your degree progress instantly. Use our what-if simulator to plan your graduation.",
+    keywords: "credit hour calculator, college credit hour calculator, university credit hour calculator, semester credit hours calculator, degree credit hour calculator, credit hours per semester, calculate credit hours, how many credit hours do i need",
+    path: "/credit-hour-calculator"
+  },
+  "admission-calculator": {
+    title: "Admission Calculator | Predict Merit & Aggregate Percentage",
+    description: "Calculate your university admission aggregate and merit percentage instantly. Plan target scores with our what-if simulator for entry tests.",
+    keywords: "admission calculator, university admission calculator, merit calculator, admission aggregate calculator, aggregate calculator, merit percentage calculator, entry test required marks calculator",
+    path: "/admission-calculator"
+  },
+  "loan-calculator": {
+    title: "Loan Calculator & Analysis Suite | Monthly Payment & Amortization",
+    description: "Calculate loan payments, explore affordability, compare loans, and see your amortization schedule. Free, secure, and accurate loan analysis tool.",
+    keywords: "loan calculator, monthly payment calculator, amortization schedule, extra payment calculator, loan affordability calculator, reverse loan calculator, loan comparison, calculate interest",
+    path: "/loan-calculator"
+  },
+  "emi-calculator": {
+    title: "EMI Calculator & Loan Repayment Analysis Suite",
+    description: "Calculate Equated Monthly Installments (EMI), view detailed amortization schedules, and compare loans with our free advanced EMI calculator.",
+    keywords: "emi calculator, emi calculator online, loan emi calculator, monthly emi calculator, calculate emi, loan payment calculator, emi interest calculator, amortization calculator, loan repayment calculator",
+    path: "/emi-calculator"
+  },
+  "investment-calculator": {
+    title: "Investment Calculator & Growth Analysis Suite | SnapFreeTools",
+    description: "Calculate compound interest, future value, and monthly investment growth. Our premium investment calculator includes inflation analysis and goal planning.",
+    keywords: "investment calculator, investment growth calculator, compound interest calculator, investment return calculator, future value calculator, monthly investment calculator",
+    path: "/investment-calculator"
   }
 };
 

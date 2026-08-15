@@ -153,8 +153,8 @@ export const ALL_TOOLS = [
     icon: "BookOpen",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "admission-calculator",
@@ -166,8 +166,8 @@ export const ALL_TOOLS = [
     icon: "UserCheck",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "loan-calculator",
@@ -179,8 +179,8 @@ export const ALL_TOOLS = [
     icon: "Coins",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "emi-calculator",
@@ -192,8 +192,8 @@ export const ALL_TOOLS = [
     icon: "LineChart",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "investment-calculator",
@@ -205,8 +205,8 @@ export const ALL_TOOLS = [
     icon: "TrendingUp",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "savings-calculator",
