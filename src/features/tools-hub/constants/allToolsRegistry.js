@@ -218,8 +218,8 @@ export const ALL_TOOLS = [
     icon: "PiggyBank",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "age-calculator",
@@ -231,8 +231,8 @@ export const ALL_TOOLS = [
     icon: "Calendar",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true
+    status: "live",
+    future: false
   },
   {
     id: "percentage-calculator",
@@ -240,12 +240,12 @@ export const ALL_TOOLS = [
     slug: "percentage-calculator",
     group: "Calculators",
     category: "Utility Calculators",
-    description: "Solve basic and complex percentage math equations.",
+    description: "Calculate percentages, percentage change, discounts, taxes, and tips.",
     icon: "Percent",
     featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true
+    popular: true,
+    status: "live",
+    future: false
   },
   {
     id: "discount-calculator",
@@ -253,25 +253,25 @@ export const ALL_TOOLS = [
     slug: "discount-calculator",
     group: "Calculators",
     category: "Utility Calculators",
-    description: "Find clearance savings price reductions.",
+    description: "Calculate sale prices, percentage discounts, stacked deals, and total savings instantly.",
     icon: "Tag",
     featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true
+    popular: true,
+    status: "live",
+    future: false
   },
   {
     id: "bmi-calculator",
     name: "BMI Calculator",
     slug: "bmi-calculator",
     group: "Calculators",
-    category: "Utility Calculators",
-    description: "Calculate Body Mass Index for fitness.",
+    category: "Health Calculators",
+    description: "Calculate your Body Mass Index (BMI), find your healthy weight range, and interpret your result accurately.",
     icon: "Heart",
     featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true
+    popular: true,
+    status: "live",
+    future: false
   },
 
   // --- PDF TOOLS ---

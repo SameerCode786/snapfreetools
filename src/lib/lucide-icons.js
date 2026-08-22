@@ -55,7 +55,13 @@ import {
   Link,
   MessageCircle,
   AlertTriangle,
-  TrendingDown
+  TrendingDown,
+  AlertCircle,
+  Wand2,
+  PieChart,
+  BarChart3,
+  ShieldAlert,
+  ShieldCheck
 } from "lucide-react";
 
 export const Icons = {
@@ -115,5 +121,11 @@ export const Icons = {
   Link,
   MessageCircle,
   AlertTriangle,
-  TrendingDown
+  TrendingDown,
+  AlertCircle,
+  Wand2,
+  PieChart,
+  BarChart3,
+  ShieldAlert,
+  ShieldCheck
 };

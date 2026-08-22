@@ -1,4 +1,6 @@
 import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
+import { BLOG_ARTICLES } from "@/features/blog/data/articles";
+import { BLOG_CATEGORIES } from "@/features/blog/data/categories";
 
 export default async function sitemap() {
   const baseUrl = "https://www.snapfreetools.com";
@@ -15,8 +17,12 @@ export default async function sitemap() {
     "/contact",
     "/calculators",
     "/pdf-tools",
+    "/blog",
     ...toolRoutes
   ]));
+
+  const blogArticleRoutes = BLOG_ARTICLES.map(article => `/blog/${article.slug}`);
+  const blogCategoryRoutes = BLOG_CATEGORIES.map(category => `/blog/category/${category.slug}`);
 
   const legalRoutes = [
     "/privacy-policy",
@@ -34,6 +40,18 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: route === "" ? 1.0 : 0.8
+    })),
+    ...blogArticleRoutes.map(route => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7
+    })),
+    ...blogCategoryRoutes.map(route => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6
     })),
     ...legalRoutes.map(route => ({
       url: `${baseUrl}${route}`,

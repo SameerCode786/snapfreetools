@@ -1,6 +1,6 @@
 const SITE_URL = "https://www.snapfreetools.com";
 
-const METADATA_CONFIG = {
+export const METADATA_CONFIG = {
   home: {
     title: "Free Online Tools for PDF, Calculators, Images & Text | SnapFreeTools",
     description: "Use free online tools to convert PDFs, calculate GPA, compress images, count words, and complete everyday tasks quickly with SnapFreeTools.",
@@ -186,6 +186,42 @@ const METADATA_CONFIG = {
     description: "Calculate compound interest, future value, and monthly investment growth. Our premium investment calculator includes inflation analysis and goal planning.",
     keywords: "investment calculator, investment growth calculator, compound interest calculator, investment return calculator, future value calculator, monthly investment calculator",
     path: "/investment-calculator"
+  },
+  "savings-calculator": {
+    title: "Savings Calculator & Growth Analysis Suite | SnapFreeTools",
+    description: "Calculate your savings growth, monthly contributions, and compound interest. Plan your emergency fund and reach your savings goals faster.",
+    keywords: "savings calculator, savings growth calculator, savings goal calculator, compound savings calculator, monthly savings calculator, emergency fund calculator",
+    path: "/savings-calculator"
+  },
+  "age-calculator": {
+    title: "Age Calculator - Calculate Your Exact Age in Years, Months, & Days",
+    description: "Free exact age calculator. Find out exactly how many days old you are, your chronological age, and when your next birthday is. Free, private, and instant.",
+    keywords: "age calculator, calculate age, exact age calculator, chronological age calculator, age in years months days, how old am I, birthday calculator",
+    path: "/age-calculator"
+  },
+  "blog": {
+    title: "SnapFreeTools Blog – Finance, Calculators, Education & Practical Guides",
+    description: "Explore practical guides, financial insights, calculator tips, education resources, and everyday how-to articles from SnapFreeTools.",
+    keywords: "snapfreetools blog, financial calculator guides, compound interest guide, investment calculator guide, loan calculator guide, GPA calculator guide, online calculator guides",
+    path: "/blog"
+  },
+  "percentage-calculator": {
+    title: "Percentage Calculator - Calculate Percentages, Discounts & Taxes Free",
+    description: "Use our free online percentage calculator to easily calculate percentage change, discounts, tips, tax, and reverse percentages.",
+    keywords: "percentage calculator, percent calculator, percentage increase calculator, percentage decrease calculator, discount calculator, tip calculator",
+    path: "/percentage-calculator"
+  },
+  "discount-calculator": {
+    title: "Discount Calculator - Calculate Sale Price & Savings",
+    description: "Free discount calculator to easily calculate sale prices, percentage discounts, stacked discounts, tax, and total savings. Works instantly on mobile and desktop.",
+    keywords: "discount calculator, percentage discount calculator, sale price calculator, stacked discount calculator, original price calculator, discount and tax calculator",
+    path: "/discount-calculator"
+  },
+  "bmi-calculator": {
+    title: "BMI Calculator – Calculate Your Body Mass Index | SnapFreeTools",
+    description: "Free BMI calculator. Calculate your Body Mass Index in metric (kg/cm) or imperial (lb/ft), see your BMI category, healthy weight range, and accurate analysis instantly.",
+    keywords: "bmi calculator, body mass index calculator, bmi calculator metric, bmi calculator imperial, healthy bmi range, healthy weight calculator, bmi categories, calculate bmi",
+    path: "/bmi-calculator"
   }
 };
 

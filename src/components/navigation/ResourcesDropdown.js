@@ -1,9 +1,10 @@
 import { BookOpen, HelpCircle, FileCheck, Layers } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 
 export default function ResourcesDropdown() {
   const links = [
-    { name: "Blog", icon: BookOpen, status: "soon" },
+    { name: "Blog", icon: BookOpen, status: "live", href: "/blog" },
     { name: "Guides", icon: HelpCircle, status: "soon" },
     { name: "FAQs", icon: FileCheck, status: "soon" },
     { name: "Comparisons", icon: Layers, status: "soon" }
@@ -20,15 +21,27 @@ export default function ResourcesDropdown() {
       <ul className="space-y-1">
         {links.map((link) => {
           const Icon = link.icon;
-          return (
-            <li key={link.name} className="flex items-center justify-between p-2 rounded-xl text-slate-400 cursor-not-allowed select-none bg-slate-50/10">
+          const isLive = link.status === "live";
+
+          const ItemContent = (
+            <li key={link.name} className={`flex items-center justify-between p-2 rounded-xl transition-colors select-none ${isLive ? 'text-slate-700 hover:bg-slate-100 cursor-pointer' : 'text-slate-400 cursor-not-allowed bg-slate-50/10'}`}>
               <div className="flex items-center gap-2">
-                <Icon size={14} className="opacity-70" />
+                <Icon size={14} className={isLive ? 'text-slate-500' : 'opacity-70'} />
                 <span className="text-xs font-semibold">{link.name}</span>
               </div>
-              <span className="text-[7px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1 py-0.2 rounded font-extrabold uppercase scale-90">Soon</span>
+              {!isLive && <span className="text-[7px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1 py-0.2 rounded font-extrabold uppercase scale-90">Soon</span>}
             </li>
           );
+
+          if (isLive && link.href) {
+            return (
+              <Link href={link.href} key={link.name} onClick={() => document.dispatchEvent(new MouseEvent('click'))}>
+                {ItemContent}
+              </Link>
+            );
+          }
+
+          return ItemContent;
         })}
       </ul>
     </motion.div>
