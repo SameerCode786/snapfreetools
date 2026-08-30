@@ -1,57 +1,75 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star, FileImage, GraduationCap, Edit3 } from "lucide-react";
 
 export default function ToolLayout({ title, description, children }) {
+  const relatedTools = [
+    { 
+      name: "Image Compressor", 
+      href: "/image-compressor", 
+      desc: "Compress JPEG, PNG, and WebP images without losing quality.", 
+      icon: FileImage 
+    },
+    { 
+      name: "GPA Calculator", 
+      href: "/gpa-calculator", 
+      desc: "Calculate your semester and cumulative grade point average.", 
+      icon: GraduationCap 
+    },
+    { 
+      name: "Word Counter", 
+      href: "/word-counter", 
+      desc: "Analyze word count, keyword density, and text readability instantly.", 
+      icon: Edit3 
+    }
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Back button */}
-      <div className="mb-8">
+      <div>
         <Link 
           href="/" 
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-primary transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-amber-600 transition-colors"
         >
           <ArrowLeft size={16} /> Back to Tools
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Main Tool Area */}
-        <div className="lg:col-span-9">
-          {children}
+      {/* Main Content Area */}
+      <div className="w-full">
+        {children}
+      </div>
+
+      {/* Explore Related Tools (UX & SEO) */}
+      <div className="border-t border-slate-100 pt-10 mt-12 space-y-6">
+        <div className="flex items-center gap-2">
+          <Star size={18} className="text-amber-500 fill-amber-500 animate-pulse" />
+          <h3 className="font-extrabold text-slate-800 text-base">Explore Related Tools</h3>
         </div>
-
-        {/* Sidebar Panel for Adsense and Scaling Navigation */}
-        <aside className="lg:col-span-3 space-y-4 lg:sticky lg:top-[90px] self-start">
-          {/* Ad slot placeholder */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 text-center min-h-[150px] flex flex-col justify-center items-center">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Advertisement</span>
-            <div className="w-full h-28 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 text-sm font-medium">
-              Ad Banner Slot
-            </div>
-          </div>
-
-          {/* Quick links to other tools */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-3 text-sm">Other Free Tools</h3>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <Link href="/image-compressor" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
-                  🖼️ Image Compressor
-                </Link>
-              </li>
-              <li>
-                <Link href="/gpa-calculator" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
-                  🎓 GPA Calculator
-                </Link>
-              </li>
-              <li>
-                <Link href="/word-counter" className="text-slate-600 hover:text-primary transition-colors block py-0.5 font-medium">
-                  ✍️ Word Counter
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </aside>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedTools.map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="flex items-start gap-4 p-5 bg-white border border-slate-200 rounded-3xl shadow-sm hover:border-amber-300 hover:shadow-md hover:shadow-amber-50/20 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-2xl bg-slate-50 group-hover:bg-amber-50 flex items-center justify-center text-slate-500 group-hover:text-amber-600 transition-colors shrink-0">
+                  <Icon size={20} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-amber-600 transition-colors">
+                    {tool.name}
+                  </h4>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                    {tool.desc}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

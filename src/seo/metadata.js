@@ -222,6 +222,12 @@ export const METADATA_CONFIG = {
     description: "Free BMI calculator. Calculate your Body Mass Index in metric (kg/cm) or imperial (lb/ft), see your BMI category, healthy weight range, and accurate analysis instantly.",
     keywords: "bmi calculator, body mass index calculator, bmi calculator metric, bmi calculator imperial, healthy bmi range, healthy weight calculator, bmi categories, calculate bmi",
     path: "/bmi-calculator"
+  },
+  "jpg-to-pdf": {
+    title: "JPG to PDF Converter - Convert Images to PDF Free | SnapFreeTools",
+    description: "Convert JPG, JPEG, and PNG images into a PDF file locally inside your browser. No files are uploaded to any server. Free and secure.",
+    keywords: "jpg to pdf, jpeg to pdf, convert jpg to pdf, convert jpeg to pdf, images to pdf, merge images into pdf, free online jpg to pdf",
+    path: "/jpg-to-pdf"
   }
 };
 

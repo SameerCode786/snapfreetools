@@ -236,12 +236,9 @@ export default function WordCounter({ faqs = [] }) {
         </div>
       </div>
 
-      {/* 2. Main Workspace Layout (Tool + Sidebar grid) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Main Workspace (Left 9 columns) */}
-          <div className="lg:col-span-9 space-y-6">
+      {/* 2. Main Workspace Layout (Sidebar removed) */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="w-full space-y-6">
             
             {/* Live Statistics Dashboard */}
              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
@@ -508,47 +505,7 @@ export default function WordCounter({ faqs = [] }) {
             </div>
 
           </div>
-
-          {/* Right Sidebar (Right 3 columns) */}
-          <aside className="lg:col-span-3 space-y-4 lg:sticky lg:top-[90px] self-start">
-            {/* Ad Placeholder banner */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200 text-center min-h-[180px] flex flex-col justify-center items-center">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Advertisement</span>
-              <div className="w-full h-36 bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 text-sm font-medium">
-                Ad Banner Slot
-              </div>
-            </div>
-
-            {/* Other tools link list */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200">
-              <h3 className="font-bold text-slate-900 mb-3 text-sm">Other Free Tools</h3>
-              <ul className="space-y-2 text-xs font-medium">
-                <li>
-                  <Link href="/image-compressor" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
-                    🖼️ Image Compressor
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/gpa-calculator" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
-                    🎓 GPA Calculator
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/word-counter" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
-                    ✍️ Word Counter
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/pdf-to-word" className="text-slate-600 hover:text-slate-850 transition-colors block py-0.5">
-                    📄 PDF to Word Converter
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </aside>
-
         </div>
-      </div>
 
       {/* 3. Full-width Centered Informational Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 border-t border-slate-100">

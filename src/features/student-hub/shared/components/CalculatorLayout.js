@@ -56,7 +56,7 @@ export default function CalculatorLayout({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <JsonLd schema={breadcrumbSchema} />
       {/* Dynamic Breadcrumbs */}
       <nav className="mb-6 flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -67,59 +67,53 @@ export default function CalculatorLayout({
         <span className="text-slate-800">{title}</span>
       </nav>
 
-      {/* Main Grid Wrapper */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        {/* Main Content Area */}
-        <main className="lg:col-span-9 space-y-10">
+      {/* Main Content Area */}
+      <div className="w-full space-y-10">
+        <main className="w-full space-y-10">
           {children}
         </main>
 
-        {/* Sidebar panel for internal linking & ads */}
-        <aside className="lg:col-span-3 space-y-4 lg:sticky lg:top-[90px] self-start">
-          {/* Ad slot placeholder */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 text-center min-h-[150px] flex flex-col justify-center items-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Advertisement</span>
-            <div className="w-full h-28 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 text-xs font-semibold">
-              Ad Banner Slot
+        {/* Related calculators list (UX & SEO) */}
+        {relatedCalculators.length > 0 && (
+          <div className="border-t border-slate-100 pt-10 mt-12 space-y-6">
+            <div className="flex items-center gap-2">
+              <Star size={18} className="text-amber-500 fill-amber-500 animate-pulse" />
+              <h3 className="font-extrabold text-slate-800 text-base">Explore Related Calculators</h3>
             </div>
-          </div>
-
-          {/* Related calculators list */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
-              <Star size={18} className="text-amber-500 fill-amber-500" />
-              Related Tools
-            </h3>
-            <ul className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedCalculators.map((calc) => {
                 const IconComponent = Icons[calc.icon] || Icons.Calculator;
                 return (
-                  <li key={calc.slug}>
-                    <Link 
-                       href={`/${calc.slug}`} 
-                       className="flex items-center gap-3 p-2 rounded-xl text-slate-600 hover:text-amber-600 hover:bg-amber-50/50 border border-transparent hover:border-amber-100 transition-all text-xs font-semibold group"
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-slate-50 group-hover:bg-amber-50 flex items-center justify-center text-slate-500 group-hover:text-amber-600 transition-colors shrink-0">
-                        <IconComponent size={14} />
-                      </div>
-                      <span className="truncate">{calc.name}</span>
-                    </Link>
-                  </li>
+                  <Link
+                    key={calc.slug}
+                    href={`/${calc.slug}`}
+                    className="flex items-start gap-4 p-5 bg-white border border-slate-200 rounded-3xl shadow-sm hover:border-amber-300 hover:shadow-md hover:shadow-amber-50/20 transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-slate-50 group-hover:bg-amber-50 flex items-center justify-center text-slate-500 group-hover:text-amber-600 transition-colors shrink-0">
+                      <IconComponent size={18} />
+                    </div>
+                    <div className="space-y-1 py-0.5 min-w-0 flex-1">
+                      <h4 className="font-bold text-slate-800 text-sm group-hover:text-amber-600 transition-colors truncate">
+                        {calc.name}
+                      </h4>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed truncate">
+                        {calc.description || "Free educational calculation tool."}
+                      </p>
+                    </div>
+                  </Link>
                 );
               })}
-            </ul>
-            <div className="mt-3 pt-3 border-t border-slate-100">
+            </div>
+            <div className="flex justify-center pt-2">
               <Link 
                 href="/calculators"
-                className="text-xs font-bold text-amber-500 hover:text-amber-600 flex items-center gap-1.5 justify-center py-1 bg-amber-50/40 hover:bg-amber-50 rounded-xl transition-all"
+                className="inline-flex items-center gap-1.5 py-2.5 px-6 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-xl shadow-xs transition-all"
               >
-                <ArrowLeft size={12} /> View All Calculators
+                <ArrowLeft size={14} /> View All Calculators
               </Link>
             </div>
           </div>
-        </aside>
-
+        )}
       </div>
     </div>
   );

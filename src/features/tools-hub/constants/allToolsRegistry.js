@@ -359,9 +359,9 @@ export const ALL_TOOLS = [
     description: "Combine JPG or PNG images into a PDF file.",
     icon: "Image",
     featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true,
+    popular: true,
+    status: "live",
+    future: false,
     seoTitle: "JPG to PDF Converter - Convert Images to PDF Free",
     seoDescription: "Convert JPG, PNG, and image files to PDF online free. Combine multiple pictures into a single PDF document inside your browser."
   },
