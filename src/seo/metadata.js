@@ -139,6 +139,12 @@ export const METADATA_CONFIG = {
     keywords: "word to pdf, docx to pdf, convert word to pdf online, free word to pdf converter, client side word to pdf, private pdf converter",
     path: "/word-to-pdf"
   },
+  "pdf-to-jpg": {
+    title: "PDF to JPG Converter – Convert PDF to Images Online Free",
+    description: "Convert PDF to JPG online free. Extract pages from your PDF documents into high-quality JPG or JPEG images securely inside your browser. No signups, no uploads.",
+    keywords: "pdf to jpg, pdf to jpeg, convert pdf to jpg, pdf pages to images, free pdf to jpg converter, online pdf to jpg, pdf image extractor",
+    path: "/pdf-to-jpg"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

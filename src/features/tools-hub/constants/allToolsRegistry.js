@@ -375,8 +375,8 @@ export const ALL_TOOLS = [
     icon: "FileImage",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true,
+    status: "live",
+    future: false,
     seoTitle: "PDF to JPG Converter - Extract PDF Pages as Images Free",
     seoDescription: "Convert PDF pages into high-quality JPG or PNG images online free. Extract photos and visuals from PDF files securely."
   },
