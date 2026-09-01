@@ -18,3 +18,4 @@ View your app in AI Studio: https://ai.studio/apps/a8d52b85-ed26-4636-a0ce-e5112
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+"# snapfreetools" 
