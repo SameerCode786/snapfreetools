@@ -84,6 +84,8 @@ export default function InvestmentCalculatorSuite() {
     <CalculatorLayout 
       title={calculatorTitle} 
       subtitle={calculatorSubtitle}
+      currentSlug="investment-calculator"
+      activeResult={result}
       faqs={INVESTMENT_FAQS}
       content={EDUCATIONAL_CONTENT}
     >

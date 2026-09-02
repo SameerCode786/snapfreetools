@@ -300,8 +300,8 @@ export const ALL_TOOLS = [
     icon: "Combine",
     featured: false,
     popular: true,
-    status: "coming-soon",
-    future: true,
+    status: "live",
+    future: false,
     seoTitle: "Merge PDF Online - Combine PDF Files Free",
     seoDescription: "Merge PDF files online free. Combine multiple PDF documents into a single PDF file quickly and securely inside your browser."
   },

@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft, Star, FileImage, GraduationCap, Edit3 } from "lucide-react";
 
-export default function ToolLayout({ title, description, children }) {
+import { ShareToolCard, FeedbackCard } from "@/components/share";
+
+export default function ToolLayout({ 
+  title, 
+  description, 
+  hideShare = false,
+  hideFeedback = false,
+  children 
+}) {
   const relatedTools = [
     { 
       name: "Image Compressor", 
@@ -39,6 +47,14 @@ export default function ToolLayout({ title, description, children }) {
       <div className="w-full">
         {children}
       </div>
+
+      {/* Centralized Share & Feedback Module */}
+      {(!hideShare || !hideFeedback) && (
+        <div className="space-y-6 pt-4">
+          {!hideShare && <ShareToolCard toolName={title} />}
+          {!hideFeedback && <FeedbackCard toolName={title} />}
+        </div>
+      )}
 
       {/* Explore Related Tools (UX & SEO) */}
       <div className="border-t border-slate-100 pt-10 mt-12 space-y-6">

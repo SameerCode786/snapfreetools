@@ -4,10 +4,15 @@ import { CALCULATORS } from "../constants/calculatorList";
 import { Icons } from "@/lib/lucide-icons";
 import { JsonLd } from "@/seo/structured-data";
 
+import ShareSystem from "@/components/share";
+
 export default function CalculatorLayout({ 
   title, 
   description, 
   currentSlug = "", 
+  activeResult = null,
+  hideShare = false,
+  hideFeedback = false,
   children 
 }) {
   // Get active items from registry
@@ -72,6 +77,15 @@ export default function CalculatorLayout({
         <main className="w-full space-y-10">
           {children}
         </main>
+
+        {/* Centralized Share & Feedback System */}
+        <ShareSystem
+          toolName={title}
+          toolSlug={currentSlug}
+          result={activeResult}
+          hideShareTool={hideShare}
+          hideFeedback={hideFeedback}
+        />
 
         {/* Related calculators list (UX & SEO) */}
         {relatedCalculators.length > 0 && (

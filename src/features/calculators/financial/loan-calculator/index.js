@@ -164,6 +164,8 @@ export default function LoanCalculatorFeature({ faqs }) {
     <CalculatorLayout
       title="Loan Calculator & Analysis Suite"
       description="Calculate loan payments, explore affordability, compare loans, and see your amortization schedule. Free, secure, and accurate loan analysis tool."
+      currentSlug="loan-calculator"
+      activeResult={result}
       faqs={faqs}
       educationalContent={EDUCATIONAL_CONTENT}
     >
@@ -211,10 +213,9 @@ export default function LoanCalculatorFeature({ faqs }) {
               <LoanInsights recommendations={recommendations} />
               
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <p className="text-xs text-slate-500 mb-4">
+                <p className="text-xs text-slate-500">
                   This calculator provides estimates for informational purposes only. Actual loan payments, rates, fees, eligibility and approval requirements vary by lender and loan agreement.
                 </p>
-                <SharePreview result={result} mode={mode} currencyCode={data.currencyCode} />
               </div>
             </div>
           </div>

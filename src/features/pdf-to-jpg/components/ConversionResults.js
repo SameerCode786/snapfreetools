@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Download, RefreshCw, AlertCircle, Eye, CheckCircle2 } from "lucide-react";
 import JSZip from "jszip";
+import { ShareResultCard } from "@/components/share";
 
 export default function ConversionResults({
   results,
@@ -211,6 +212,16 @@ export default function ConversionResults({
           );
         })}
       </div>
+
+      {/* Centralized Result Share Card */}
+      <ShareResultCard
+        toolName="PDF to JPG Converter"
+        toolUrl="pdf-to-jpg"
+        result={{
+          type: "document",
+          summary: `Converted ${results.length} PDF pages into high-quality JPG images.`
+        }}
+      />
 
     </div>
   );

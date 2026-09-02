@@ -145,6 +145,12 @@ export const METADATA_CONFIG = {
     keywords: "pdf to jpg, pdf to jpeg, convert pdf to jpg, pdf pages to images, free pdf to jpg converter, online pdf to jpg, pdf image extractor",
     path: "/pdf-to-jpg"
   },
+  "merge-pdf": {
+    title: "Merge PDF Online – Combine PDF Files Free | SnapFreeTools",
+    description: "Merge PDF files online free. Combine multiple PDF documents into a single PDF file quickly and securely inside your browser. No signups, no uploads.",
+    keywords: "merge pdf, merge pdf files, combine pdf, combine pdf files, pdf merger, merge pdfs online, free pdf merger, combine multiple pdfs",
+    path: "/merge-pdf"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

@@ -178,6 +178,8 @@ export default function EMICalculatorFeature({ faqs }) {
     <CalculatorLayout
       title="EMI Calculator & Loan Repayment Analysis Suite"
       description="Calculate Equated Monthly Installments, view detailed amortization schedules, compare loans, and explore repayment scenarios."
+      currentSlug="emi-calculator"
+      activeResult={result}
       icon="LineChart"
       faqs={faqs}
       content={EDUCATIONAL_CONTENT}
