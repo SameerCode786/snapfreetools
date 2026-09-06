@@ -12,6 +12,8 @@
   "dependencies": {
     "@google/genai": "^1.29.0",
     "@jsquash/avif": "^2.1.1",
+    "@localonlytools/pdf-decrypt": "^1.0.1",
+    "@pdfsmaller/pdf-decrypt": "^1.0.1",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "browser-image-compression": "^2.0.2",

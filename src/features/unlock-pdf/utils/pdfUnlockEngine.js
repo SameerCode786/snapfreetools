@@ -1,4 +1,5 @@
 import { PDFDocument, PDFName } from "pdf-lib";
+import { decryptPDF, isEncrypted as checkIsEncrypted } from "@pdfsmaller/pdf-decrypt";
 import { formatFileSize, sanitizeFilename } from "./formatters";
 
 /**
@@ -27,7 +28,7 @@ export const getPdfJsEngine = async () => {
 const yieldThread = (ms = 40) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Phase 1 & 2: Inspect uploaded PDF document
+ * Phase 1: Inspect uploaded PDF document
  * Detects encryption status, pages, thumbnail, and validates file size.
  */
 export const inspectPdfForUnlock = async (file) => {
@@ -105,7 +106,9 @@ export const inspectPdfForUnlock = async (file) => {
 
 /**
  * Technical Abstraction Layer: executePdfUnlock
- * Authenticates user password using pdfjs-dist and strips encryption streams using pdf-lib.
+ * 1. Authenticates password with pdfjs-dist engine.
+ * 2. Decrypts all object streams (pages, images, text, fonts, vector objects) using stream decryption.
+ * 3. Validates output PDF by re-parsing without password parameters.
  */
 export const executePdfUnlock = async ({ fileInfo, password, onProgress }) => {
   if (!fileInfo || !fileInfo.arrayBuffer) {
@@ -122,7 +125,7 @@ export const executePdfUnlock = async ({ fileInfo, password, onProgress }) => {
 
   const cleanPassword = password.trim();
 
-  // Step 1: Verifying password with pdfjs-dist engine
+  // Step 1: Verifying password credentials with pdfjs-dist engine
   if (onProgress) {
     onProgress({ step: "Verifying password credentials...", percent: 30 });
   }
@@ -152,33 +155,43 @@ export const executePdfUnlock = async ({ fileInfo, password, onProgress }) => {
 
   const validatedPageCount = pdfJsDoc ? pdfJsDoc.numPages : (fileInfo.pageCount || 1);
 
-  // Step 2: Removing protection & stripping Encrypt dictionary using pdf-lib
+  // Step 2: Stream Decryption (decrypting all page streams, image XObjects, fonts, and vector paths)
   if (onProgress) {
-    onProgress({ step: "Removing protection & stripping encryption...", percent: 70 });
+    onProgress({ step: "Decrypting document streams & images...", percent: 70 });
   }
   await yieldThread(50);
 
-  let unlockedBytes;
+  let unlockedBytes = null;
   try {
-    const pdfLibDoc = await PDFDocument.load(fileInfo.arrayBuffer.slice(0), { ignoreEncryption: true });
+    // Decrypt streams via stream decryption engine
+    unlockedBytes = await decryptPDF(fileInfo.arrayBuffer.slice(0), cleanPassword);
+  } catch (decryptErr) {
+    const errStr = (decryptErr.message || "").toLowerCase();
 
-    // Strip Encrypt dictionary from context trailer and catalog
-    if (pdfLibDoc.context.trailerInfo) {
-      delete pdfLibDoc.context.trailerInfo.Encrypt;
+    // Fallback: If encryption revision varies, strip /Encrypt dictionary via pdf-lib
+    if (errStr.includes("unsupported") || errStr.includes("v=")) {
+      try {
+        const pdfLibDoc = await PDFDocument.load(fileInfo.arrayBuffer.slice(0), { ignoreEncryption: true });
+        if (pdfLibDoc.context.trailerInfo) {
+          delete pdfLibDoc.context.trailerInfo.Encrypt;
+        }
+        pdfLibDoc.catalog.delete(PDFName.of("Encrypt"));
+        unlockedBytes = await pdfLibDoc.save({ useObjectStreams: false });
+      } catch (fallbackErr) {
+        throw {
+          errorCode: UNLOCK_ERROR_CODES.UNSUPPORTED_ENCRYPTION,
+          message: "This PDF uses an encryption format that this browser-based tool cannot process."
+        };
+      }
+    } else {
+      throw {
+        errorCode: UNLOCK_ERROR_CODES.PROCESSING_ERROR,
+        message: "We couldn't unlock this PDF. Please try another file."
+      };
     }
-    pdfLibDoc.catalog.delete(PDFName.of("Encrypt"));
-
-    // Save decrypted PDF bytes
-    unlockedBytes = await pdfLibDoc.save({ useObjectStreams: false });
-  } catch (stripErr) {
-    console.error("PDF Decryption Stripping Error:", stripErr);
-    throw {
-      errorCode: UNLOCK_ERROR_CODES.PROCESSING_ERROR,
-      message: "We couldn't unlock this PDF. Please try another file."
-    };
   }
 
-  // Step 3: Output Validation - Verify unlocked output opens cleanly WITHOUT password
+  // Step 3: Output Validation — Verify unlocked output opens cleanly WITHOUT password
   if (onProgress) {
     onProgress({ step: "Validating output PDF document...", percent: 90 });
   }
