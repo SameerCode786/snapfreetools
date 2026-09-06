@@ -220,7 +220,34 @@ export default function PDFToJPGFeature({ faqs = PDF_TO_JPG_FAQS }) {
   };
 
   return (
-    <ToolLayout>
+    <ToolLayout
+      title="Convert PDF to JPG"
+      description="Extract PDF pages as high-quality JPG images free. 100% private client-side browser processing."
+      currentSlug="pdf-to-jpg"
+      result={status === "success" && results.length > 0 ? {
+        summary: `Converted ${results.length} PDF pages into high-quality JPG images.`
+      } : null}
+      seoContent={
+        <>
+          <EDUCATIONAL_CONTENT />
+          {faqs && faqs.length > 0 && (
+            <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-2xs space-y-6">
+              <h2 className="text-2xl font-black text-slate-900 text-center tracking-tight">
+                Frequently Asked Questions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {faqs.map((faq, idx) => (
+                  <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-2">
+                    <h3 className="font-bold text-slate-800 text-sm">{faq.question}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed font-semibold">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      }
+    >
       <div className="space-y-12 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Block */}
@@ -302,27 +329,6 @@ export default function PDFToJPGFeature({ faqs = PDF_TO_JPG_FAQS }) {
         {expandedImageUrl && (
           <ImagePreview url={expandedImageUrl} onClose={() => setExpandedImageUrl(null)} />
         )}
-
-        {/* GEO Explanatory Module */}
-        <EDUCATIONAL_CONTENT />
-
-        {/* SEO FAQ Schema List */}
-        {faqs && faqs.length > 0 && (
-          <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-2xs space-y-6">
-            <h2 className="text-2xl font-black text-slate-900 text-center tracking-tight">
-              Frequently Asked Questions
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-2">
-                  <h3 className="font-bold text-slate-800 text-sm">{faq.question}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
       </div>
     </ToolLayout>
   );

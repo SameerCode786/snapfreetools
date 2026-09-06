@@ -5,8 +5,6 @@ import CalculatorLayout from "@/features/student-hub/shared/components/Calculato
 import ResultCard from "@/features/student-hub/shared/components/ResultCard";
 import FAQSection from "@/features/student-hub/shared/components/FAQSection";
 import { calculateScholarship } from "./utils/calculateScholarship";
-import { buildShareText } from "./utils/buildShareText";
-import ShareResultButton from "./components/ShareResultButton";
 import { Icons } from "@/lib/lucide-icons";
 
 const CURRENCIES = [
@@ -82,11 +80,17 @@ export default function ScholarshipCalculatorFeature({ faqs }) {
     }).format(amount).replace(currency.value, currency.symbol);
   };
 
+  const activeResult = (result && !result.isEmpty) ? {
+    summary: `Scholarship Savings: ${formatCurrency(result.scholarshipAmount)} (${result.discountPercentage}% discount)`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Scholarship Calculator" 
-      description="Calculate your scholarship amount, remaining tuition fee, and estimated savings using a percentage or fixed award."
+      description="Estimate your tuition savings, net payable fees, and total program discount from any scholarship award."
       currentSlug="scholarship-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
     >
       <div className="space-y-8">
         
@@ -355,12 +359,6 @@ export default function ScholarshipCalculatorFeature({ faqs }) {
                   </div>
                 </div>
               )}
-              
-              <div className="flex justify-center pt-6">
-                <ShareResultButton 
-                  shareText={buildShareText(result, formatCurrency, feeCycle, scholarshipType, scholarshipValue)} 
-                />
-              </div>
 
               <div className="text-[10px] text-slate-400 font-semibold text-center mt-4">
                 Disclaimer: This calculator estimates fee savings from scholarship information you already know. It does not predict eligibility or guarantee an award from any university or organization.
@@ -368,10 +366,6 @@ export default function ScholarshipCalculatorFeature({ faqs }) {
             </div>
           )}
         </section>
-
-        {faqs && faqs.length > 0 && (
-          <FAQSection faqs={faqs} />
-        )}
       </div>
     </CalculatorLayout>
   );

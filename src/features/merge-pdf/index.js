@@ -164,7 +164,34 @@ export default function MergePDFFeature({ faqs = MERGE_PDF_FAQS }) {
   };
 
   return (
-    <ToolLayout>
+    <ToolLayout
+      title="Merge PDF Online"
+      description="Combine multiple PDF documents into one. Preserve original page sizes, orientations, and native vector quality."
+      currentSlug="merge-pdf"
+      result={status === "success" && mergedResult ? {
+        summary: `Merged ${files.length} PDF files (${mergedResult.totalPages} total pages) into a single document.`
+      } : null}
+      seoContent={
+        <>
+          <EDUCATIONAL_CONTENT />
+          {faqs && faqs.length > 0 && (
+            <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-2xs space-y-6">
+              <h2 className="text-2xl font-black text-slate-900 text-center tracking-tight">
+                Frequently Asked Questions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {faqs.map((faq, idx) => (
+                  <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-2">
+                    <h3 className="font-bold text-slate-800 text-sm">{faq.question}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed font-semibold">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      }
+    >
       <div className="space-y-12 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Hidden File Input for Add More trigger */}
@@ -257,27 +284,6 @@ export default function MergePDFFeature({ faqs = MERGE_PDF_FAQS }) {
             onStartOver={handleClearAll}
           />
         )}
-
-        {/* Educational GEO Content Module */}
-        <EDUCATIONAL_CONTENT />
-
-        {/* FAQ Section */}
-        {faqs && faqs.length > 0 && (
-          <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-2xs space-y-6">
-            <h2 className="text-2xl font-black text-slate-900 text-center tracking-tight">
-              Frequently Asked Questions
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-2">
-                  <h3 className="font-bold text-slate-800 text-sm">{faq.question}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
       </div>
     </ToolLayout>
   );

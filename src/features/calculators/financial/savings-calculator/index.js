@@ -10,7 +10,6 @@ import GrowthChart from "./components/GrowthChart";
 import YearlyGrowthTable from "./components/YearlyGrowthTable";
 import WhatIfSimulator from "./components/WhatIfSimulator";
 import FinancialInsights from "./components/FinancialInsights";
-import ShareResultButton from "@/features/calculators/student-admission/attendance-calculator/components/ShareResultButton";
 import { Icons } from "@/lib/lucide-icons";
 import { validateSavingsInput } from "./utils/validation";
 import { 
@@ -206,10 +205,18 @@ export default function SavingsCalculatorSuite() {
     );
   };
 
+  const activeResult = (result && result.isValid) ? {
+    summary: mode === 'required'
+      ? `Required Monthly Savings: ${currencySymbol}${safeFormatNumber(result.requiredMonthly, 0)}`
+      : `Future Savings Balance: ${currencySymbol}${safeFormatNumber(result.futureValue, 0)} (${currencySymbol}${safeFormatNumber(result.totalInterest, 0)} Interest Earned)`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Savings Calculator & Growth Analysis"
       description="Calculate your savings growth, monthly contributions, and compound interest. Plan your emergency fund and reach your savings goals faster."
+      activeResult={activeResult}
+      content={SAVINGS_EDUCATIONAL_CONTENT ? <div className="prose prose-slate max-w-none lg:prose-lg" dangerouslySetInnerHTML={{ __html: SAVINGS_EDUCATIONAL_CONTENT }} /> : null}
     >
       <div className="max-w-6xl mx-auto px-4 py-8">
         
@@ -287,16 +294,6 @@ export default function SavingsCalculatorSuite() {
               data={result.yearlyData} 
               currencySymbol={currencySymbol} 
             />
-          </div>
-        )}
-
-        <div className="mt-12 flex justify-center">
-          <ShareResultButton shareText={getShareText()} />
-        </div>
-
-        {SAVINGS_EDUCATIONAL_CONTENT && (
-          <div className="mt-16 border-t border-slate-200 pt-16">
-            <div className="prose prose-slate max-w-none lg:prose-lg" dangerouslySetInnerHTML={{ __html: SAVINGS_EDUCATIONAL_CONTENT }} />
           </div>
         )}
       </div>

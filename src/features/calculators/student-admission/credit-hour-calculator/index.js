@@ -9,8 +9,6 @@ import CreditHourDashboard from "./components/CreditHourDashboard";
 import CourseListForm from "./components/CourseListForm";
 import DegreeProgressForm from "./components/DegreeProgressForm";
 import WhatIfSimulator from "./components/WhatIfSimulator";
-import ShareResultButton from "./components/ShareResultButton";
-import { buildShareText } from "./utils/buildShareText";
 import { calculateCourseListWorkload, calculateDegreeProgress } from "./utils/calculations";
 import { validateDegreeProgress } from "./utils/validation";
 import { getCourseListRecommendations, getDegreeProgressRecommendations } from "./recommendations/recommendationEngine";
@@ -64,6 +62,8 @@ export default function CreditHourCalculatorFeature({ faqs }) {
       onModeChange={setActiveMode}
       tabs={tabs}
       faqs={faqs}
+      activeResult={activeResult}
+      educationalContent={<EducationalContent />}
     >
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-3/5 space-y-6">
@@ -123,16 +123,8 @@ export default function CreditHourCalculatorFeature({ faqs }) {
                 </div>
               </div>
             )}
-
-            {!activeResult.isEmpty && (
-              <ShareResultButton shareText={buildShareText(activeMode, activeResult)} />
-            )}
           </div>
         </div>
-      </div>
-      
-      <div className="mt-20">
-        <EducationalContent />
       </div>
     </CalculatorLayout>
   );

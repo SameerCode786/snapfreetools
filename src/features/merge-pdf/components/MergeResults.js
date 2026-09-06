@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Download, RefreshCw, CheckCircle2 } from "lucide-react";
-import { ShareResultCard } from "@/components/share";
 
 export default function MergeResults({
   mergedBlob,
@@ -150,16 +149,6 @@ export default function MergeResults({
         </div>
 
       </div>
-
-      {/* Centralized Share Result Module */}
-      <ShareResultCard
-        toolName="Merge PDF Online"
-        toolUrl="merge-pdf"
-        result={{
-          type: "document",
-          summary: `Merged ${totalFiles} PDF files (${totalPages} total pages) into a single document.`
-        }}
-      />
 
     </div>
   );

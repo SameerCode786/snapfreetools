@@ -314,11 +314,11 @@ export const ALL_TOOLS = [
     description: "Separate pages or extract selected pages from a PDF.",
     icon: "Scissors",
     featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true,
-    seoTitle: "Split PDF Online - Separate PDF Pages Free",
-    seoDescription: "Split PDF files online free. Separate PDF pages or extract selected pages from your PDF document easily."
+    popular: true,
+    status: "live",
+    future: false,
+    seoTitle: "Split PDF Online Free - Separate & Extract PDF Pages",
+    seoDescription: "Split PDF files online free. Separate PDF pages, extract page ranges, or split into individual single-page PDFs fast and securely inside your browser."
   },
   {
     id: "compress-pdf",
@@ -330,8 +330,8 @@ export const ALL_TOOLS = [
     icon: "FileDown",
     featured: false,
     popular: true,
-    status: "coming-soon",
-    future: true,
+    status: "live",
+    future: false,
     seoTitle: "Compress PDF Online - Reduce PDF File Size Free",
     seoDescription: "Compress PDF files online free. Reduce PDF document file size while maintaining optimal text and image quality."
   },
@@ -390,8 +390,8 @@ export const ALL_TOOLS = [
     icon: "Unlock",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true,
+    status: "live",
+    future: false,
     seoTitle: "Unlock PDF Online - Remove Password & Restrictions Free",
     seoDescription: "Unlock PDF online free. Remove passwords, editing limits, copying restrictions, and printing permissions from authorized PDF files."
   },

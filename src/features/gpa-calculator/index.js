@@ -29,7 +29,12 @@ export default function GPACalculator() {
   const gpa = calculateGPA(courses);
 
   return (
-    <ToolLayout>
+    <ToolLayout
+      title="GPA Calculator"
+      description="Track your academic progress easily."
+      currentSlug="gpa-calculator"
+      result={gpa ? { summary: `Calculated GPA: ${gpa} (4.0 scale)` } : null}
+    >
       <div id="gpa-calculator-page" className="max-w-4xl mx-auto px-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

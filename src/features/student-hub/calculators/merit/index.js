@@ -82,11 +82,16 @@ export default function MeritCalculatorFeature({ faqs, initialPreset = null }) {
     }
   ];
 
+  const activeResult = (aggregate && parseFloat(aggregate) > 0) ? {
+    summary: `Admissions Aggregate Merit: ${formattedAggregate} (${activePreset.name})`
+  } : null;
+
   return (
     <CalculatorLayout 
       title={initialPreset ? `${activePreset.name}` : "Merit Calculator"} 
       description={`Calculate university admissions aggregate merit scores with custom weights or selected university templates.`}
       currentSlug={initialPreset ? `merit-calculator/${preset}` : "merit-calculator"}
+      activeResult={activeResult}
     >
       <div className="space-y-8">
         {/* Preset Selector Card (Hide on dedicated preset route) */}
@@ -149,24 +154,6 @@ export default function MeritCalculatorFeature({ faqs, initialPreset = null }) {
           subtext={`Calculated from matching university aggregate standards.`}
           onReset={resetCalculator} 
         />
-
-        {/* GEO Quick Answer */}
-        <GeoAnswerCard 
-          question="How do you calculate university aggregate merit?"
-          answer={`To calculate university aggregate merit, multiply your percentage scores in matric/secondary school, intermediate/high school, and entrance tests by their respective weighting fractions, then sum the weighted averages together. For example, FAST uses a (10% Matric + 40% FSc + 50% Entry Test) formula, whereas NUST uses a (10% Matric + 15% FSc + 75% NET Entry Test) model.`}
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula="Aggregate = \sum (Academic Grade \% \times Weight Factor)"
-          explanation="Multiply each academic component by its decimal weighting factor (e.g. 50% weight = 0.50). If the score is marks-based, convert to percentage before multiplication."
-        />
-
-        {/* Examples */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

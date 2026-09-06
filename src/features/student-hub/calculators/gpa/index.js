@@ -63,6 +63,10 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
   };
 
   const gpa = calculateGPA(courses, scale);
+  const totalCredits = courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0);
+  const activeResult = gpa ? {
+    summary: `Calculated GPA: ${gpa} (Scale: ${activeScale.name}, Total Credits: ${totalCredits})`
+  } : null;
 
   const examples = [
     {
@@ -89,6 +93,7 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
       title={initialScale ? `${activeScale.name}` : "GPA Calculator"} 
       description={initialScale ? `Official GPA calculator pre-configured for ${activeScale.name}.` : "Calculate your semester and cumulative GPA with standard 4.0, 5.0, or custom university scales."}
       currentSlug={initialScale ? `gpa-calculator/${initialScale}` : "gpa-calculator"}
+      activeResult={activeResult}
     >
       <div className="space-y-8">
         {/* Tool Header */}
@@ -178,10 +183,72 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
             ))}
           </div>
 
-          <div className="pt-4 flex justify-between items-center">
+        </div>
+
+        {/* Course Form Matrix */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm">
+          <div className="flex justify-between items-center flex-wrap gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Courses & Grades</h2>
+              <p className="text-xs text-slate-500 font-medium">Log your individual subject credits and grade marks.</p>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={handlePresetCollege}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
+              >
+                Reset 4 Courses
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {courses.map((course, idx) => (
+              <div key={course.id} className="flex items-center gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+                <span className="w-6 text-center text-xs font-bold text-slate-400">{idx + 1}</span>
+                <input
+                  type="text"
+                  placeholder="Course Name (Optional)"
+                  value={course.name}
+                  onChange={(e) => updateCourse(course.id, "name", e.target.value)}
+                  className="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-400"
+                />
+                <input
+                  type="number"
+                  placeholder="Credits"
+                  value={course.credits}
+                  onChange={(e) => updateCourse(course.id, "credits", e.target.value)}
+                  className="w-20 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-400"
+                  step="0.5"
+                  min="0"
+                />
+                <select
+                  value={course.grade}
+                  onChange={(e) => updateCourse(course.id, "grade", e.target.value)}
+                  className="w-24 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-400 cursor-pointer"
+                >
+                  {activeScale.grades.map((g) => (
+                    <option key={g.letter} value={g.letter}>
+                      {g.letter} ({g.points})
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => removeCourse(course.id)}
+                  disabled={courses.length <= 1}
+                  className="p-2 text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-2">
             <button
               onClick={addCourse}
-              className="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100 font-bold px-5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-1.5"
+              className="w-full py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-2xl font-bold text-xs border border-amber-200/60 transition-all flex items-center justify-center gap-2"
             >
               <Plus size={16} /> Add Class
             </button>
@@ -194,52 +261,7 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
           label="Calculated GPA"
           subtext={`Calculated using the ${activeScale.name} with ${courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0)} credit hours.`}
           onReset={resetCalculator} 
-          onShare={async () => {
-            const totalCredits = courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0);
-            const scaleName = activeScale.name;
-            const text = `My calculated GPA is ${gpa}. Calculated using ${scaleName} with ${totalCredits} credit hours.`;
-            const url = window.location.href;
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: "GPA Calculator Result",
-                  text: text,
-                  url: url
-                });
-                return { success: true, message: "Result shared successfully" };
-              } catch (err) {
-                if (err.name === "AbortError") {
-                  return { success: false, cancelled: true };
-                }
-              }
-            }
-            try {
-              const fullText = `${text} ${url}`;
-              await navigator.clipboard.writeText(fullText);
-              return { success: true, message: "Result copied to clipboard" };
-            } catch (err) {
-              return { success: false, error: "Unable to share result." };
-            }
-          }}
         />
-
-        {/* GEO Quick Answer block */}
-        <GeoAnswerCard 
-          question="How do I calculate my GPA?"
-          answer={`To calculate your GPA, multiply each course grade point value by its credit hours to get grade points. Add up all grade points, and divide that sum by the total credits attempted. (GPA = Total Grade Points / Total Credits). Standard Scales assign 4.0 points for an A, 3.0 for a B, and so on.`}
-        />
-
-        {/* Formula Block */}
-        <FormulaCard 
-          formula="GPA = \sum (Grade Points \times Credit Hours) / \sum (Credit Hours)"
-          explanation="Each grade letter corresponds to a numeric point (e.g. A = 4.0, B = 3.0). Multiply these numeric scores by the credit hours of the class, sum the results, and divide by total credits attempted."
-        />
-
-        {/* Real worked Scenarios */}
-        <ExampleGrid examples={examples} />
-
-        {/* Accordion FAQ layout */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

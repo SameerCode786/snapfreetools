@@ -167,10 +167,16 @@ export default function PercentageCalculatorFeature({ faqs }) {
     });
   };
 
+  const activeResult = (result && !result.isEmpty) ? {
+    summary: `Percentage Calculation: Result = ${result.result !== undefined ? formatNumber(result.result, 4) : result.percentChange !== undefined ? `${formatNumber(result.percentChange, 2)}%` : 'Completed'}`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Percentage Calculator"
       description="Calculate percentages, percentage change, discounts, taxes, tips, and more with our free online percentage calculator."
+      currentSlug="percentage-calculator"
+      activeResult={activeResult}
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Calculators", href: "/calculators" },
@@ -202,13 +208,11 @@ export default function PercentageCalculatorFeature({ faqs }) {
         <WhatIfAnalysis mode={mode} data={data} result={result} />
         <FormulaExplanation mode={mode} data={data} result={result} />
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <SharePreview result={result} data={data} mode={mode} />
-          
+        <div className="flex justify-end pt-4">
           <button 
             onClick={handleCopy}
             disabled={!result || result.isEmpty}
-            className={`flex-1 font-bold py-3.5 px-6 rounded-xl border flex items-center justify-center gap-2 transition-colors ${
+            className={`w-full sm:w-auto font-bold py-3.5 px-8 rounded-xl border flex items-center justify-center gap-2 transition-colors ${
               !result || result.isEmpty 
                 ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' 
                 : copied 

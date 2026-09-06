@@ -11,8 +11,6 @@ import {
   calculateSafeAbsences, 
   calculateProjection 
 } from "./utils/calculateAttendance";
-import { buildShareText } from "./utils/buildShareText";
-import ShareResultButton from "./components/ShareResultButton";
 import AttendanceModeSelector from "./components/AttendanceModeSelector";
 import AttendanceStatusCard from "./components/AttendanceStatusCard";
 
@@ -129,12 +127,20 @@ export default function AttendanceCalculatorFeature({ faqs }) {
     setError(null);
   };
 
+  const activeResult = (result && !result.isEmpty) ? {
+    summary: mode === 'current' 
+      ? `Current Attendance: ${result.percentage ? result.percentage.toFixed(1) : ''}% (${result.attended}/${result.total} classes)`
+      : `Calculated Attendance Result (${mode.toUpperCase()} Mode)`
+  } : null;
+
   return (
     <CalculatorLayout
       title="Attendance Calculator"
       subtitle="Calculate your attendance percentage, find how many classes you need to attend, and see how many absences you can safely take."
       category="Student & Admission Tools"
       currentSlug="attendance-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
     >
       <div className="max-w-4xl mx-auto space-y-12">
         <section className="scroll-mt-32">
@@ -287,9 +293,6 @@ export default function AttendanceCalculatorFeature({ faqs }) {
                     attended={result.attended}
                     missed={result.missed}
                   />
-                  <div className="flex justify-center pt-2">
-                    <ShareResultButton shareText={buildShareText(mode, { target }, result)} />
-                  </div>
                 </>
               )}
 
@@ -303,32 +306,29 @@ export default function AttendanceCalculatorFeature({ faqs }) {
                     target={target}
                   />
                   
-                  <div className="bg-emerald-500 rounded-3xl p-8 text-white shadow-xl flex flex-col items-center text-center">
-                    <span className="text-sm font-extrabold uppercase tracking-widest text-emerald-100 mb-2">
-                      Required Action
+                  <div className={`rounded-3xl p-8 text-white shadow-xl flex flex-col items-center text-center ${result.required.isPossible ? 'bg-amber-500' : 'bg-red-500'}`}>
+                    <span className="text-sm font-extrabold uppercase tracking-widest text-white/80 mb-2">
+                      Required Attendance Goal
                     </span>
-                    {result.required.required > 0 ? (
+                    {result.required.classesNeeded > 0 ? (
                       <>
                         <div className="text-5xl md:text-6xl font-black mb-4">
-                          {result.required.required} <span className="text-3xl">classes</span>
+                          {result.required.classesNeeded} <span className="text-3xl">classes</span>
                         </div>
-                        <p className="text-emerald-50 font-bold max-w-lg text-lg">
-                          You need to attend the next {result.required.required} consecutive classes without missing any to reach {target}%.
+                        <p className="text-amber-50 font-bold max-w-lg text-lg">
+                          You must attend your next {result.required.classesNeeded} consecutive {result.required.classesNeeded === 1 ? 'class' : 'classes'} without missing to reach your {target}% target.
                         </p>
                       </>
                     ) : (
                       <>
                         <div className="text-5xl md:text-6xl font-black mb-4">
-                          Target Reached!
+                          Goal Reached!
                         </div>
-                        <p className="text-emerald-50 font-bold max-w-lg text-lg">
+                        <p className="text-amber-50 font-bold max-w-lg text-lg">
                           Your current attendance is {result.current.percentageFormatted}%, which is already at or above your {target}% target.
                         </p>
                       </>
                     )}
-                  </div>
-                  <div className="flex justify-center pt-2">
-                    <ShareResultButton shareText={buildShareText(mode, { target }, result)} />
                   </div>
                 </>
               )}
@@ -368,9 +368,6 @@ export default function AttendanceCalculatorFeature({ faqs }) {
                       </>
                     )}
                   </div>
-                  <div className="flex justify-center pt-2">
-                    <ShareResultButton shareText={buildShareText(mode, { target }, result)} />
-                  </div>
                 </>
               )}
 
@@ -397,9 +394,6 @@ export default function AttendanceCalculatorFeature({ faqs }) {
                       subtext={`After attending ${futureAttend || 0} and missing ${futureMiss || 0} classes.`}
                     />
                   </div>
-                  <div className="flex justify-center pt-6">
-                    <ShareResultButton shareText={buildShareText(mode, { futureAttend: futureAttend || 0, futureMiss: futureMiss || 0 }, result)} />
-                  </div>
                 </>
               )}
               
@@ -409,10 +403,6 @@ export default function AttendanceCalculatorFeature({ faqs }) {
             </div>
           )}
         </section>
-
-        {faqs && faqs.length > 0 && (
-          <FAQSection faqs={faqs} />
-        )}
       </div>
     </CalculatorLayout>
   );

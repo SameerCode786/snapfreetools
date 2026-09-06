@@ -43,11 +43,35 @@ export default function GPAToPercentageFeature({ faqs }) {
     }
   ];
 
+  const activeResult = (pctResult !== null && formattedPct) ? {
+    summary: `${gpa} GPA is equal to ${formattedPct} (Scale: ${maxScale})`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="GPA to Percentage Calculator" 
       description="Convert your Grade Point Average (GPA) to class percentage equivalents instantly."
       currentSlug="gpa-to-percentage"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="How do I convert my GPA to a percentage?"
+            answer={`To convert a standard 4.0 GPA to a percentage grade, the most common equation is: Percentage = (GPA * 20) + 20. Under this standard, a 4.0 is 100%, 3.5 is 90%, 3.0 is 80%, and 2.0 is 60%. Alternatively, you can use a direct percentage ratio formula: Percentage = (GPA / Max GPA) * 100, which maps 3.0 on a 4.0 scale directly to 75%.`}
+          />
+
+          <FormulaCard 
+            formula={method === "linear" && maxScale === "4.0" ? "Percentage = (GPA \\times 20) + 20" : "Percentage = (GPA / Max GPA) \\times 100"}
+            explanation={method === "linear" && maxScale === "4.0" 
+              ? "The standard linear formula adjusts for typical grading thresholds where a passing average (2.0) equates to 60%, and an A average (4.0) maps to 100%."
+              : "The ratio formula converts your GPA directly as a pure mathematical percentage of the maximum potential score."
+            }
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
         {/* Forms Card */}
@@ -117,27 +141,6 @@ export default function GPAToPercentageFeature({ faqs }) {
           subtext={`Converted a GPA of ${gpa} on a ${maxScale} scale using the ${method === "linear" ? "Linear (Standard)" : "Proportional Ratio"} method.`}
           onReset={resetCalculator} 
         />
-
-        {/* GEO Card */}
-        <GeoAnswerCard 
-          question="How do I convert my GPA to a percentage?"
-          answer={`To convert a standard 4.0 GPA to a percentage grade, the most common equation is: Percentage = (GPA * 20) + 20. Under this standard, a 4.0 is 100%, 3.5 is 90%, 3.0 is 80%, and 2.0 is 60%. Alternatively, you can use a direct percentage ratio formula: Percentage = (GPA / Max GPA) * 100, which maps 3.0 on a 4.0 scale directly to 75%.`}
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula={method === "linear" && maxScale === "4.0" ? "Percentage = (GPA \\times 20) + 20" : "Percentage = (GPA / Max GPA) \\times 100"}
-          explanation={method === "linear" && maxScale === "4.0" 
-            ? "The standard linear formula adjusts for typical grading thresholds where a passing average (2.0) equates to 60%, and an A average (4.0) maps to 100%."
-            : "The ratio formula converts your GPA directly as a pure mathematical percentage of the maximum potential score."
-          }
-        />
-
-        {/* Examples */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

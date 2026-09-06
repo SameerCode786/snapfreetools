@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Calculator, ArrowRight, Share2, Info, RotateCcw } from "lucide-react";
+import { Calculator, ArrowRight, Info, RotateCcw } from "lucide-react";
 import CalculatorLayout from "@/features/student-hub/shared/components/CalculatorLayout";
 import CalculatorInput from "@/features/student-hub/shared/components/CalculatorInput";
 import { GRADING_SCALES, PASS_THRESHOLDS } from "./constants/gradingScales";
@@ -9,7 +9,6 @@ import GradeModeSelector from "./components/GradeModeSelector";
 import SubjectInputRow from "./components/SubjectInputRow";
 import GradeResultDashboard from "./components/GradeResultDashboard";
 import WhatIfSimulator from "./components/WhatIfSimulator";
-import ShareResultButton from "@/features/calculators/student-admission/attendance-calculator/components/ShareResultButton";
 import { 
   calculateSingleGrade, 
   calculateMultipleSubjects, 
@@ -178,11 +177,18 @@ export default function GradeCalculatorFeature({ faqs = [] }) {
     setError(null);
   };
 
+  const activeResult = (result && !result.isEmpty) ? {
+    summary: mode === 'target' 
+      ? `Target Grade Goal: ${reqTargetPercent}% (Marks Needed: ${result.marksNeeded ? result.marksNeeded.toFixed(1) : ''})`
+      : `Calculated Class Grade: ${result.percentage ? result.percentage.toFixed(2) : ''}% (${result.letterGrade || ''})`
+  } : null;
+
   return (
     <CalculatorLayout
       title="Grade Calculator"
-      description="Calculate your grades, percentages, and weighted scores online for free."
+      description="Calculate your current class grade, weighted average, and required final score."
       currentSlug="grade-calculator"
+      activeResult={activeResult}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-7 space-y-8">
@@ -363,14 +369,6 @@ export default function GradeCalculatorFeature({ faqs = [] }) {
                   </div>
                 </div>
               )}
-
-              <div className="mt-6">
-                <ShareResultButton
-                  resultText={buildShareText()}
-                  resultRef={resultsRef}
-                  pdfFileName="grade-calculator-result.pdf"
-                />
-              </div>
             </div>
           ) : (
             <div className="sticky top-6">

@@ -42,28 +42,52 @@ export default function PercentageToGPAFeature({ faqs }) {
     }
   ];
 
+  const activeResult = (gpaResult !== null && formattedGpa) ? {
+    summary: `${percent}% is equal to ${formattedGpa} GPA (Scale: ${maxScale})`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Percentage to GPA Calculator" 
       description="Convert academic grade percentages into standard 4.0 or 5.0 scale GPA values."
       currentSlug="percentage-to-gpa"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="How do I convert my grade percentage to a GPA?"
+            answer={`To convert a class percentage score to a 4.0 GPA, you can use the standard linear formula: GPA = (Percentage - 20) / 20. For example, 90% converts to a 3.5 GPA, and 80% to a 3.0. Alternatively, the proportional ratio formula computes GPA = (Percentage / 100) * Max GPA. This calculates a 90% grade directly as a 3.6 GPA equivalent.`}
+          />
+
+          <FormulaCard 
+            formula={method === "linear" && maxScale === "4.0" ? "GPA = (Percentage - 20) / 20" : "GPA = (Percentage / 100) \\times Max GPA"}
+            explanation={method === "linear" && maxScale === "4.0" 
+              ? "The standard linear formula reflects US academic parameters where passing boundaries are adjusted to fit standard 4.0 letter grade points."
+              : "The proportional ratio formula translates your percentage score directly into a decimal grade point representing the same fraction of the scale."
+            }
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
         {/* Forms Card */}
         <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <div>
             <h1 className="text-2xl font-black text-slate-900">Percentage to GPA Calculator</h1>
-            <p className="text-slate-500 text-sm font-semibold">Enter your grade percentage and choose conversion rules.</p>
+            <p className="text-slate-500 text-sm font-semibold">Enter your overall score percentage to convert into GPA equivalents.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Grade Percentage (%)
+                Class Grade Percentage (%)
               </label>
               <input
                 type="number"
-                step="0.1"
+                step="0.01"
                 min="0"
                 max="100"
                 value={percent}
@@ -74,20 +98,16 @@ export default function PercentageToGPAFeature({ faqs }) {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Target GPA Scale
+                Target Scale Maximum
               </label>
               <select
                 value={maxScale}
-                onChange={(e) => {
-                  setMaxScale(e.target.value);
-                  if (parseFloat(e.target.value) !== 4.0) {
-                    setMethod("proportional");
-                  }
-                }}
+                onChange={(e) => setMaxScale(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 focus:bg-white focus:border-amber-400 focus:outline-none transition-all cursor-pointer appearance-none"
               >
-                <option value="4.0">4.0 Scale</option>
-                <option value="5.0">5.0 Scale</option>
+                <option value="4.0">4.0 Scale (Standard US)</option>
+                <option value="5.0">5.0 Scale (Weighted)</option>
+                <option value="10.0">10.0 Scale (CBSE / India)</option>
               </select>
             </div>
 
@@ -115,27 +135,6 @@ export default function PercentageToGPAFeature({ faqs }) {
           subtext={`Converted ${percent}% to the ${maxScale} scale using the ${method === "linear" ? "Linear" : "Proportional"} method.`}
           onReset={resetCalculator} 
         />
-
-        {/* GEO Card */}
-        <GeoAnswerCard 
-          question="How do I convert my grade percentage to a GPA?"
-          answer={`To convert a class percentage score to a 4.0 GPA, you can use the standard linear formula: GPA = (Percentage - 20) / 20. For example, 90% converts to a 3.5 GPA, and 80% to a 3.0. Alternatively, the proportional ratio formula computes GPA = (Percentage / 100) * Max GPA. This calculates a 90% grade directly as a 3.6 GPA equivalent.`}
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula={method === "linear" && maxScale === "4.0" ? "GPA = (Percentage - 20) / 20" : "GPA = (Percentage / 100) \\times Max GPA"}
-          explanation={method === "linear" && maxScale === "4.0" 
-            ? "The standard linear formula reflects US academic parameters where passing boundaries are adjusted to fit standard 4.0 letter grade points."
-            : "The proportional ratio formula translates your percentage score directly into a decimal grade point representing the same fraction of the scale."
-          }
-        />
-
-        {/* Examples */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

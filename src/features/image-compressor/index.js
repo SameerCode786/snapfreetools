@@ -21,7 +21,9 @@ import {
   ChevronDown,
   Lock,
   Plus,
-  Trash2
+  Trash2,
+  FileText,
+  Check
 } from "lucide-react";
 import React from "react";
 import Link from "next/link";
@@ -1294,8 +1296,106 @@ export default function ImageCompressor() {
     ]
   };
 
+  const doneItems = queue.filter((item) => item.status === "done");
+  const imageResult = doneItems.length > 0 ? {
+    summary: doneItems.length === 1 
+      ? `Compressed "${doneItems[0].name}" saving ${doneItems[0].savingsPercent}% file size.`
+      : `Compressed ${doneItems.length} images saving file size.`
+  } : null;
+
   return (
-    <ToolLayout>
+    <ToolLayout
+      title="Image Compressor & Converter"
+      description="Reduce image size and convert file formats instantly with our private 100% browser-based engine."
+      currentSlug="image-compressor"
+      result={imageResult}
+      seoContent={
+        <div className="space-y-12">
+          {/* HOW IT WORKS */}
+          <div className="space-y-6">
+            <h3 className="font-black text-slate-900 text-lg md:text-xl text-center">
+              How It Works
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {[
+                { step: "Step 1", title: "Upload your image", text: "Drag-and-drop or select JPG, PNG, WEBP, or AVIF files from your file storage." },
+                { step: "Step 2", title: "Adjust quality and format", text: "Select a custom target size constraint or choose an exact output format (e.g. JPG to WebP)." },
+                { step: "Step 3", title: "Compress and download", text: "Natively process files inside your browser tab and save the optimized assets instantly." }
+              ].map((s, idx) => (
+                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 text-center space-y-2 relative hover:border-emerald-200 transition-colors">
+                  <span className="inline-block text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
+                    {s.step}
+                  </span>
+                  <h4 className="font-bold text-slate-800 text-sm md:text-base">{s.title}</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed">{s.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FEATURES GRID */}
+          <div className="space-y-6">
+            <h3 className="font-black text-slate-900 text-lg md:text-xl text-center">
+              Key Technical Features
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {[
+                { icon: Shield, title: "100% Client-Side Privacy", text: "Files are processed inside browser RAM. Zero network uploads to remote databases." },
+                { icon: Sparkles, title: "Smart Lossy & Lossless Math", text: "Fine-tune target quality multipliers or set exact kilobyte boundaries (e.g. 50KB limit)." },
+                { icon: ImageIcon, title: "Multi-Format Conversions", text: "Convert freely between JPG, PNG, WEBP, and AVIF image formats without software installation." },
+                { icon: FileText, title: "Batch Processing Queue", text: "Queue multiple image files simultaneously and export them individually or in a ZIP bundle." },
+                { icon: Download, title: "Instant Asset Exports", text: "No queue delays or server rendering waits. Immediate download access for all processed images." },
+                { icon: Check, title: "Zero Subscription Fees", text: "100% free web utility with no registration barriers, trial periods, or hidden fees." }
+              ].map((f, idx) => (
+                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                    <f.icon size={20} />
+                  </div>
+                  <h4 className="font-bold text-slate-800 text-sm md:text-base">{f.title}</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed">{f.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ACCORDION FAQ SECTION */}
+          <div className="space-y-6 border-t border-slate-200 pt-8 max-w-3xl mx-auto pb-12">
+            <div className="text-center">
+              <h2 className="font-black text-slate-900 text-lg md:text-xl">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Get detailed answers about local browser processing, file privacy, and modern image formats.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {FAQS_DATA.slice(0, 10).map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm transition-all duration-200">
+                    <button
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full text-left p-4 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:text-emerald-600 focus:outline-none"
+                    >
+                      <span>{faq.question}</span>
+                      <span className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+                        ▼
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500 leading-relaxed font-medium">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      }
+    >
       {/* Schemas rendered inside head */}
       <script
         type="application/ld+json"
@@ -1935,6 +2035,8 @@ export default function ImageCompressor() {
                   >
                     <Trash2 size={13} /> {activeTab === "compressor" ? "Compress Another Image" : "Convert Another Image"}
                   </button>
+
+
                 </div>
               </div>
             </div>
@@ -2436,241 +2538,6 @@ export default function ImageCompressor() {
             </div>
           )
         )}
-
-        {/* HOW IT WORKS */}
-        <div className="space-y-6">
-          <h3 className="font-black text-slate-900 text-lg md:text-xl text-center">
-            How It Works
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {[
-              { step: "Step 1", title: "Upload your image", text: "Drag-and-drop or select JPG, PNG, WEBP, or AVIF files from your file storage." },
-              { step: "Step 2", title: "Adjust quality and format", text: "Select a custom target size constraint or choose an exact output format (e.g. JPG to WebP)." },
-              { step: "Step 3", title: "Compress and download", text: "Natively process files inside your browser tab and save the optimized assets instantly." }
-            ].map((s, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 text-center space-y-2 relative hover:border-emerald-200 transition-colors">
-                <span className="inline-block text-xs font-black bg-emerald-55 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-                  {s.step}
-                </span>
-                <h4 className="font-bold text-slate-800 text-sm md:text-base">{s.title}</h4>
-                <p className="text-slate-500 text-xs leading-relaxed">{s.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* PREMIUM FORMAT COMPARISON TABLE (H2 level) */}
-        <div className="space-y-6">
-          <div className="text-center">
-            <h2 className="font-black text-slate-900 text-lg md:text-xl">
-              Convert JPG, PNG, WEBP & AVIF
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              Understand differences in quality, transparency, speed, and search engine optimization.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 font-black text-slate-600 uppercase tracking-widest text-[9px]">
-                  <th className="p-4">Format</th>
-                  <th className="p-4">Compression</th>
-                  <th className="p-4">Quality</th>
-                  <th className="p-4">Transparency</th>
-                  <th className="p-4">Speed</th>
-                  <th className="p-4">SEO</th>
-                  <th className="p-4">Best Use Case</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 text-slate-600 font-medium">
-                {FORMAT_EDUCATION.map((f, idx) => (
-                  <tr key={idx} className={`hover:bg-slate-50/50 ${f.isRecommended ? "bg-emerald-50/20" : ""}`}>
-                    <td className="p-4 font-black text-slate-900 flex items-center gap-1.5">
-                      {f.format}
-                      {f.isRecommended && (
-                        <span className="bg-emerald-100 text-emerald-800 text-[8px] px-1 py-0.2 rounded font-black tracking-wide">
-                          RECOMMENDED
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">{f.compression}</td>
-                    <td className="p-4">{f.quality}</td>
-                    <td className="p-4">{f.transparency}</td>
-                    <td className="p-4">{f.speed}</td>
-                    <td className="p-4 font-semibold text-emerald-600">{f.seo}</td>
-                    <td className="p-4">{f.useCases}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* HIGH-VALUE SEO SIZE TARGETED GUIDES (H2 level) */}
-        <div className="space-y-6 border-t border-slate-200 pt-8">
-          <div className="text-center">
-            <h2 className="font-black text-slate-900 text-lg md:text-xl">
-              Image Compression Guides
-            </h2>
-            <p className="text-xs text-slate-500 font-medium max-w-xl mx-auto">
-              Follow our structural guidelines to reduce image size for job boards, government portals, and web assets.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Compress Image to 20KB",
-                desc: "Compressing images to 20KB is a standard requirement for government forms and official online uploads. To compress image to 20KB, start by resizing the width of your image down to under 800px. Convert JPG or PNG format into WebP, which handles lossy compression gracefully without adding blocking artifacts. Select the 20KB target size option; our browser engine will optimize quality settings directly."
-              },
-              {
-                title: "Compress Image to 50KB",
-                desc: "A 50KB boundary is ideal for profile avatars, signatures, and light attachments. To compress image to 50KB online, choose WebP or JPEG. Select our 50KB preset in the editor. Our browser tool will compute quality presets iteratively. If you start with a heavy 5MB photo, crop out extra margins beforehand to retain center clarity."
-              },
-              {
-                title: "Compress Image to 100KB",
-                desc: "Optimizing website graphics to 100KB is critical for high PageSpeed performance. Compressing images to 100KB helps you balance visual quality and loading speed. Convert standard JPG/PNG files to modern WebP or AVIF. This ensures fast download times on mobile devices, improving your site Core Web Vitals and search engine rankings."
-              },
-              {
-                title: "Compress Image to 200KB",
-                desc: "For prominent blog banners and high-resolution product photos, a 200KB limit is recommended. To compress image to 200KB, set our quality slider manually to 80% or select the 200KB target preset. WebP is highly recommended for graphics with transparent details, saving up to 30% file size compared to PNG format."
-              },
-              {
-                title: "Compress Image to 500KB",
-                desc: "Photography showcases and PDF attachments usually require file limits under 500KB. Compress image to 500KB to clear this limit easily. AVIF format delivers next-generation structural fidelity, allowing you to showcase vibrant colors at half the weight of traditional JPGs, while automatic processing strips metadata logs."
-              },
-              {
-                title: "Compress Image to 1MB",
-                desc: "High-definition camera pictures often exceed 10MB. Compress image to 1MB to clear messaging app limits or email attachment ceilings. Our batch image size reducer scales quality and dimensions smoothly, ensuring that large print-ready photos retain their pixel density and look crystal clear on modern high-DPI displays."
-              }
-            ].map((g, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2 hover:border-slate-300 transition-colors">
-                <h4 className="font-bold text-slate-800 text-sm">{g.title}</h4>
-                <p className="text-slate-500 text-xs leading-relaxed">{g.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* GEO AI ANSWER CARDS */}
-        <div className="space-y-6 border-t border-slate-200 pt-8">
-          <div className="text-center">
-            <h3 className="font-black text-slate-900 text-lg md:text-xl">
-              AI & Search Engine Quick Answers
-            </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              Direct, factual responses optimized for AI overviews and digital search agents.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {GEO_CARDS.map((card, idx) => (
-              <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 hover:border-emerald-200 transition-colors">
-                <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                  <span className="w-1.5 h-3 bg-emerald-500 rounded-full shrink-0" />
-                  {card.q}
-                </h4>
-                <p className="text-slate-500 text-xs leading-relaxed font-medium">
-                  {card.a}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ABOUT SECTION (CONCISE SEO TARGET) */}
-        <div className="max-w-3xl mx-auto bg-slate-50 rounded-2xl p-6 border border-slate-200/60 text-xs leading-relaxed space-y-4">
-          <h3 className="font-black text-slate-900 text-sm">
-            About SnapFreeTools Image Compressor & Converter
-          </h3>
-          <p className="text-slate-500 font-medium">
-            SnapFreeTools Image Compressor is a premium, 100% browser-based utility designed for instant image optimization and format conversion. Large media files slow down website loading speeds, increase server costs, and damage conversion rates. By utilizing native browser APIs (HTML5 Canvas and Web Worker resources), this tool optimizes your visuals client-side. Your photos, screenshots, and logos never touch any external server, guaranteeing absolute privacy and zero risk of data exposure.
-          </p>
-          <p className="text-slate-500 font-medium">
-            Our toolkit functions as both a high-fidelity image compressor and a versatile format converter. Instantly convert png to jpg, jpg to png, and jpg to webp without installing plugins. We support modern image standards like WebP and AVIF to help you meet modern Google PageSpeed standards and improve SEO performance. Whether you need to compress image to 20KB for an official government portal, or compress image to 100KB for your e-commerce storefront, our automated target-size binary search engine scales quality settings dynamically to deliver accurate file sizes. Speed up your web page loading times, reduce bandwidth overhead, and streamline your workflow with SnapFreeTools today.
-          </p>
-        </div>
-
-        {/* PEOPLE ALSO SEARCH FOR & INTERNAL LINKS */}
-        <div className="border-t border-slate-200 pt-8 pb-4 text-center space-y-4">
-          <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-            People Also Search For
-          </h4>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold">
-            {[
-              { label: "Image Compressor to 20KB", path: "/image-compressor" },
-              { label: "Image Compressor to 50KB", path: "/image-compressor" },
-              { label: "Image Compressor to 100KB", path: "/image-compressor" },
-              { label: "Image Compressor to 200KB", path: "/image-compressor" },
-              { label: "Image Compressor to 500KB", path: "/image-compressor" },
-              { label: "Image Compressor to 1MB", path: "/image-compressor" },
-              { label: "Compress JPG Online", path: "/image-compressor" },
-              { label: "Compress PNG Online", path: "/image-compressor" },
-              { label: "Compress WEBP Online", path: "/image-compressor" },
-              { label: "Photo Compressor", path: "/image-compressor" },
-              { label: "Image Size Reducer", path: "/image-compressor" },
-              { label: "Online Image Converter", path: "/image-compressor" },
-              { label: "JPG to WEBP", path: "/image-compressor" },
-              { label: "PNG to JPG", path: "/image-compressor" },
-              { label: "WEBP to PNG", path: "/image-compressor" },
-              { label: "AVIF Converter", path: "/image-compressor" }
-            ].map((link, idx) => (
-              <Link
-                key={idx}
-                href={link.path}
-                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:text-emerald-600 hover:border-emerald-300 transition-colors shadow-sm"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="pt-2 flex flex-wrap justify-center gap-x-6 gap-y-1.5 text-xs font-bold text-slate-500">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Other Utilities:</span>
-            <Link href="/word-counter" className="hover:text-emerald-500 transition-colors">✍️ Word Counter</Link>
-            <Link href="/gpa-calculator" className="hover:text-emerald-500 transition-colors">🎓 GPA Calculator</Link>
-            <Link href="/pdf-to-word" className="hover:text-emerald-500 transition-colors">📄 PDF to Word</Link>
-          </div>
-        </div>
-
-        {/* ACCORDION FAQ SECTION (H2 level) */}
-        <div className="space-y-6 border-t border-slate-200 pt-8 max-w-3xl mx-auto pb-12">
-          <div className="text-center">
-            <h2 className="font-black text-slate-900 text-lg md:text-xl">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              Get detailed answers about local browser processing, file privacy, and modern image formats.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            {/* Show only first 10 FAQs in UI */}
-            {FAQS_DATA.slice(0, 10).map((faq, idx) => {
-              const isOpen = openFaqIndex === idx;
-              return (
-                <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm transition-all duration-200">
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full text-left p-4 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:text-emerald-600 focus:outline-none"
-                  >
-                    <span>{faq.question}</span>
-                    <span className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
-                      ▼
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500 leading-relaxed font-medium">
-                      {faq.answer}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
       </div>
     </ToolLayout>
   );

@@ -118,75 +118,28 @@ export default function WordToPDFFeature({ faqs = [] }) {
   };
 
   return (
-    <ToolLayout>
-      <div className="space-y-12 max-w-4xl mx-auto">
-        {/* Tool Header Section */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-bold uppercase tracking-wider">
-            <Sparkles size={14} className="text-amber-500" />
-            100% Free & Browser-Based
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
-            Word to PDF Converter
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto font-medium leading-relaxed">
-            Convert DOCX files to PDF directly in your browser. Fast, private, and no file upload required.
-          </p>
-        </div>
-
-        {/* Converter Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-          {stage === "upload" && (
-            <UploadState
-              onFileSelect={handleFileSelect}
-              fileError={fileError}
-              isDragging={isDragging}
-              setIsDragging={setIsDragging}
-              fileInputRef={fileInputRef}
-            />
-          )}
-
-          {stage === "ready" && (
-            <FileReadyState
-              file={file}
-              onConvert={handleStartConversion}
-              onChangeFile={handleReset}
-            />
-          )}
-
-          {stage === "converting" && (
-            <ConversionProgress
-              progress={progress}
-              stageText={stageText}
-              onCancel={handleCancelConversion}
-            />
-          )}
-
-          {stage === "success" && pdfResult && (
-            <ConversionSuccess
-              originalFilename={file.name}
-              pdfUrl={pdfResult.pdfUrl}
-              metrics={pdfResult.metrics}
-              onReset={handleReset}
-            />
-          )}
-        </div>
-
-        {/* Informational & SEO Sections */}
-        <div className="space-y-12 pt-6">
-          {/* How to Convert Section */}
-          <section className="bg-white border border-slate-200 rounded-3xl p-8 space-y-6 shadow-sm">
+    <ToolLayout
+      title="Word to PDF Converter"
+      description="Convert DOCX files to PDF directly in your browser. Fast, private, and no file upload required."
+      currentSlug="word-to-pdf"
+      result={stage === "success" && pdfResult ? {
+        summary: "Converted Word document into a high-quality PDF document."
+      } : null}
+      seoContent={
+        <div className="space-y-12">
+          {/* How It Works */}
+          <section className="space-y-6">
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 text-center">
               How to Convert Word to PDF Online
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2 text-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-amber-100 text-amber-600 font-black rounded-xl flex items-center justify-center mx-auto text-sm">
                   1
                 </div>
                 <h3 className="font-bold text-slate-900 text-sm">Select DOCX File</h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Choose a Word document (<code className="bg-slate-200 text-slate-700 px-1 py-0.5 rounded text-[10px]">.docx</code>) up to 10MB from your computer or phone.
+                  Choose or drag and drop your Microsoft Word <code className="bg-slate-200 px-1 py-0.5 rounded text-[10px]">.docx</code> file into the upload dropzone.
                 </p>
               </div>
 
@@ -282,6 +235,62 @@ export default function WordToPDFFeature({ faqs = [] }) {
                 })}
               </div>
             </section>
+          )}
+        </div>
+      }
+    >
+      <div className="space-y-12 max-w-4xl mx-auto">
+        {/* Tool Header Section */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-bold uppercase tracking-wider">
+            <Sparkles size={14} className="text-amber-500" />
+            100% Free & Browser-Based
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+            Word to PDF Converter
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto font-medium leading-relaxed">
+            Convert DOCX files to PDF directly in your browser. Fast, private, and no file upload required.
+          </p>
+        </div>
+
+        {/* Converter Card */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+          {stage === "upload" && (
+            <UploadState
+              onFileSelect={handleFileSelect}
+              fileError={fileError}
+              isDragging={isDragging}
+              setIsDragging={setIsDragging}
+              fileInputRef={fileInputRef}
+            />
+          )}
+
+          {stage === "ready" && (
+            <FileReadyState
+              file={file}
+              onConvert={handleStartConversion}
+              onChangeFile={handleReset}
+            />
+          )}
+
+          {stage === "converting" && (
+            <ConversionProgress
+              progress={progress}
+              stageText={stageText}
+              onCancel={handleCancelConversion}
+            />
+          )}
+
+          {stage === "success" && pdfResult && (
+            <div className="space-y-6">
+              <ConversionSuccess
+                originalFilename={file.name}
+                pdfUrl={pdfResult.pdfUrl}
+                metrics={pdfResult.metrics}
+                onReset={handleReset}
+              />
+            </div>
           )}
         </div>
       </div>

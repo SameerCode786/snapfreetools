@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { ArrowLeft, Star, FileImage, GraduationCap, Edit3 } from "lucide-react";
 
-import { ShareToolCard, FeedbackCard } from "@/components/share";
+import ShareSystem from "@/components/share";
 
 export default function ToolLayout({ 
   title, 
   description, 
+  currentSlug = "",
+  result = null,
+  activeResult = null,
   hideShare = false,
   hideFeedback = false,
+  seoContent = null,
   children 
 }) {
   const relatedTools = [
@@ -43,16 +47,24 @@ export default function ToolLayout({
         </Link>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Workspace / Result Area */}
       <div className="w-full">
         {children}
       </div>
 
-      {/* Centralized Share & Feedback Module */}
-      {(!hideShare || !hideFeedback) && (
-        <div className="space-y-6 pt-4">
-          {!hideShare && <ShareToolCard toolName={title} />}
-          {!hideFeedback && <FeedbackCard toolName={title} />}
+      {/* Centralized Share System - Immediately below workspace/result */}
+      {!hideShare && (
+        <ShareSystem
+          toolName={title}
+          toolSlug={currentSlug}
+          result={result || activeResult}
+        />
+      )}
+
+      {/* Educational / SEO Content (rendered after ShareSystem) */}
+      {seoContent && (
+        <div className="w-full space-y-12 pt-4 border-t border-slate-100">
+          {seoContent}
         </div>
       )}
 

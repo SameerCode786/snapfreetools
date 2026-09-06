@@ -56,6 +56,10 @@ export default function CGPACalculatorFeature({ faqs }) {
   };
 
   const cgpa = calculateCGPA(semesters);
+  const totalCredits = semesters.reduce((acc, s) => acc + (parseFloat(s.credits) || 0), 0);
+  const activeResult = cgpa ? {
+    summary: `Cumulative CGPA: ${cgpa} (${semesters.length} Semesters, ${totalCredits} Total Credits)`
+  } : null;
 
   const examples = [
     {
@@ -74,6 +78,23 @@ export default function CGPACalculatorFeature({ faqs }) {
       title="CGPA Calculator" 
       description="Calculate your overall Cumulative Grade Point Average (CGPA) by aggregating semester scores and credits."
       currentSlug="cgpa-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="What is the difference between GPA and CGPA?"
+            answer="GPA (Grade Point Average) represents the academic standing for a single term or semester. CGPA (Cumulative Grade Point Average) is the overall average of all GPAs combined across all terms from your enrollment. It is calculated by dividing total cumulative grade points earned by the sum of all cumulative credit hours."
+          />
+
+          <FormulaCard 
+            formula="CGPA = \sum (Semester GPA \times Semester Credits) / \sum (Semester Credits)"
+            explanation="Multiply each semester's GPA by its credit load to find the term grade points. Sum these points and divide by the cumulative credit hours of all semesters."
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
         {/* Input Card */}
@@ -155,52 +176,7 @@ export default function CGPACalculatorFeature({ faqs }) {
           label="Cumulative CGPA"
           subtext={`Calculated from ${semesters.length} semesters and a total of ${semesters.reduce((acc, s) => acc + (parseFloat(s.credits) || 0), 0)} cumulative credits.`}
           onReset={resetCalculator} 
-          onShare={async () => {
-            const semesterCount = semesters.length;
-            const totalCredits = semesters.reduce((acc, s) => acc + (parseFloat(s.credits) || 0), 0);
-            const text = `My calculated CGPA is ${cgpa}. Calculated from ${semesterCount} semesters with ${totalCredits} total credit hours.`;
-            const url = window.location.href;
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: "CGPA Calculator Result",
-                  text: text,
-                  url: url
-                });
-                return { success: true, message: "Result shared successfully" };
-              } catch (err) {
-                if (err.name === "AbortError") {
-                  return { success: false, cancelled: true };
-                }
-              }
-            }
-            try {
-              const fullText = `${text} ${url}`;
-              await navigator.clipboard.writeText(fullText);
-              return { success: true, message: "Result copied to clipboard" };
-            } catch (err) {
-              return { success: false, error: "Unable to share result." };
-            }
-          }}
         />
-
-        {/* GEO Quick Answer */}
-        <GeoAnswerCard 
-          question="What is the difference between GPA and CGPA?"
-          answer="GPA (Grade Point Average) represents the academic standing for a single term or semester. CGPA (Cumulative Grade Point Average) is the overall average of all GPAs combined across all terms from your enrollment. It is calculated by dividing total cumulative grade points earned by the sum of all cumulative credit hours."
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula="CGPA = \sum (Semester GPA \times Semester Credits) / \sum (Semester Credits)"
-          explanation="Multiply each semester's GPA by its credit load to find the term grade points. Sum these points and divide by the cumulative credit hours of all semesters."
-        />
-
-        {/* Examples */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

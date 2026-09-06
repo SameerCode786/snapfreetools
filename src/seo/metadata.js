@@ -151,6 +151,24 @@ export const METADATA_CONFIG = {
     keywords: "merge pdf, merge pdf files, combine pdf, combine pdf files, pdf merger, merge pdfs online, free pdf merger, combine multiple pdfs",
     path: "/merge-pdf"
   },
+  "split-pdf": {
+    title: "Split PDF Online Free – Separate & Extract PDF Pages",
+    description: "Split PDF files online free. Separate PDF pages, extract page ranges, or split into individual single-page PDFs fast and securely inside your browser. No server uploads.",
+    keywords: "split pdf, split pdf online, free pdf splitter, separate pdf pages, extract pdf pages, split pdf into multiple files, divide pdf, pdf page separator",
+    path: "/split-pdf"
+  },
+  "compress-pdf": {
+    title: "Compress PDF Online - Reduce PDF File Size Free | SnapFreeTools",
+    description: "Compress PDF files online free. Reduce PDF document file size while preserving selectable text, vector graphics, and original document layout inside your browser.",
+    keywords: "compress pdf, compress pdf online, free pdf compressor, reduce pdf size, make pdf smaller, reduce pdf file size, optimize pdf, pdf compressor online",
+    path: "/compress-pdf"
+  },
+  "unlock-pdf": {
+    title: "Unlock PDF Online Free – Remove PDF Password | SnapFreeTools",
+    description: "Unlock PDF files online free. Remove password protection and PDF restrictions securely inside your browser. Fast, private, and 100% client-side.",
+    keywords: "unlock pdf, unlock pdf online, remove pdf password, pdf password remover, unlock password protected pdf, remove password from pdf, pdf unlocker",
+    path: "/unlock-pdf"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

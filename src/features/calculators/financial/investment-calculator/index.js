@@ -111,9 +111,6 @@ export default function InvestmentCalculatorSuite() {
             {mode === 'comparison' ? (
               <div className="space-y-8 mt-4">
                 <InvestmentComparison resultA={result} resultB={resultB} currencyCode={currencyCode} />
-                <div className="max-w-sm mx-auto">
-                  <SharePreview result={result} resultB={resultB} mode={mode} currencyCode={currencyCode} />
-                </div>
               </div>
             ) : (
               <>
@@ -125,13 +122,6 @@ export default function InvestmentCalculatorSuite() {
                     <WhatIfSimulator originalData={data} originalResult={result} currencyCode={currencyCode} />
                     <YearlyGrowthTable result={result} currencyCode={currencyCode} />
                   </>
-                )}
-                
-                {/* Mobile share preview */}
-                {mode !== 'comparison' && mode !== 'inflation' && mode !== 'goal' && (
-                  <div className="max-w-sm mx-auto">
-                    <SharePreview result={result} mode={mode} currencyCode={currencyCode} />
-                  </div>
                 )}
               </>
             )}

@@ -5,7 +5,7 @@ import { getCanonicalToolUrl } from "./platformShareUrls";
  */
 export function buildToolShareText(toolName, customUrl) {
   const url = getCanonicalToolUrl(customUrl);
-  return `Check out this free ${toolName} on SnapFreeTools:\n${url}`;
+  return `Check out this free ${toolName} on SnapFreeTools:\n\n${url}`;
 }
 
 export function buildResultShareText({ toolName, toolUrl, result, customFormatter }) {
@@ -16,7 +16,7 @@ export function buildResultShareText({ toolName, toolUrl, result, customFormatte
     if (formatted) return formatted;
   }
 
-  let text = `Check out this free ${toolName} on SnapFreeTools:\n${url}\n\nMy Result:\n`;
+  let text = `Check out this free ${toolName} on SnapFreeTools:\n\n${url}\n\nMy Result:\n`;
 
   if (typeof result === "string") {
     text += `• ${result}\n`;
@@ -40,6 +40,6 @@ export function buildResultShareText({ toolName, toolUrl, result, customFormatte
     }
   }
 
-  text += `\nTry it yourself:\n${url}`;
+  text += `\nTry it yourself!`;
   return text;
 }

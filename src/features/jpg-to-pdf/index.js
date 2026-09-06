@@ -245,7 +245,38 @@ export default function JPGToPDFFeature({ faqs = [] }) {
   };
 
   return (
-    <ToolLayout>
+    <ToolLayout
+      title="JPG to PDF Converter"
+      description="Convert JPG, JPEG, and PNG images into a PDF file locally inside your browser."
+      currentSlug="jpg-to-pdf"
+      result={status === "success" && pdfUrl ? {
+        summary: `Converted ${images.length} images into a single PDF document.`
+      } : null}
+      seoContent={
+        <>
+          <EDUCATIONAL_CONTENT />
+          {faqs && faqs.length > 0 && (
+            <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm space-y-6">
+              <h2 className="text-2xl font-black text-slate-900 text-center">Frequently Asked Questions</h2>
+              <div className="space-y-4">
+                {faqs.map((faq, idx) => (
+                  <details
+                    key={idx}
+                    className="bg-white border border-slate-200 rounded-2xl p-6 group shadow-xs cursor-pointer open:border-amber-300 open:ring-1 open:ring-amber-200 transition-all"
+                  >
+                    <summary className="font-bold text-slate-800 text-base list-none flex items-center justify-between gap-4">
+                      {faq.question}
+                      <span className="text-slate-400 group-open:rotate-180 transition-transform shrink-0 text-xs">▼</span>
+                    </summary>
+                    <p className="mt-4 text-slate-600 leading-relaxed text-sm">{faq.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      }
+    >
       <div className="space-y-12 max-w-5xl mx-auto">
         
         {/* Header Section */}
@@ -419,31 +450,6 @@ export default function JPGToPDFFeature({ faqs = [] }) {
             )}
           </div>
         )}
-
-        {/* Educational Explanatory Section */}
-        <EDUCATIONAL_CONTENT />
-
-        {/* FAQs */}
-        {faqs && faqs.length > 0 && (
-          <section className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm space-y-6">
-            <h2 className="text-2xl font-black text-slate-900 text-center">Frequently Asked Questions</h2>
-            <div className="space-y-4">
-              {faqs.map((faq, idx) => (
-                <details
-                  key={idx}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 group shadow-xs cursor-pointer open:border-amber-300 open:ring-1 open:ring-amber-200 transition-all"
-                >
-                  <summary className="font-bold text-slate-800 text-base list-none flex items-center justify-between gap-4">
-                    {faq.question}
-                    <span className="text-slate-400 group-open:rotate-180 transition-transform shrink-0 text-xs">▼</span>
-                  </summary>
-                  <p className="mt-4 text-slate-600 leading-relaxed text-sm">{faq.answer}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        )}
-
       </div>
     </ToolLayout>
   );

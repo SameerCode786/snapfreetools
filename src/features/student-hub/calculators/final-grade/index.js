@@ -61,11 +61,32 @@ export default function FinalGradeCalculatorFeature({ faqs }) {
     }
   ];
 
+  const activeResult = (neededScore !== null && formattedResult) ? {
+    summary: `Required Final Exam Score: ${formattedResult} (Current Grade: ${currentGrade}%, Target Grade: ${targetGrade}%, Final Weight: ${finalWeight}%)`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Final Grade Calculator" 
       description="Find out exactly what score you must earn on your final exam to pass your class or reach an A average."
       currentSlug="final-grade-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="I have an 85% in my class. What score do I need on the final exam (weighted 20%) to get a 90%?"
+            answer="To get a 90% overall grade in the class when your current score is 85% and the final represents 20% of your grade, you would need to score a 110% on the final exam. Since this exceeds 100%, it is impossible without extra credit."
+          />
+
+          <FormulaCard 
+            formula="Exam Score = \frac{Target Grade - (Current Grade \times (1 - Weight))}{Weight}"
+            explanation="Compute the contribution of your current coursework grades (Current Grade * (1 - Weight)). Subtract this from your target class percentage to determine points needed, and divide by the final exam weight."
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
         {/* Form Panel */}
@@ -131,24 +152,6 @@ export default function FinalGradeCalculatorFeature({ faqs }) {
           onReset={resetCalculator} 
           className={isImpossible ? "from-red-500 to-rose-600 shadow-rose-500/10" : ""}
         />
-
-        {/* GEO Answer Card */}
-        <GeoAnswerCard 
-          question="I have an 85% in my class. What score do I need on the final exam (weighted 20%) to get a 90%?"
-          answer="To get a 90% overall grade in the class when your current score is 85% and the final represents 20% of your grade, you would need to score a 110% on the final exam. Since this exceeds 100%, it is impossible without extra credit."
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula="Exam Score = \frac{Target Grade - (Current Grade \times (1 - Weight))}{Weight}"
-          explanation="Compute the contribution of your current coursework grades (Current Grade * (1 - Weight)). Subtract this from your target class percentage to determine points needed, and divide by the final exam weight."
-        />
-
-        {/* Examples Grid */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

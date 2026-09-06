@@ -66,30 +66,66 @@ export default function RequiredGPACalculatorFeature({ faqs }) {
     }
   ];
 
+  const activeResult = (result && !result.isEmpty && formattedResult) ? {
+    summary: `Required GPA Needed: ${formattedResult} (Current GPA: ${currentGpa}, Target GPA: ${targetGpa})`
+  } : null;
+
   return (
     <CalculatorLayout 
       title="Required GPA Calculator" 
-      description="Plan and calculate the semester GPA required in future courses to reach your goal GPA."
+      description="Determine the target GPA needed in future semesters to achieve your goal overall cumulative GPA."
       currentSlug="required-gpa-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="I have a 3.1 GPA after 60 credits. What GPA do I need next semester to graduate with a 3.5 GPA?"
+            answer="To raise your GPA from 3.1 to 3.5 after 60 credits, assuming you take 15 credits next semester, you would need a semester GPA of 5.10. Since standard scales cap at 4.0, this is mathematically impossible in a single term. You will need to take more credit hours or set a longer timeline to achieve a cumulative 3.5 average."
+          />
+
+          <FormulaCard 
+            formula="Required GPA = \frac{(Target GPA \times Total Credits) - (Current GPA \times Current Credits)}{Future Credits}"
+            explanation="Compute the total point volume needed to reach your target GPA. Subtract the points you have already earned, and divide the remaining balance by the future credits you plan to take."
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
-        {/* Form panel */}
+        {/* Input Card */}
         <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <div>
             <h1 className="text-2xl font-black text-slate-900">Required GPA Calculator</h1>
-            <p className="text-slate-500 text-sm font-semibold">Define your cumulative target and planned credits to find your target semester score.</p>
+            <p className="text-slate-500 text-sm font-semibold">Calculate the GPA you must earn in upcoming semesters to hit your graduation goal.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Current CGPA
+                Target Cumulative GPA
               </label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
-                max="5.0"
+                max="5"
+                value={targetGpa}
+                onChange={(e) => setTargetGpa(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none transition-all"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                Current Cumulative GPA
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                max="5"
                 value={currentGpa}
                 onChange={(e) => setCurrentGpa(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none transition-all"
@@ -98,28 +134,13 @@ export default function RequiredGPACalculatorFeature({ faqs }) {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Current Credits
+                Earned Credits So Far
               </label>
               <input
                 type="number"
                 min="0"
                 value={currentCredits}
                 onChange={(e) => setCurrentCredits(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none transition-all"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Target CGPA
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="5.0"
-                value={targetGpa}
-                onChange={(e) => setTargetGpa(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none transition-all"
               />
             </div>
@@ -147,24 +168,6 @@ export default function RequiredGPACalculatorFeature({ faqs }) {
           onReset={resetCalculator} 
           className={isImpossible ? "from-red-500 to-rose-600 shadow-rose-500/10" : ""}
         />
-
-        {/* GEO Answer Card */}
-        <GeoAnswerCard 
-          question="I have a 3.1 GPA after 60 credits. What GPA do I need next semester to graduate with a 3.5 GPA?"
-          answer="To raise your GPA from 3.1 to 3.5 after 60 credits, assuming you take 15 credits next semester, you would need a semester GPA of 5.10. Since standard scales cap at 4.0, this is mathematically impossible in a single term. You will need to take more credit hours or set a longer timeline to achieve a cumulative 3.5 average."
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula="Required GPA = \frac{(Target GPA \times Total Credits) - (Current GPA \times Current Credits)}{Future Credits}"
-          explanation="Compute the total point volume needed to reach your target GPA. Subtract the points you have already earned, and divide the remaining balance by the future credits you plan to take."
-        />
-
-        {/* Examples Grid */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

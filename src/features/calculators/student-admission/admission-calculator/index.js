@@ -12,7 +12,6 @@ import WeightConfiguration from "./components/WeightConfiguration";
 import AdmissionResultDashboard from "./components/AdmissionResultDashboard";
 import WhatIfSimulator from "./components/WhatIfSimulator";
 import TargetPlanner from "./components/TargetPlanner";
-import ShareResultButton from "./components/ShareResultButton";
 import EducationalContent from "./content/educationalContent";
 
 export default function AdmissionCalculatorFeature({ faqs }) {
@@ -73,13 +72,19 @@ export default function AdmissionCalculatorFeature({ faqs }) {
     return `📊 My Admission Aggregate Result\n\nSSC: ${result.sscPercentage.toFixed(2)}%\nHSSC: ${result.hsscPercentage.toFixed(2)}%\nEntry Test: ${result.etPercentage.toFixed(2)}%\n\nFinal Aggregate: ${result.finalAggregate.toFixed(2)}%\n\nCalculated with SnapFreeTools Admission Calculator.`;
   };
 
+  const activeResult = (result && !result.isEmpty && validation.weightValidation.isValid && validation.isValid) ? {
+    summary: `Admission Chance Estimate: ${result.percentage ? result.percentage.toFixed(1) : ''}% (${result.category || ''})`
+  } : null;
+
   return (
     <CalculatorLayout
       title="Admission Calculator"
-      description="Calculate your university admission aggregate and merit percentage instantly. Plan target scores with our what-if simulator."
+      subtitle="Estimate your admission chances, simulate scores, and calculate required target entry test marks."
       icon={<UserCheck className="w-8 h-8 text-white" />}
       faqs={faqs}
       toolId="admission-calculator"
+      activeResult={activeResult}
+      educationalContent={<EducationalContent />}
     >
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-3/5 space-y-8">
@@ -168,16 +173,8 @@ export default function AdmissionCalculatorFeature({ faqs }) {
                 </div>
               </div>
             )}
-
-            {!result?.isEmpty && validation.weightValidation.isValid && validation.isValid && (
-              <ShareResultButton shareText={buildShareText()} />
-            )}
           </div>
         </div>
-      </div>
-      
-      <div className="mt-20">
-        <EducationalContent />
       </div>
     </CalculatorLayout>
   );

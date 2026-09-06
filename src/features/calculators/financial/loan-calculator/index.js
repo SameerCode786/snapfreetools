@@ -167,7 +167,7 @@ export default function LoanCalculatorFeature({ faqs }) {
       currentSlug="loan-calculator"
       activeResult={result}
       faqs={faqs}
-      educationalContent={EDUCATIONAL_CONTENT}
+      educationalContent={<EDUCATIONAL_CONTENT />}
     >
       <div className="w-full">
         <ModeSwitcher currentMode={mode} onModeChange={setMode} />

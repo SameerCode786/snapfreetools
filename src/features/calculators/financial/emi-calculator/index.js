@@ -204,17 +204,11 @@ export default function EMICalculatorFeature({ faqs }) {
         {mode === 'comparison' ? (
           <div className="space-y-8">
             <LoanComparison resultA={result} resultB={resultB} currencyCode={currencyCode} />
-            <div className="max-w-sm mx-auto">
-              <SharePreview result={result} resultB={resultB} mode={mode} currencyCode={currencyCode} />
-            </div>
           </div>
         ) : mode === 'prepayment' ? (
           <div className="space-y-8">
             <EMIResultDashboard result={result} mode="standard" currencyCode={currencyCode} />
             <PrepaymentAnalysis baseResult={result} prepaymentResult={prepaymentResult} currencyCode={currencyCode} />
-            <div className="max-w-sm mx-auto">
-              <SharePreview result={result} mode={mode} currencyCode={currencyCode} />
-            </div>
           </div>
         ) : (
           <div className="space-y-8">
@@ -231,10 +225,9 @@ export default function EMICalculatorFeature({ faqs }) {
                   <div className="xl:col-span-1">
                     <div className="sticky top-24">
                       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <p className="text-xs text-slate-500 mb-4">
+                        <p className="text-xs text-slate-500">
                           This calculator provides estimates for informational purposes only. Actual loan payments, rates, fees, eligibility and approval requirements vary by lender and loan agreement.
                         </p>
-                        <SharePreview result={result} mode={mode} currencyCode={currencyCode} />
                       </div>
                     </div>
                   </div>
@@ -247,20 +240,6 @@ export default function EMICalculatorFeature({ faqs }) {
                 <div className="lg:col-span-2">
                   <FinancialInsights insights={insights} />
                 </div>
-                <div className="lg:col-span-1">
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                    <p className="text-xs text-slate-500 mb-4">
-                      Share your affordability estimate with others.
-                    </p>
-                    <SharePreview result={result} mode={mode} currencyCode={currencyCode} />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {(mode === 'reverse' || mode === 'required') && (
-              <div className="max-w-sm mx-auto">
-                <SharePreview result={result} mode={mode} currencyCode={currencyCode} />
               </div>
             )}
           </div>

@@ -63,6 +63,10 @@ export default function SGPACalculatorFeature({ faqs }) {
   };
 
   const sgpa = calculateGPA(courses, scale);
+  const totalCredits = courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0);
+  const activeResult = sgpa ? {
+    summary: `Semester SGPA: ${sgpa} (${activeScale.name}, ${totalCredits} Credit Hours)`
+  } : null;
 
   const examples = [
     {
@@ -81,6 +85,23 @@ export default function SGPACalculatorFeature({ faqs }) {
       title="SGPA Calculator" 
       description="Calculate your Semester Grade Point Average (SGPA) for individual academic terms easily."
       currentSlug="sgpa-calculator"
+      activeResult={activeResult}
+      faqs={faqs}
+      seoContent={
+        <>
+          <GeoAnswerCard 
+            question="What is SGPA and how is it calculated?"
+            answer="SGPA stands for Semester Grade Point Average. It measures your academic performance inside a single semester. To calculate SGPA, multiply the grade values of each course by their credit hours, sum these points, and divide by the total credit hours taken during the semester."
+          />
+
+          <FormulaCard 
+            formula="SGPA = \sum (Grade Points \times Course Credits) / \sum (Course Credits)"
+            explanation="Multiply the grade points of each letter grade earned by course credits, add them, and divide by total credits registered in the term."
+          />
+
+          <ExampleGrid examples={examples} />
+        </>
+      }
     >
       <div className="space-y-8">
         {/* Forms Card */}
@@ -172,52 +193,7 @@ export default function SGPACalculatorFeature({ faqs }) {
           label="Semester SGPA"
           subtext={`Calculated using the ${activeScale.name} scale.`}
           onReset={resetCalculator} 
-          onShare={async () => {
-            const totalCredits = courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0);
-            const scaleName = activeScale.name;
-            const text = `My calculated SGPA is ${sgpa}. Calculated using ${scaleName} with ${totalCredits} total credit hours.`;
-            const url = window.location.href;
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: "SGPA Calculator Result",
-                  text: text,
-                  url: url
-                });
-                return { success: true, message: "Result shared successfully" };
-              } catch (err) {
-                if (err.name === "AbortError") {
-                  return { success: false, cancelled: true };
-                }
-              }
-            }
-            try {
-              const fullText = `${text} ${url}`;
-              await navigator.clipboard.writeText(fullText);
-              return { success: true, message: "Result copied to clipboard" };
-            } catch (err) {
-              return { success: false, error: "Unable to share result." };
-            }
-          }}
         />
-
-        {/* GEO Quick Answer */}
-        <GeoAnswerCard 
-          question="What is SGPA and how is it calculated?"
-          answer="SGPA stands for Semester Grade Point Average. It measures your academic performance inside a single semester. To calculate SGPA, multiply the grade values of each course by their credit hours, sum these points, and divide by the total credit hours taken during the semester."
-        />
-
-        {/* Formula */}
-        <FormulaCard 
-          formula="SGPA = \sum (Grade Points \times Course Credits) / \sum (Course Credits)"
-          explanation="Multiply the grade points of each letter grade earned by course credits, add them, and divide by total credits registered in the term."
-        />
-
-        {/* Examples */}
-        <ExampleGrid examples={examples} />
-
-        {/* FAQs */}
-        <FAQSection faqs={faqs} />
       </div>
     </CalculatorLayout>
   );

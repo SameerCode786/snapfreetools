@@ -10,6 +10,7 @@ import {
 import React from "react";
 import Link from "next/link";
 import { calculateTextStats } from "./utils/counter-engine";
+import ShareSystem from "@/components/share";
 
 function Tooltip({ content, align = "center" }) {
   const alignClasses = {
@@ -500,12 +501,21 @@ export default function WordCounter({ faqs = [] }) {
                   ))}
                 </div>
 
-              </div>
-
             </div>
 
           </div>
         </div>
+      </div>
+
+        {/* Centralized Share & Feedback System - Immediately after workspace */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <ShareSystem
+          toolName="Word Counter"
+          result={(text && text.trim().length > 0 && stats.words > 0) ? {
+            summary: `Word Count Analysis: ${stats.words} words, ${stats.characters} characters (${stats.sentences} sentences, ${stats.readingTimeMinutes} min read).`
+          } : null}
+        />
+      </div>
 
       {/* 3. Full-width Centered Informational Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 border-t border-slate-100">
@@ -595,13 +605,13 @@ export default function WordCounter({ faqs = [] }) {
               For creators budgeting readability and user attention, the <span className="font-semibold text-slate-900">reading time calculator</span> provides an essential estimate. By using a standard rate of <strong className="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded text-[10px]">275 WPM</strong> (words per minute), the tool estimates how long it takes an average adult to read your draft.
             </p>
             <p>
-              Freelancers creating newsletters or blog posts can add these reading time estimates to headers (e.g., '5-min read') to boost click-through rates. Bloggers use this parameter to align with reader habits, matching their post length to the targeted context—such as a quick 2-minute update for mobile readers or a comprehensive 10-minute guide for deep research.
+              Freelancers creating newsletters or blog posts can add these reading time estimates to headers (e.g., &ldquo;5-min read&rdquo;) to boost click-through rates. Bloggers use this parameter to align with reader habits, matching their post length to the targeted context—such as a quick 2-minute update for mobile readers or a comprehensive 10-minute guide for deep research.
             </p>
             <p>
               Keyword optimization is another critical step, managed by our <span className="font-semibold text-slate-900">keyword density checker</span>. It calculates the percentage of times each word appears relative to the total word count. If a writer mentions a term too often, the content can look unnatural or trigger keyword stuffing warnings.
             </p>
             <p>
-              For example, an SEO writer optimizing an article for a search term like '<span className="font-semibold text-slate-900">online word counter</span>' can verify keyword density stays within the target <strong className="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded text-[10px]">1%–2% keyword density</strong> range. If the frequency exceeds 2.5%, the checker alerts you so you can replace repetitive terms with natural synonyms, maintaining quality.
+              For example, an SEO writer optimizing an article for a search term like &ldquo;<span className="font-semibold text-slate-900">online word counter</span>&rdquo; can verify keyword density stays within the target <strong className="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded text-[10px]">1%–2% keyword density</strong> range. If the frequency exceeds 2.5%, the checker alerts you so you can replace repetitive terms with natural synonyms, maintaining quality.
             </p>
             <p>
               Students and academic writers face strict constraints when composing essays and research papers. College admissions, such as the Common App personal statement, enforce a strict limit of <strong className="font-semibold text-slate-900 bg-slate-100 px-1 py-0.5 rounded text-[10px]">250–650 words</strong>. In these formats, every word must contribute to the overall narrative.

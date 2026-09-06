@@ -6,6 +6,8 @@ import { JsonLd } from "@/seo/structured-data";
 
 import ShareSystem from "@/components/share";
 
+import FAQSection from "./FAQSection";
+
 export default function CalculatorLayout({ 
   title, 
   description, 
@@ -13,8 +15,14 @@ export default function CalculatorLayout({
   activeResult = null,
   hideShare = false,
   hideFeedback = false,
+  seoContent = null,
+  educationalContent = null,
+  content = null,
+  faqs = [],
   children 
 }) {
+  const effectiveSeoContent = seoContent || educationalContent || content;
+
   // Get active items from registry
   let relatedCalculators = [];
   const isUniversitySlug = currentSlug.startsWith("gpa-calculator/");
@@ -78,14 +86,24 @@ export default function CalculatorLayout({
           {children}
         </main>
 
-        {/* Centralized Share & Feedback System */}
-        <ShareSystem
-          toolName={title}
-          toolSlug={currentSlug}
-          result={activeResult}
-          hideShareTool={hideShare}
-          hideFeedback={hideFeedback}
-        />
+        {/* Centralized Share & Feedback System - Immediately below workspace/result */}
+        {!hideShare && (
+          <ShareSystem
+            toolName={title}
+            toolSlug={currentSlug}
+            result={activeResult}
+            hideShareTool={hideShare}
+            hideFeedback={hideFeedback}
+          />
+        )}
+
+        {/* Educational / SEO Content & FAQs (rendered after ShareSystem) */}
+        {(effectiveSeoContent || (faqs && faqs.length > 0)) && (
+          <div className="w-full space-y-10 pt-4 border-t border-slate-100">
+            {effectiveSeoContent}
+            {faqs && faqs.length > 0 && <FAQSection faqs={faqs} />}
+          </div>
+        )}
 
         {/* Related calculators list (UX & SEO) */}
         {relatedCalculators.length > 0 && (
