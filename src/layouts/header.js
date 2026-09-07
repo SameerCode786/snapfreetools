@@ -231,15 +231,34 @@ export default function Header() {
                       className="overflow-hidden pl-3 pr-1 bg-slate-50/50 rounded-xl my-1 border border-slate-100/50"
                     >
                       <div className="py-2.5 space-y-2">
-                        {["Blog", "Guides", "FAQs", "Comparisons"].map((item) => (
-                          <div
-                            key={item}
-                            className="flex items-center justify-between py-1.5 px-2.5 text-xs text-slate-400 cursor-not-allowed font-semibold"
-                          >
-                            <span>{item}</span>
-                            <span className="text-[7px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1 py-0.2 rounded font-extrabold uppercase scale-90">Soon</span>
-                          </div>
-                        ))}
+                        {[
+                          { name: "Blog", href: "/blog", isLive: true },
+                          { name: "Guides", href: "/guides", isLive: true },
+                          { name: "FAQs", href: "/faqs", isLive: true },
+                          { name: "Comparisons", href: "/comparisons", isLive: false }
+                        ].map((item) => {
+                          if (item.isLive) {
+                            return (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center justify-between py-1.5 px-2.5 text-xs text-slate-700 hover:text-amber-600 font-semibold rounded-lg hover:bg-slate-100/50 transition-colors"
+                              >
+                                <span>{item.name}</span>
+                              </Link>
+                            );
+                          }
+                          return (
+                            <div
+                              key={item.name}
+                              className="flex items-center justify-between py-1.5 px-2.5 text-xs text-slate-400 cursor-not-allowed font-semibold"
+                            >
+                              <span>{item.name}</span>
+                              <span className="text-[7px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1 py-0.2 rounded font-extrabold uppercase scale-90">Soon</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}

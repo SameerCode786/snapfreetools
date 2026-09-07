@@ -19,6 +19,18 @@ export const METADATA_CONFIG = {
     keywords: "contact snapfreetools, tool suggestions, bug report, feedback",
     path: "/contact"
   },
+  guides: {
+    title: "Guides & Resources | SnapFreeTools",
+    description: "Learn how to resize, compress, convert, protect, and manage images, PDFs, and files with practical guides from SnapFreeTools.",
+    keywords: "snapfreetools guides, pdf guide, image resizing guide, file optimization, digital tools how-to, productivity tips",
+    path: "/guides"
+  },
+  faqs: {
+    title: "FAQs & Help Center | SnapFreeTools",
+    description: "Find quick answers about SnapFreeTools, privacy, client-side file processing, PDF tools, image tools, converters, supported formats, and troubleshooting.",
+    keywords: "snapfreetools faqs, help center, private file processing, browser tools faq, client side security, pdf tools help, image resizer help",
+    path: "/faqs"
+  },
   "privacy-policy": {
     title: "Privacy Policy | SnapFreeTools",
     description: "Read how SnapFreeTools handles browser-based tool data, contact information, cookies, analytics, advertising technologies, security, retention, and user privacy choices.",
@@ -66,6 +78,12 @@ export const METADATA_CONFIG = {
     description: "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality. Professional tool with client-side browser processing.",
     keywords: "image compressor, convert png to jpg, jpg to webp converter, compress image online free, avif converter",
     path: "/image-compressor"
+  },
+  "image-resizer": {
+    title: "Image Resizer Online - Resize Images Free | SnapFreeTools",
+    description: "Resize JPG, PNG, WebP and other images online for free. Set custom dimensions, preserve aspect ratio, change image quality and download resized images directly in your browser.",
+    keywords: "image resizer, online image resizer, resize image online free, custom dimensions resizer, png resizer, jpg resizer, webp resizer, instagram photo resizer, batch image resizer, aspect ratio lock resizer",
+    path: "/image-resizer"
   },
   "calculators": {
     title: "Student Calculator Hub - GPA, CGPA & Academic Tools Online",
@@ -127,6 +145,12 @@ export const METADATA_CONFIG = {
     keywords: "word counter, free word counter, online word counter, word count tool, character counter, sentence counter, paragraph counter, reading time calculator, keyword density checker, text analyzer, word counter with character count, free online word counter, word counter for essays, word counter for students, word counter for blogs, SEO word counter, word count checker, online text analyzer",
     path: "/word-counter"
   },
+  "case-converter": {
+    title: "Case Converter Online - Convert Text to Uppercase, Lowercase & More",
+    description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case, kebab-case and more. Free online case converter with advanced text tools. 100% client-side and private.",
+    keywords: "case converter, online case converter, text case converter, uppercase converter, lowercase converter, title case converter, sentence case converter, camelcase converter, snake case converter, kebab case converter, slug converter, text transformer, private case converter, free case converter",
+    path: "/case-converter"
+  },
   "pdf-to-word": {
     title: "PDF to Word Converter – Convert PDF to Word Online Free",
     description: "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
@@ -168,6 +192,12 @@ export const METADATA_CONFIG = {
     description: "Unlock PDF files online free. Remove password protection and PDF restrictions securely inside your browser. Fast, private, and 100% client-side.",
     keywords: "unlock pdf, unlock pdf online, remove pdf password, pdf password remover, unlock password protected pdf, remove password from pdf, pdf unlocker",
     path: "/unlock-pdf"
+  },
+  "protect-pdf": {
+    title: "Protect PDF Online Free - Add Password & Encrypt PDF | SnapFreeTools",
+    description: "Protect PDF files online free. Add strong AES-256 password encryption and restrict permissions for printing, editing, and copying secure documents.",
+    keywords: "protect pdf, protect pdf online, add password to pdf, encrypt pdf, password protect pdf, pdf encryption online, restrict pdf printing",
+    path: "/protect-pdf"
   },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",

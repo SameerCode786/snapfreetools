@@ -37,12 +37,12 @@ export const FOOTER_NAVIGATION = {
     {
       title: "Resources",
       links: [
-        { name: "Blog", route: "#", status: "soon" },
-        { name: "How-to Guides", route: "#", status: "soon" },
-        { name: "PDF Guides", route: "#", status: "soon" },
-        { name: "Student Guides", route: "#", status: "soon" },
+        { name: "Blog", route: "/blog" },
+        { name: "How-to Guides", route: "/guides" },
+        { name: "PDF Guides", route: "/guides?category=pdfs" },
+        { name: "Student Guides", route: "/guides?category=productivity" },
         { name: "Tool Comparisons", route: "#", status: "soon" },
-        { name: "FAQs", route: "#", status: "soon" }
+        { name: "FAQs", route: "/faqs" }
       ]
     },
     {

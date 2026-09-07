@@ -35,10 +35,10 @@ export default function PasswordForm({ onUnlock, disabled = false, error = null 
       <div className="space-y-1">
         <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
           <Key size={20} className="text-amber-500" />
-          Enter Document Password
+          Enter Opening Password
         </h3>
         <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-          Enter the password you already have to verify credentials and strip encryption protection.
+          Enter the password to verify credentials and remove encryption from your document.
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export default function PasswordForm({ onUnlock, disabled = false, error = null 
               if (inputError) setInputError(null);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Type document password..."
+            placeholder="Type opening password..."
             disabled={disabled}
             autoFocus
             aria-required="true"
@@ -84,7 +84,7 @@ export default function PasswordForm({ onUnlock, disabled = false, error = null 
             title={showPassword ? "Hide password" : "Show password"}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
         </div>
 
@@ -106,15 +106,20 @@ export default function PasswordForm({ onUnlock, disabled = false, error = null 
         <span>Unlock PDF</span>
       </button>
 
-      {/* Forgotten Password Guidance & Privacy Notice */}
-      <div className="space-y-2 pt-1 border-t border-slate-100">
-        <p className="text-[11px] text-amber-800 font-semibold text-center leading-relaxed bg-amber-50/70 p-2.5 rounded-xl border border-amber-100/80 flex items-center justify-center gap-1.5">
-          <HelpCircle size={14} className="shrink-0 text-amber-600" />
-          <span>Don't know the password? We cannot crack unknown passwords. Please contact the document owner.</span>
-        </p>
+      {/* Forgotten Password Guidance (Case 5) & Privacy Notice */}
+      <div className="space-y-3 pt-2 border-t border-slate-100">
+        <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 space-y-1">
+          <h4 className="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
+            <HelpCircle size={15} className="text-amber-600 shrink-0" />
+            Forgot your PDF password?
+          </h4>
+          <p className="text-[11px] text-amber-800 font-medium leading-relaxed">
+            This tool cannot recover unknown opening passwords. PDF encryption is designed to prevent unauthorized access. Please contact the document owner.
+          </p>
+        </div>
 
         <p className="text-[11px] text-slate-400 font-semibold text-center leading-relaxed">
-          🔒 Passwords are processed transiently in local browser memory and are never logged or saved.
+          🔒 Your files never leave your device. All PDF processing happens locally in your browser.
         </p>
       </div>
     </form>

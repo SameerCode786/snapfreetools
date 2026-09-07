@@ -136,9 +136,11 @@ export default function HomeFeature() {
       <div id="home-page" className="bg-slate-50/50 min-h-screen pb-16">
         
         {/* HERO SECTION */}
-        <section className="relative pt-16 pb-10 text-center px-4 overflow-hidden border-b border-slate-200/50 bg-white">
-          <div aria-hidden="true" className="absolute top-0 left-1/3 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-          <div aria-hidden="true" className="absolute bottom-0 right-1/3 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+        <section className="relative pt-16 pb-10 text-center px-4 border-b border-slate-200/50 bg-white z-20">
+          <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 left-1/3 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl" />
+          </div>
           
           <div className="max-w-4xl mx-auto space-y-5 relative z-10">
             <span className="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-extrabold uppercase tracking-widest select-none">
@@ -189,7 +191,7 @@ export default function HomeFeature() {
             </div>
 
             {/* SEARCH EXPERIENCES */}
-            <div ref={searchContainerRef} className="max-w-2xl mx-auto pt-6 relative">
+            <div ref={searchContainerRef} className="max-w-2xl mx-auto pt-6 relative z-30">
               <div className="relative">
                 <input
                   ref={searchInputRef}
@@ -219,7 +221,7 @@ export default function HomeFeature() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-250/60 shadow-2xl rounded-2xl z-30 max-h-72 overflow-y-auto text-left"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-250/60 shadow-2xl rounded-2xl z-50 max-h-72 overflow-y-auto text-left"
                   >
                     {searchResults.length > 0 ? (
                       <div className="p-2 space-y-1">

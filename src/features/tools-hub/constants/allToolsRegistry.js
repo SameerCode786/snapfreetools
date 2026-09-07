@@ -405,8 +405,8 @@ export const ALL_TOOLS = [
     icon: "Lock",
     featured: false,
     popular: false,
-    status: "coming-soon",
-    future: true,
+    status: "live",
+    future: false,
     seoTitle: "Protect PDF Online - Add Password to PDF Free",
     seoDescription: "Protect PDF online free. Add strong password protection and restrict permissions for printing, editing, and copying secure documents."
   },
@@ -431,12 +431,12 @@ export const ALL_TOOLS = [
     slug: "case-converter",
     group: "Text Tools",
     category: "Text Tools",
-    description: "Convert text between UPPERCASE, lowercase, Title Case, and Sentence case.",
+    description: "Convert text between UPPERCASE, lowercase, Title Case, camelCase, snake_case, and more.",
     icon: "CaseSensitive",
-    featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true
+    featured: true,
+    popular: true,
+    status: "live",
+    future: false
   },
 
   // --- IMAGE TOOLS ---
@@ -459,11 +459,11 @@ export const ALL_TOOLS = [
     slug: "image-resizer",
     group: "Image Tools",
     category: "Image Tools",
-    description: "Resize images to custom dimensions in pixels or percentages.",
+    description: "Resize images to custom dimensions, percentages, or social media presets.",
     icon: "Scaling",
-    featured: false,
-    popular: false,
-    status: "coming-soon",
-    future: true
+    featured: true,
+    popular: true,
+    status: "live",
+    future: false
   }
 ];

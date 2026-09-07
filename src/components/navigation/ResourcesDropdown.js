@@ -5,8 +5,8 @@ import Link from "next/link";
 export default function ResourcesDropdown() {
   const links = [
     { name: "Blog", icon: BookOpen, status: "live", href: "/blog" },
-    { name: "Guides", icon: HelpCircle, status: "soon" },
-    { name: "FAQs", icon: FileCheck, status: "soon" },
+    { name: "Guides", icon: HelpCircle, status: "live", href: "/guides" },
+    { name: "FAQs", icon: FileCheck, status: "live", href: "/faqs" },
     { name: "Comparisons", icon: Layers, status: "soon" }
   ];
 
