@@ -41,7 +41,7 @@ export const FOOTER_NAVIGATION = {
         { name: "How-to Guides", route: "/guides" },
         { name: "PDF Guides", route: "/guides?category=pdfs" },
         { name: "Student Guides", route: "/guides?category=productivity" },
-        { name: "Tool Comparisons", route: "#", status: "soon" },
+        { name: "Tool Comparisons", route: "/comparisons" },
         { name: "FAQs", route: "/faqs" }
       ]
     },

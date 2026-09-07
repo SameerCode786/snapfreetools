@@ -31,6 +31,12 @@ export const METADATA_CONFIG = {
     keywords: "snapfreetools faqs, help center, private file processing, browser tools faq, client side security, pdf tools help, image resizer help",
     path: "/faqs"
   },
+  comparisons: {
+    title: "Tool Comparisons - Compare PDF, Image & Utility Tools | SnapFreeTools",
+    description: "Compare SnapFreeTools tools side by side to find the right PDF, image, text, and utility tool for your needs. Compare features, privacy, formats, and capabilities.",
+    keywords: "snapfreetools comparisons, compare pdf tools, image resizer vs compressor, pdf to word vs word to pdf, tool specs comparison",
+    path: "/comparisons"
+  },
   "privacy-policy": {
     title: "Privacy Policy | SnapFreeTools",
     description: "Read how SnapFreeTools handles browser-based tool data, contact information, cookies, analytics, advertising technologies, security, retention, and user privacy choices.",

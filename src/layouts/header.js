@@ -235,7 +235,7 @@ export default function Header() {
                           { name: "Blog", href: "/blog", isLive: true },
                           { name: "Guides", href: "/guides", isLive: true },
                           { name: "FAQs", href: "/faqs", isLive: true },
-                          { name: "Comparisons", href: "/comparisons", isLive: false }
+                          { name: "Comparisons", href: "/comparisons", isLive: true }
                         ].map((item) => {
                           if (item.isLive) {
                             return (

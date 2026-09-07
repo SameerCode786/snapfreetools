@@ -7,7 +7,7 @@ export default function ResourcesDropdown() {
     { name: "Blog", icon: BookOpen, status: "live", href: "/blog" },
     { name: "Guides", icon: HelpCircle, status: "live", href: "/guides" },
     { name: "FAQs", icon: FileCheck, status: "live", href: "/faqs" },
-    { name: "Comparisons", icon: Layers, status: "soon" }
+    { name: "Comparisons", icon: Layers, status: "live", href: "/comparisons" }
   ];
 
   return (
