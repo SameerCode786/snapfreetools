@@ -61,7 +61,19 @@ import {
   PieChart,
   BarChart3,
   ShieldAlert,
-  ShieldCheck
+  ShieldCheck,
+  RotateCw,
+  FileX,
+  LayoutGrid,
+  Stamp,
+  Hash,
+  FileSpreadsheet,
+  PenTool,
+  Sliders,
+  Trash2,
+  GripVertical,
+  Move,
+  ArrowUpDown
 } from "lucide-react";
 
 export const Icons = {
@@ -127,5 +139,17 @@ export const Icons = {
   PieChart,
   BarChart3,
   ShieldAlert,
-  ShieldCheck
+  ShieldCheck,
+  RotateCw,
+  FileX,
+  LayoutGrid,
+  Stamp,
+  Hash,
+  FileSpreadsheet,
+  PenTool,
+  Sliders,
+  Trash2,
+  GripVertical,
+  Move,
+  ArrowUpDown
 };

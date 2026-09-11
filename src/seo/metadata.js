@@ -205,6 +205,42 @@ export const METADATA_CONFIG = {
     keywords: "protect pdf, protect pdf online, add password to pdf, encrypt pdf, password protect pdf, pdf encryption online, restrict pdf printing",
     path: "/protect-pdf"
   },
+  "rotate-pdf": {
+    title: "Rotate PDF Online Free – Rotate PDF Pages Permanently | SnapFreeTools",
+    description: "Rotate PDF pages online for free. Rotate all pages or individual pages by 90, 180, or 270 degrees in your browser without rasterizing or losing text quality.",
+    keywords: "rotate pdf, rotate pdf online, rotate pdf pages, rotate scanned pdf, rotate pdf 90 degrees, rotate pdf 180 degrees, turn pdf sideways, free pdf rotator",
+    path: "/rotate-pdf"
+  },
+  "delete-pdf-pages": {
+    title: "Delete PDF Pages Online Free – Remove Pages from PDF | SnapFreeTools",
+    description: "Delete pages from PDF online free. Select and remove unwanted pages from your PDF document instantly in your browser without rasterizing or losing text quality.",
+    keywords: "delete pdf pages, delete pages from pdf, remove pdf pages, delete pdf pages online free, remove page from pdf, delete multiple pages from pdf, client side pdf page remover, remove pages from pdf without uploading",
+    path: "/delete-pdf-pages"
+  },
+  "organize-pdf": {
+    title: "Organize & Reorder PDF Pages Online Free | SnapFreeTools",
+    description: "Organize and reorder PDF pages online free. Drag and drop PDF page thumbnails to rearrange page sequence in your browser without rasterizing or losing text quality.",
+    keywords: "organize pdf, reorder pdf pages, organize pdf pages online free, rearrange pdf pages, change pdf page order, sort pdf pages, swap pdf pages, client side pdf organizer",
+    path: "/organize-pdf"
+  },
+  "watermark-pdf": {
+    title: "Watermark PDF Online Free – Add Text & Logo Watermarks | SnapFreeTools",
+    description: "Stamp text or logo watermarks onto PDF pages online free. Custom opacity, font size, rotation, and position in your browser with zero quality loss.",
+    keywords: "watermark pdf, watermark pdf online free, add watermark to pdf, stamp pdf, add logo to pdf, text watermark pdf, client side pdf watermark",
+    path: "/watermark-pdf"
+  },
+  "add-page-numbers-pdf": {
+    title: "Add Page Numbers to PDF Online Free | SnapFreeTools",
+    description: "Add page numbers to PDF online free. Custom positions, Page X of Y formats, Roman numerals, cover page skipping, fonts, and colors inside your browser.",
+    keywords: "add page numbers to pdf, add page numbers to pdf online, number pdf pages online, add page numbers to pdf free, pdf page numbering tool, insert page numbers into pdf, number pdf pages, page number pdf editor, add custom page numbers to pdf, add page x of y to pdf",
+    path: "/add-page-numbers-pdf"
+  },
+  "pdf-to-excel": {
+    title: "PDF to Excel Converter Online Free – Convert PDF Tables to Excel | SnapFreeTools",
+    description: "Convert PDF tables to editable Excel spreadsheets online for free. Extract structured tables from PDF files directly in your browser with privacy-first client-side processing.",
+    keywords: "pdf to excel, pdf to excel converter, convert pdf to excel, pdf to xlsx, pdf table extractor, convert pdf table to excel, free pdf to excel converter, client side pdf to excel",
+    path: "/pdf-to-excel"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

@@ -167,6 +167,12 @@ export default function ToolsMegaMenu({ onClose }) {
                 {pdfTools.filter(t => t.category.includes("Security")).map(renderToolLink)}
               </ul>
             </div>
+            <div className="space-y-1.5">
+              <h4 className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Edit & Utilities</h4>
+              <ul className="space-y-1.5">
+                {pdfTools.filter(t => t.category.includes("Edit") || t.category.includes("Utilities")).map(renderToolLink)}
+              </ul>
+            </div>
 
             {/* Footer Link */}
             <div className="pt-3 border-t border-slate-100 mt-2">
