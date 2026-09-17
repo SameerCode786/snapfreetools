@@ -491,14 +491,14 @@ export const ALL_TOOLS = [
     slug: "pdf-to-excel",
     group: "PDF Tools",
     category: "Convert from PDF",
-    description: "Extract PDF tables and reports into Excel spreadsheets.",
+    description: "Extract PDF tables and scanned reports into Excel spreadsheets with free OCR.",
     icon: "FileSpreadsheet",
     featured: false,
     popular: true,
     status: "live",
     future: false,
-    seoTitle: "PDF to Excel Converter Online Free – Convert PDF Tables to Excel | SnapFreeTools",
-    seoDescription: "Convert PDF tables to editable Excel spreadsheets online for free. Extract structured tables from PDF files directly in your browser with privacy-first client-side processing."
+    seoTitle: "PDF to Excel Converter with Free OCR | SnapFreeTools",
+    seoDescription: "Convert PDF to editable Excel online for free. Extract tables from selectable or scanned PDFs with free browser-based OCR. Your files stay on your device."
   },
   {
     id: "sign-pdf",

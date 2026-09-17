@@ -236,9 +236,9 @@ export const METADATA_CONFIG = {
     path: "/add-page-numbers-pdf"
   },
   "pdf-to-excel": {
-    title: "PDF to Excel Converter Online Free – Convert PDF Tables to Excel | SnapFreeTools",
-    description: "Convert PDF tables to editable Excel spreadsheets online for free. Extract structured tables from PDF files directly in your browser with privacy-first client-side processing.",
-    keywords: "pdf to excel, pdf to excel converter, convert pdf to excel, pdf to xlsx, pdf table extractor, convert pdf table to excel, free pdf to excel converter, client side pdf to excel",
+    title: "PDF to Excel Converter with Free OCR | SnapFreeTools",
+    description: "Convert PDF to editable Excel online for free. Extract tables from selectable or scanned PDFs with free browser-based OCR. Your files stay on your device.",
+    keywords: "pdf to excel, pdf to excel converter, free pdf to excel converter, pdf to excel online, convert pdf to excel, pdf to excel free, scanned pdf to excel, scanned pdf to excel converter, convert scanned pdf to excel, scanned pdf to excel free, image pdf to excel, image pdf to excel converter, OCR pdf to excel, OCR PDF to Excel converter, free OCR PDF to Excel, free OCR pdf converter, PDF OCR converter, convert scanned document to Excel, extract tables from scanned PDF, convert scanned table to Excel",
     path: "/pdf-to-excel"
   },
   "scholarship-calculator": {

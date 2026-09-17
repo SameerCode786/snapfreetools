@@ -26,8 +26,8 @@ export default function Page() {
         "@type": "WebPage",
         "@id": "https://www.snapfreetools.com/pdf-to-excel/#webpage",
         "url": "https://www.snapfreetools.com/pdf-to-excel",
-        "name": "PDF to Excel Converter Online Free – Convert PDF Tables to Excel | SnapFreeTools",
-        "description": "Convert PDF tables to editable Excel spreadsheets online for free. Extract structured tables from PDF files directly in your browser with privacy-first client-side processing.",
+        "name": "PDF to Excel Converter with Free OCR | SnapFreeTools",
+        "description": "Convert PDF to editable Excel online for free. Extract tables from selectable or scanned PDFs with free browser-based OCR. Your files stay on your device.",
         "breadcrumb": {
           "@id": "https://www.snapfreetools.com/pdf-to-excel/#breadcrumb"
         }

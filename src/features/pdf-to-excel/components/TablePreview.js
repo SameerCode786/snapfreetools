@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FileSpreadsheet, RefreshCw, Layers, CheckSquare, Square, Table as TableIcon, AlertTriangle, Download, Info } from "lucide-react";
+import { FileSpreadsheet, RefreshCw, Layers, CheckSquare, Square, Table as TableIcon, AlertTriangle, Download, Info, Sparkles } from "lucide-react";
 
 export default function TablePreview({
   analysis,
@@ -9,7 +9,8 @@ export default function TablePreview({
   setTables,
   onResetFile,
   onGenerateExcel,
-  ocrEnabled
+  ocrEnabled,
+  onEnableOcrAndReprocess
 }) {
   const [selectedTableId, setSelectedTableId] = useState(tables[0]?.id || null);
 
@@ -48,6 +49,7 @@ export default function TablePreview({
               </h2>
               <p className="text-xs font-semibold text-slate-500">
                 Total Pages: {analysis.totalPages} | Tables Detected: {tables.length}
+                {analysis.ocrPagesCount > 0 && ` | OCR Pages: ${analysis.ocrPagesCount} (Avg Confidence: ${analysis.avgOcrConfidence}%)`}
               </p>
             </div>
           </div>
@@ -77,16 +79,40 @@ export default function TablePreview({
           </div>
         </div>
 
-        {/* Scanned PDF Warning Banner */}
-        {!ocrEnabled && analysis.isScannedPdf && (
+        {/* Low Confidence Warning Banner */}
+        {analysis.isLowConfidence && (
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 text-amber-900 text-xs font-semibold">
             <AlertTriangle size={18} className="shrink-0 text-amber-600 mt-0.5" />
             <div>
-              <p className="font-extrabold text-sm">Scanned or Image-Only PDF Detected</p>
+              <p className="font-extrabold text-sm">OCR Confidence Warning ({analysis.avgOcrConfidence}%)</p>
               <p className="mt-0.5 leading-relaxed text-amber-800">
-                Some or all pages in this document appear to be scanned images. Reliable table extraction from image PDFs requires OCR pre-processing.
+                OCR confidence is below 70%. Please review the Excel results carefully before using them.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Scanned PDF Warning Banner (When OCR is disabled) */}
+        {!ocrEnabled && analysis.isScannedPdf && (
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-amber-900 text-xs font-semibold">
+            <div className="flex items-start gap-3">
+              <AlertTriangle size={18} className="shrink-0 text-amber-600 mt-0.5" />
+              <div>
+                <p className="font-extrabold text-sm">Scanned or Image-Only PDF Detected</p>
+                <p className="mt-0.5 leading-relaxed text-amber-800">
+                  Some or all pages in this document appear to be scanned images. Reliable table extraction from image PDFs requires OCR pre-processing.
+                </p>
+              </div>
+            </div>
+            {onEnableOcrAndReprocess && (
+              <button
+                onClick={onEnableOcrAndReprocess}
+                className="shrink-0 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles size={14} />
+                <span>Use Free OCR</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -99,15 +125,26 @@ export default function TablePreview({
             <div className="space-y-1">
               <h3 className="font-black text-slate-900 text-base">No Reliable Tables Detected</h3>
               <p className="text-xs text-slate-500 font-medium">
-                We couldn't detect clear multi-column table structures in this PDF. The tool works best with text-based reports, bank statements, and digital tables.
+                We couldn't detect clear multi-column table structures in this PDF. The tool works best with text-based reports, bank statements, and structured tables.
               </p>
             </div>
-            <button
-              onClick={onResetFile}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
-            >
-              Try Another PDF File
-            </button>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              {!ocrEnabled && onEnableOcrAndReprocess && (
+                <button
+                  onClick={onEnableOcrAndReprocess}
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Sparkles size={14} />
+                  <span>Scan with Free OCR</span>
+                </button>
+              )}
+              <button
+                onClick={onResetFile}
+                className="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Try Another PDF File
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -148,6 +185,11 @@ export default function TablePreview({
                             className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
                           />
                           <span>Page {table.pageNum}</span>
+                          {table.isOcr && (
+                            <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                              OCR {table.avgConfidence ? `(${table.avgConfidence}%)` : ""}
+                            </span>
+                          )}
                         </label>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-600">
                           {table.rowCount} rows × {table.columnsCount} cols
@@ -179,8 +221,13 @@ export default function TablePreview({
               <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                   <div>
-                    <h3 className="font-black text-slate-900 text-base">
-                      {activeTable.title} Preview
+                    <h3 className="font-black text-slate-900 text-base flex items-center gap-2">
+                      <span>{activeTable.title} Preview</span>
+                      {activeTable.isOcr && (
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          Extracted with Free OCR
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs font-semibold text-slate-500">
                       Found on Page {activeTable.pageNum} ({activeTable.rowCount} rows, {activeTable.columnsCount} columns)

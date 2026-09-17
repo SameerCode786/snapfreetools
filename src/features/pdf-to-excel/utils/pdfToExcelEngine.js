@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { ocrPage } from "./ocrHelper";
+import { ocrPage } from "./ocrHelper.js";
 
 /**
  * Gets or initializes pdfjs-dist worker engine.
@@ -129,7 +129,493 @@ export const sanitizeWorksheetName = (name, index = 1, existingNames = new Set()
 };
 
 /**
+ * Reconstructs a 2D tabular grid from structured positional text nodes.
+ * Used for both native PDF.js text items and OCR word-level bounding boxes.
+ *
+ * @param {Array<{ str?: string, text?: string, x?: number, x0?: number, y?: number, y0?: number, width?: number, height?: number, confidence?: number }>} textNodes
+ * @param {Object} options - { isCanvasCoords: boolean, returnDiagnostics: boolean }
+ * @returns {Array<Array<string>> | { rows: Array<Array<string>>, diagnostics: Object } | null} 2D array of rows x columns, or null if no table structure found.
+ */
+export const reconstructTableFromTextNodes = (textNodes, options = {}) => {
+  const { isCanvasCoords = false, returnDiagnostics = false, passId = Date.now() } = options;
+
+  if (!textNodes || textNodes.length === 0) {
+    if (returnDiagnostics) {
+      return {
+        rows: null,
+        diagnostics: {
+          wordCount: 0,
+          avgConfidence: 0,
+          ranges: { minX0: 0, minY0: 0, maxX1: 0, maxY1: 0 },
+          medianHeight: 0,
+          reconstructedRowCount: 0,
+          cellsPerRow: [],
+          detectedColumnPositions: [],
+          finalColumnCount: 0,
+          rejectionReason: "No text nodes or OCR words provided to engine",
+          receivedByDetectedTables: false,
+          legacyReconstructionInvoked: false,
+          doubleReconstructionDetected: false,
+          staleTableStateDetected: false
+        }
+      };
+    }
+    return null;
+  }
+
+  // 1. Normalize and sanitize text nodes
+  const rawNodes = textNodes
+    .filter((n) => n && (n.str || n.text))
+    .map((n) => {
+      const str = (n.str || n.text || "").trim();
+      const x0 = typeof n.x0 === "number" ? n.x0 : (typeof n.x === "number" ? n.x : 0);
+      const y0 = typeof n.y0 === "number" ? n.y0 : (typeof n.y === "number" ? n.y : 0);
+      const width = n.width || Math.max(1, (n.x1 || x0) - x0);
+      const height = n.height || Math.max(1, (n.y1 || y0) - y0);
+      const x1 = typeof n.x1 === "number" ? n.x1 : x0 + width;
+      const y1 = typeof n.y1 === "number" ? n.y1 : y0 + height;
+      const centerY = (y0 + y1) / 2;
+      return {
+        str,
+        x0,
+        y0,
+        x1,
+        y1,
+        width,
+        height,
+        centerY,
+        confidence: typeof n.confidence === "number" ? n.confidence : 100
+      };
+    })
+    .filter((n) => {
+      if (!n.str || n.str.length === 0) return false;
+      if (n.confidence < 15 && n.str.length <= 2) return false;
+      return true;
+    });
+
+  const totalConfSum = rawNodes.reduce((sum, n) => sum + (n.confidence || 0), 0);
+  const avgConfidence = rawNodes.length > 0 ? Math.round(totalConfSum / rawNodes.length) : 0;
+
+  const diag = {
+    wordCount: rawNodes.length,
+    avgConfidence,
+    ranges: {
+      minX0: rawNodes.length > 0 ? Math.min(...rawNodes.map((n) => n.x0)) : 0,
+      maxX0: rawNodes.length > 0 ? Math.max(...rawNodes.map((n) => n.x0)) : 0,
+      minY0: rawNodes.length > 0 ? Math.min(...rawNodes.map((n) => n.y0)) : 0,
+      maxY0: rawNodes.length > 0 ? Math.max(...rawNodes.map((n) => n.y0)) : 0,
+      minX1: rawNodes.length > 0 ? Math.min(...rawNodes.map((n) => n.x1)) : 0,
+      maxX1: rawNodes.length > 0 ? Math.max(...rawNodes.map((n) => n.x1)) : 0,
+      minY1: rawNodes.length > 0 ? Math.min(...rawNodes.map((n) => n.y1)) : 0,
+      maxY1: rawNodes.length > 0 ? Math.max(...rawNodes.map((n) => n.y1)) : 0
+    },
+    medianHeight: 0,
+    reconstructedRowCount: 0,
+    cellsPerRow: [],
+    detectedColumnPositions: [],
+    finalColumnCount: 0,
+    rejectionReason: null,
+    receivedByDetectedTables: false,
+    legacyReconstructionInvoked: false,
+    doubleReconstructionDetected: false,
+    staleTableStateDetected: false
+  };
+
+  if (rawNodes.length < 2) {
+    diag.rejectionReason = `Fewer than 2 valid words found on page (word count: ${rawNodes.length})`;
+    return returnDiagnostics ? { rows: null, diagnostics: diag } : null;
+  }
+
+  // 2. Compute Geometry-Derived Statistics & Local Gap Distributions
+  const sortedHeights = [...rawNodes.map((n) => n.height)].sort((a, b) => a - b);
+  const medianHeight = sortedHeights[Math.floor(sortedHeights.length / 2)] || 10;
+  diag.medianHeight = medianHeight;
+
+  const charWidths = rawNodes
+    .map((n) => n.width / Math.max(1, n.str.length))
+    .sort((a, b) => a - b);
+  const medianCharWidth = charWidths[Math.floor(charWidths.length / 2)] || (medianHeight * 0.5);
+
+  const yTolerance = medianHeight * 1.15;
+  const colAnchorTolerance = Math.max(medianCharWidth * 3.0, medianHeight * 0.8);
+
+  // Measure intra-line word gap distribution
+  if (isCanvasCoords) {
+    rawNodes.sort((a, b) => a.centerY - b.centerY || a.x0 - b.x0);
+  } else {
+    rawNodes.sort((a, b) => b.centerY - a.centerY || a.x0 - b.x0);
+  }
+
+  const intraWordGaps = [];
+  for (let i = 0; i < rawNodes.length - 1; i++) {
+    const curr = rawNodes[i];
+    const next = rawNodes[i + 1];
+    if (Math.abs(curr.centerY - next.centerY) <= yTolerance) {
+      const gap = next.x0 - curr.x1;
+      if (gap >= 0 && gap <= medianCharWidth * 2.2) {
+        intraWordGaps.push(gap);
+      }
+    }
+  }
+  intraWordGaps.sort((a, b) => a - b);
+  const medianIntraLineGap = intraWordGaps.length > 0 ? intraWordGaps[Math.floor(intraWordGaps.length / 2)] : (medianCharWidth * 0.8);
+
+  // Adaptive threshold for merging words into phrase cells (must be smaller than column gutters)
+  const localSentenceGapThreshold = Math.min(medianIntraLineGap * 2.0, medianCharWidth * 1.6);
+
+  // 3. Native PDF.js TextItem Chunk Merging & Row Grouping
+  const rowGroups = [];
+  rawNodes.forEach((node) => {
+    let bestGroup = null;
+    let minDiff = Infinity;
+
+    for (const group of rowGroups) {
+      const diff = Math.abs(group.anchorCenterY - node.centerY);
+      const yOverlap = Math.min(group.maxY1, node.y1) - Math.max(group.minY0, node.y0);
+      const minH = Math.min(group.minHeight, node.height);
+
+      if ((diff <= yTolerance || yOverlap >= minH * 0.35) && diff < minDiff) {
+        minDiff = diff;
+        bestGroup = group;
+      }
+    }
+
+    if (bestGroup) {
+      bestGroup.nodes.push(node);
+      bestGroup.minY0 = Math.min(bestGroup.minY0, node.y0);
+      bestGroup.maxY1 = Math.max(bestGroup.maxY1, node.y1);
+      bestGroup.minHeight = Math.min(bestGroup.minHeight, node.height);
+    } else {
+      rowGroups.push({
+        anchorCenterY: node.centerY,
+        minY0: node.y0,
+        maxY1: node.y1,
+        minHeight: node.height,
+        nodes: [node]
+      });
+    }
+  });
+
+  if (rowGroups.length === 0) {
+    diag.rejectionReason = "Could not cluster words into horizontal row groups";
+    return returnDiagnostics ? { rows: null, tables: [], diagnostics: diag } : null;
+  }
+
+  if (isCanvasCoords) {
+    rowGroups.sort((a, b) => a.anchorCenterY - b.anchorCenterY);
+  } else {
+    rowGroups.sort((a, b) => b.anchorCenterY - a.anchorCenterY);
+  }
+
+  // Form phrase candidates per row using adaptive intra-line gap distribution
+  rowGroups.forEach((group) => {
+    group.nodes.sort((a, b) => a.x0 - b.x0);
+    const phrases = [];
+    group.nodes.forEach((node) => {
+      if (phrases.length === 0) {
+        phrases.push({ x0: node.x0, x1: node.x1, text: node.str });
+      } else {
+        const prev = phrases[phrases.length - 1];
+        const gap = node.x0 - prev.x1;
+
+        // If gap is small, or part of normal text-item chunking, merge into same phrase
+        if (gap <= localSentenceGapThreshold) {
+          prev.text += ` ${node.str}`;
+          prev.x1 = Math.max(prev.x1, node.x1);
+        } else {
+          phrases.push({ x0: node.x0, x1: node.x1, text: node.str });
+        }
+      }
+    });
+    group.phrases = phrases;
+  });
+
+  // 4. Vertical Spatial Region Segmentation
+  const regions = [];
+  let currentRegionRows = [];
+
+  rowGroups.forEach((group) => {
+    if (currentRegionRows.length === 0) {
+      currentRegionRows.push(group);
+    } else {
+      const prevGroup = currentRegionRows[currentRegionRows.length - 1];
+      const vGap = isCanvasCoords
+        ? group.minY0 - prevGroup.maxY1
+        : prevGroup.minY0 - group.maxY1;
+
+      if (vGap > medianHeight * 2.5) {
+        regions.push(currentRegionRows);
+        currentRegionRows = [group];
+      } else {
+        currentRegionRows.push(group);
+      }
+    }
+  });
+  if (currentRegionRows.length > 0) {
+    regions.push(currentRegionRows);
+  }
+
+  // 5. Evaluate Layout Regions with Structural Table Evidence Pipeline
+  const acceptedTables = [];
+
+  regions.forEach((regionRows, regionIdx) => {
+    const candidateRowCount = regionRows.length;
+    if (candidateRowCount < 2) return;
+
+    // Collect phrase x0 candidates
+    const x0Candidates = [];
+    regionRows.forEach((g) => {
+      g.phrases.forEach((p) => {
+        x0Candidates.push({ x0: p.x0, rowId: g });
+      });
+    });
+
+    // Cluster phrase x0 coordinates into column interval anchors
+    const rawClusters = [];
+    x0Candidates.forEach((cand) => {
+      let best = null;
+      let minD = Infinity;
+
+      for (const c of rawClusters) {
+        const avg = c.sumX0 / c.count;
+        const d = Math.abs(avg - cand.x0);
+        if (d <= colAnchorTolerance && d < minD) {
+          minD = d;
+          best = c;
+        }
+      }
+
+      if (best) {
+        best.count++;
+        best.sumX0 += cand.x0;
+        best.minX0 = Math.min(best.minX0, cand.x0);
+        best.rows.add(cand.rowId);
+      } else {
+        rawClusters.push({
+          sumX0: cand.x0,
+          minX0: cand.x0,
+          count: 1,
+          rows: new Set([cand.rowId])
+        });
+      }
+    });
+
+    rawClusters.sort((a, b) => (a.sumX0 / a.count) - (b.sumX0 / b.count));
+
+    // ADAPTIVE ROW SUPPORT: require columns to have meaningful row support
+    // For a 2-column key-value or table, required support is derived dynamically
+    const minRowSupportNeeded = Math.max(2, Math.ceil(candidateRowCount * 0.28));
+    const validAnchors = rawClusters.filter((c) => c.rows.size >= minRowSupportNeeded);
+
+    const colAnchors = [];
+    validAnchors.forEach((a) => {
+      const avgX = a.sumX0 / a.count;
+      if (colAnchors.length === 0) {
+        colAnchors.push({ minX0: a.minX0, avgX0: avgX, rowSupport: a.rows.size });
+      } else {
+        const prev = colAnchors[colAnchors.length - 1];
+        if (Math.abs(avgX - prev.avgX0) <= colAnchorTolerance * 0.75) {
+          prev.avgX0 = (prev.avgX0 * prev.rowSupport + avgX * a.rows.size) / (prev.rowSupport + a.rows.size);
+          prev.minX0 = Math.min(prev.minX0, a.minX0);
+          prev.rowSupport += a.rows.size;
+        } else {
+          colAnchors.push({ minX0: a.minX0, avgX0: avgX, rowSupport: a.rows.size });
+        }
+      }
+    });
+
+    const repeatedAnchorCount = colAnchors.length;
+
+    // Structural Metrics & Inter-Column Gutter Analysis
+    let multiCellRows = 0;
+    let fullWidthRows = 0;
+    let dominantLeftMarginCount = 0;
+    const interColumnGaps = [];
+    const rowOccupancyVector = [];
+
+    const dominantLeftX = colAnchors.length > 0 ? colAnchors[0].avgX0 : (rawClusters[0] ? rawClusters[0].sumX0 / rawClusters[0].count : 0);
+
+    regionRows.forEach((g) => {
+      let rowOcc = 0;
+      if (g.phrases.length >= 1) {
+        const firstPhrase = g.phrases[0];
+        if (Math.abs(firstPhrase.x0 - dominantLeftX) <= colAnchorTolerance) {
+          dominantLeftMarginCount++;
+        }
+      }
+
+      if (g.phrases.length >= 2) {
+        const uniqueCols = new Set();
+        g.phrases.forEach((p, pIdx) => {
+          let bestIdx = -1;
+          let minD = Infinity;
+          colAnchors.forEach((anc, k) => {
+            const d = Math.abs(p.x0 - anc.avgX0);
+            if (d <= colAnchorTolerance && d < minD) {
+              minD = d;
+              bestIdx = k;
+            }
+          });
+          if (bestIdx >= 0) uniqueCols.add(bestIdx);
+
+          if (pIdx > 0) {
+            const prevP = g.phrases[pIdx - 1];
+            const gap = p.x0 - prevP.x1;
+            if (gap > 0) interColumnGaps.push(gap);
+          }
+        });
+        rowOcc = uniqueCols.size;
+        if (uniqueCols.size >= 2) multiCellRows++;
+      } else if (g.phrases.length === 1) {
+        rowOcc = 1;
+      }
+      rowOccupancyVector.push(rowOcc);
+
+      const fullText = g.nodes.map((n) => n.str).join(" ");
+      if (fullText.length > 40 && g.phrases.length <= 1) {
+        fullWidthRows++;
+      }
+    });
+
+    const fullWidthRowRatio = fullWidthRows / candidateRowCount;
+    const dominantLeftMarginRatio = dominantLeftMarginCount / candidateRowCount;
+    const multiCellRowRatio = multiCellRows / candidateRowCount;
+    const columnOccupancy = candidateRowCount > 0 ? multiCellRows / candidateRowCount : 0;
+
+    // Gutter Median and MAD (Median Absolute Deviation)
+    const sortedGaps = [...interColumnGaps].sort((a, b) => a - b);
+    const gutterMedian = sortedGaps.length > 0 ? sortedGaps[Math.floor(sortedGaps.length / 2)] : 0;
+    const gutterMAD = sortedGaps.length > 0
+      ? sortedGaps.map((g) => Math.abs(g - gutterMedian)).sort((a, b) => a - b)[Math.floor(sortedGaps.length / 2)]
+      : 0;
+
+    const gutterRecurrence = multiCellRows > 0 ? interColumnGaps.length / multiCellRows : 0;
+
+    // Language-Agnostic Structural Prose Likelihood Classifier
+    let proseLikelihood = 0;
+    if (repeatedAnchorCount <= 1) {
+      proseLikelihood = 1.0;
+    } else {
+      const col0Support = colAnchors[0].rowSupport;
+      const col1Support = colAnchors[1] ? colAnchors[1].rowSupport : 1;
+      const supportAsymmetryRatio = col0Support / Math.max(1, col1Support);
+
+      let score = 0;
+      if (supportAsymmetryRatio >= 3.0) score += 0.45;
+      else if (supportAsymmetryRatio >= 2.0) score += 0.25;
+
+      if (fullWidthRowRatio > 0.45) score += 0.40;
+      else if (fullWidthRowRatio > 0.25) score += 0.20;
+
+      if (dominantLeftMarginRatio > 0.85 && multiCellRowRatio < 0.45) score += 0.35;
+
+      if (gutterMedian < medianCharWidth * 1.5) score += 0.35;
+      if (gutterRecurrence < 0.40 && fullWidthRowRatio > 0.20) score += 0.35;
+
+      proseLikelihood = Math.min(1.0, score);
+    }
+
+    const confPenalty = avgConfidence < 60 ? Math.round((60 - avgConfidence) * 1.5) : 0;
+
+    const tableStructureScore = Math.round(
+      (repeatedAnchorCount * 30) +
+      (multiCellRows * 25) +
+      (columnOccupancy * 35) -
+      (proseLikelihood * 120) -
+      (fullWidthRowRatio * 40) -
+      confPenalty
+    );
+
+    let rejectionReason = null;
+    if (repeatedAnchorCount < 2) {
+      rejectionReason = `Fewer than 2 valid column anchors supported across candidate region (repeatedAnchorCount: ${repeatedAnchorCount})`;
+    } else if (multiCellRows < 1) {
+      rejectionReason = `Zero rows with multi-column phrase alignment (multiCellRows: ${multiCellRows})`;
+    } else if (proseLikelihood >= 0.45) {
+      rejectionReason = `Region classified as continuous prose text (proseLikelihood: ${proseLikelihood.toFixed(2)})`;
+    } else if (avgConfidence < 50 && tableStructureScore < 60) {
+      rejectionReason = `Low OCR confidence page (${avgConfidence}%) failed strict table structure threshold`;
+    } else if (tableStructureScore < 45) {
+      rejectionReason = `Table structure score below required threshold (score: ${tableStructureScore} < 45)`;
+    }
+
+    // MANDATORY DIAGNOSTIC BLOCK LOGGING
+    console.log(`
+==================================================
+[PDF-TO-EXCEL TABLE PIPELINE] REGION ASSESSMENT
+==================================================
+reconstructionPassId: ${passId}
+pageNumber: ${options.pageNum || 1}
+candidateRegionId: ${regionIdx + 1}/${regions.length}
+candidateRowCount: ${candidateRowCount}
+rowOccupancyVector: [${rowOccupancyVector.join(", ")}]
+inferredColumnCount: ${repeatedAnchorCount}
+columnSupportRatios: [${colAnchors.map((a) => `${a.rowSupport}/${candidateRowCount}`).join(", ")}]
+columnBoundaryStability: ${(1 - (gutterMAD / Math.max(1, gutterMedian))).toFixed(2)}
+gutterMedian: ${gutterMedian.toFixed(1)}
+gutterMAD: ${gutterMAD.toFixed(1)}
+gutterRecurrence: ${gutterRecurrence.toFixed(2)}
+dominantLeftMarginRatio: ${dominantLeftMarginRatio.toFixed(2)}
+fullWidthRowRatio: ${fullWidthRowRatio.toFixed(2)}
+textFlowScore: ${(1 - proseLikelihood).toFixed(2)}
+tableStructureScore: ${tableStructureScore}
+proseLikelihood: ${proseLikelihood.toFixed(2)}
+acceptedRegion: ${!rejectionReason}
+rejectionReason: ${rejectionReason || "PASSED"}
+legacyReconstructionInvoked: false
+doubleReconstructionDetected: false
+staleTableStateDetected: false
+finalAcceptedTableShape: ${!rejectionReason ? `${candidateRowCount}x${repeatedAnchorCount}` : "none"}
+`);
+
+    if (!rejectionReason && repeatedAnchorCount >= 2) {
+      const gridRows = regionRows.map((g) => {
+        const rowSlots = new Array(repeatedAnchorCount).fill("");
+        g.phrases.forEach((p) => {
+          let bestColIdx = 0;
+          let minD = Infinity;
+          colAnchors.forEach((anc, k) => {
+            const d = Math.abs(p.x0 - anc.avgX0);
+            if (d < minD) {
+              minD = d;
+              bestColIdx = k;
+            }
+          });
+          if (rowSlots[bestColIdx]) {
+            rowSlots[bestColIdx] += ` ${p.text}`;
+          } else {
+            rowSlots[bestColIdx] = p.text;
+          }
+        });
+        return rowSlots;
+      }).filter((r) => r.some((c) => (c || "").trim().length > 0));
+
+      acceptedTables.push(gridRows);
+    }
+  });
+
+  const hasAcceptedTables = acceptedTables.length > 0;
+  diag.rejectionReason = hasAcceptedTables ? null : "No layout region met multi-column table evidence requirements";
+  diag.receivedByDetectedTables = hasAcceptedTables;
+
+  if (hasAcceptedTables) {
+    const mainTable = acceptedTables[0];
+    diag.reconstructedRowCount = mainTable.length;
+    diag.finalColumnCount = Math.max(...mainTable.map((r) => r.length));
+    diag.cellsPerRow = mainTable.map((r) => r.filter((c) => (c || "").trim().length > 0).length);
+    diag.detectedColumnPositions = Array.from({ length: diag.finalColumnCount }, (_, i) => i + 1);
+
+    return returnDiagnostics
+      ? { rows: mainTable, tables: acceptedTables, diagnostics: diag }
+      : mainTable;
+  }
+
+  return returnDiagnostics ? { rows: null, tables: [], diagnostics: diag } : null;
+};
+
+/**
  * Inspects a PDF and extracts text items, clustering them into tabular rows and columns.
+ * Seamlessly supports both selectable-text and scanned pages via Free OCR.
  */
 export const inspectAndExtractTablesFromPdf = async (file, options = {}) => {
   const { onProgress, ocrEnabled = false } = options;
@@ -153,7 +639,21 @@ export const inspectAndExtractTablesFromPdf = async (file, options = {}) => {
 
   const totalPages = pdfDoc.numPages;
   const detectedTables = [];
+  const diagnosticsList = [];
   let scannedPagesCount = 0;
+  let ocrPagesCount = 0;
+  let totalOcrConfidenceSum = 0;
+
+  // Section 1: Verify Free OCR Path Log
+  console.log(`
+==================================================
+[PDF-TO-EXCEL RUNTIME] FILE INSPECTION STARTED
+==================================================
+ocrEnabled: ${!!ocrEnabled}
+fileName: ${file ? file.name : "unknown"}
+fileSize: ${file ? file.size : 0}
+totalPages: ${totalPages}
+`);
 
   for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
     if (onProgress) {
@@ -164,33 +664,121 @@ export const inspectAndExtractTablesFromPdf = async (file, options = {}) => {
     const textContent = await page.getTextContent();
     const items = textContent.items || [];
 
+    const isScanned = items.length < 5;
+    const ocrPathEntered = isScanned && !!ocrEnabled;
+
+    console.log(`
+==================================================
+[PDF-TO-EXCEL RUNTIME] PAGE ${pageNum}/${totalPages} STATUS
+==================================================
+pageNumber: ${pageNum}
+isScanned: ${isScanned}
+nativeTextItemCount: ${items.length}
+OCR path entered: ${ocrPathEntered}
+`);
+
+    if (isScanned && !ocrEnabled) {
+      console.warn(`[PDF-TO-EXCEL RUNTIME] Page ${pageNum} is scanned/image-only, but OCR path was NOT entered because ocrEnabled is false.`);
+    }
+
+    // Check if page is scanned or lacks selectable text
     if (items.length < 5) {
       scannedPagesCount++;
+
       if (ocrEnabled) {
-        // Perform OCR on scanned page
+        if (onProgress) {
+          onProgress(`Running Free OCR on page ${pageNum} of ${totalPages}...`);
+        }
+
         try {
-          const ocrRows = await ocrPage(page);
-          if (ocrRows && ocrRows.length > 0) {
-            const colCount = Math.max(...ocrRows.map(r => r.length));
-            detectedTables.push({
-              id: `ocr-page-${pageNum}`,
-              title: `Page ${pageNum} OCR Table`,
+          const ocrResult = await ocrPage(page, {
+            onProgress: (ocrMsg) => {
+              if (onProgress) onProgress(`Page ${pageNum}/${totalPages}: ${ocrMsg}`);
+            }
+          });
+
+          if (ocrResult && ocrResult.words && ocrResult.words.length > 0) {
+            ocrPagesCount++;
+            totalOcrConfidenceSum += ocrResult.avgConfidence || 0;
+
+            // Map OCR word-level bounding boxes into positional text nodes
+            const ocrTextNodes = ocrResult.words.map((w) => ({
+              str: w.text,
+              x0: w.x0,
+              y0: w.y0,
+              x1: w.x1,
+              y1: w.y1,
+              width: Math.max(1, w.x1 - w.x0),
+              height: Math.max(1, w.y1 - w.y0),
+              confidence: w.confidence
+            }));
+
+            // Reconstruct table through spatial table engine with diagnostics
+            const reconRes = reconstructTableFromTextNodes(ocrTextNodes, {
+              isCanvasCoords: true,
+              returnDiagnostics: true
+            });
+
+            const acceptedTablesList = reconRes && reconRes.tables && reconRes.tables.length > 0
+              ? reconRes.tables
+              : (reconRes && reconRes.rows ? [reconRes.rows] : []);
+            const diag = reconRes ? reconRes.diagnostics : null;
+
+            if (diag) {
+              diagnosticsList.push({ pageNum, ...diag });
+            }
+
+            const tableAccepted = acceptedTablesList.length > 0;
+
+            // Section 9: Verify detectedTables Pipeline Log
+            console.log(`
+==================================================
+[DETECTED TABLE PIPELINE] STAGE ASSESSMENT
+==================================================
+tableAccepted: ${tableAccepted}
+acceptedTablesCount: ${acceptedTablesList.length}
+detectedTablesBefore: ${detectedTables.length}
+detectedTablesAfter: ${detectedTables.length + acceptedTablesList.length}
+receivedByDetectedTables: ${tableAccepted}
+`);
+
+            acceptedTablesList.forEach((tableRows) => {
+              if (tableRows && tableRows.length > 0) {
+                const colCount = Math.max(...tableRows.map((r) => r.length));
+                detectedTables.push({
+                  id: `ocr-p${pageNum}-t${detectedTables.length + 1}`,
+                  title: `Page ${pageNum} Table ${detectedTables.length + 1}`,
+                  pageNum,
+                  columnsCount: colCount,
+                  rowCount: tableRows.length,
+                  rows: tableRows,
+                  selected: true,
+                  firstRowIsHeader: false,
+                  isOcr: true,
+                  avgConfidence: ocrResult.avgConfidence
+                });
+              }
+            });
+          } else {
+            diagnosticsList.push({
               pageNum,
-              columnsCount: colCount,
-              rowCount: ocrRows.length,
-              rows: ocrRows,
-              selected: true,
-              firstRowIsHeader: false
+              wordCount: 0,
+              avgConfidence: 0,
+              rejectionReason: "0 OCR words extracted from canvas image",
+              receivedByDetectedTables: false
             });
           }
         } catch (ocrErr) {
+          if (ocrErr.message && ocrErr.message.includes("cancelled")) {
+            throw ocrErr;
+          }
           console.error("OCR error on page", pageNum, ocrErr);
         }
       }
       continue;
     }
 
-    // Filter non-empty text items and extract positional coordinates
+    // Native PDF selectable text path
     const textNodes = items
       .map((item) => {
         const str = (item.str || "").trim();
@@ -202,132 +790,40 @@ export const inspectAndExtractTablesFromPdf = async (file, options = {}) => {
         const width = item.width || 0;
         const height = item.height || Math.abs(transform[3]) || 10;
 
-        return { str, x, y, width, height };
+        return { str, x0: x, y0: y, width, height, x1: x + width, y1: y + height };
       })
       .filter(Boolean);
 
-    if (textNodes.length < 3) continue;
-
-    // Group text items into rows based on Y-coordinate proximity (tolerance ±4pt)
-    const rowGroups = [];
-    const yTolerance = 4;
-
-    textNodes.forEach((node) => {
-      let matchedGroup = rowGroups.find((group) => Math.abs(group.y - node.y) <= yTolerance);
-      if (matchedGroup) {
-        matchedGroup.nodes.push(node);
-      } else {
-        rowGroups.push({ y: node.y, nodes: [node] });
-      }
+    const tableRows = reconstructTableFromTextNodes(textNodes, {
+      isCanvasCoords: false
     });
 
-    // Sort rows from top to bottom (Y decreases down the page in PDF coords)
-    rowGroups.sort((a, b) => b.y - a.y);
-
-    // Filter rows with multiple cells or tabular alignment
-    const validRows = [];
-    rowGroups.forEach((group) => {
-      // Sort items horizontally left to right
-      group.nodes.sort((a, b) => a.x - b.x);
-
-      // Merge items that are horizontally adjacent within a small gap (gap <= 8pt)
-      const mergedCells = [];
-      group.nodes.forEach((node) => {
-        if (mergedCells.length === 0) {
-          mergedCells.push({ x: node.x, width: node.width, text: node.str });
-        } else {
-          const prevCell = mergedCells[mergedCells.length - 1];
-          const gap = node.x - (prevCell.x + prevCell.width);
-          if (gap <= 8) {
-            prevCell.text += ` ${node.str}`;
-            prevCell.width = node.x + node.width - prevCell.x;
-          } else {
-            mergedCells.push({ x: node.x, width: node.width, text: node.str });
-          }
-        }
-      });
-
-      if (mergedCells.length > 0) {
-        validRows.push(mergedCells);
-      }
-    });
-
-    if (validRows.length < 2) continue;
-
-    // Determine column boundaries across rows
-    const xPositions = [];
-    validRows.forEach((row) => {
-      row.forEach((cell) => {
-        xPositions.push(cell.x);
-      });
-    });
-
-    xPositions.sort((a, b) => a - b);
-
-    // Cluster X coordinates to define column boundaries
-    const colClusters = [];
-    const xTolerance = 15;
-
-    xPositions.forEach((x) => {
-      let cluster = colClusters.find((c) => Math.abs(c.mean - x) <= xTolerance);
-      if (cluster) {
-        cluster.count++;
-        cluster.mean = (cluster.mean * (cluster.count - 1) + x) / cluster.count;
-      } else {
-        colClusters.push({ mean: x, count: 1 });
-      }
-    });
-
-    colClusters.sort((a, b) => a.mean - b.mean);
-    const colBounds = colClusters.map((c) => c.mean);
-
-    if (colBounds.length < 2) continue;
-
-    // Map each row's cells into table columns
-    const tableRows = validRows.map((row) => {
-      const rowCells = new Array(colBounds.length).fill("");
-
-      row.forEach((cell) => {
-        // Find best column index for cell
-        let bestColIdx = 0;
-        let minDiff = Math.abs(colBounds[0] - cell.x);
-
-        for (let c = 1; c < colBounds.length; c++) {
-          const diff = Math.abs(colBounds[c] - cell.x);
-          if (diff < minDiff) {
-            minDiff = diff;
-            bestColIdx = c;
-          }
-        }
-
-        if (rowCells[bestColIdx]) {
-          rowCells[bestColIdx] += ` ${cell.text}`;
-        } else {
-          rowCells[bestColIdx] = cell.text;
-        }
-      });
-
-      return rowCells;
-    });
-
-    if (tableRows.length >= 2) {
+    if (tableRows && tableRows.length >= 1) {
+      const colCount = Math.max(...tableRows.map((r) => r.length));
       detectedTables.push({
         id: `table-p${pageNum}-t${detectedTables.length + 1}`,
         title: `Page ${pageNum} Table`,
         pageNum,
-        columnsCount: colBounds.length,
+        columnsCount: colCount,
         rowCount: tableRows.length,
         rows: tableRows,
         selected: true,
-        firstRowIsHeader: true
+        firstRowIsHeader: true,
+        isOcr: false
       });
     }
   }
 
+  const avgOcrConfidence = ocrPagesCount > 0 ? Math.round(totalOcrConfidenceSum / ocrPagesCount) : 0;
+  const isLowConfidence = ocrPagesCount > 0 && avgOcrConfidence < 70;
+
   return {
     totalPages,
     scannedPagesCount,
-    isScannedPdf: scannedPagesCount > 0 && detectedTables.length === 0,
+    ocrPagesCount,
+    avgOcrConfidence,
+    isLowConfidence,
+    isScannedPdf: scannedPagesCount > 0 && (!ocrEnabled || detectedTables.length === 0),
     detectedTables
   };
 };
@@ -345,7 +841,7 @@ export const generateExcelWorkbookBlob = async (tables, options = {}) => {
   const selectedTables = tables.filter((t) => t.selected && t.rows && t.rows.length > 0);
 
   if (selectedTables.length === 0) {
-    throw new Error("No tables selected for Excel conversion.");
+    throw new Error("No tables selected for Excel conversion. Please select at least one valid table.");
   }
 
   // 1. [Content_Types].xml
@@ -441,9 +937,9 @@ export const generateExcelWorkbookBlob = async (tables, options = {}) => {
 
         if (!strVal) return;
 
-        // Check if numeric or identifier
+        // Check if numeric
         const isNumeric = /^-?\d+(\.\d+)?$/.test(strVal) && !strVal.startsWith("0") || strVal === "0";
-        
+
         if (isNumeric) {
           sheetXml += `<c r="${cellRef}"><v>${strVal}</v></c>`;
         } else {
@@ -463,6 +959,18 @@ export const generateExcelWorkbookBlob = async (tables, options = {}) => {
 
   const totalRows = selectedTables.reduce((acc, t) => acc + (t.rows ? t.rows.length : 0), 0);
   const totalCells = selectedTables.reduce((acc, t) => acc + (t.rows ? t.rows.length * t.columnsCount : 0), 0);
+
+  // Section 11: Verify XLSX Log
+  console.log(`
+==================================================
+[XLSX GENERATION] OUTPUT BINARY SUMMARY
+==================================================
+xlsxGenerationStarted: true
+worksheetCount: ${selectedTables.length}
+rowsPerWorksheet: ${JSON.stringify(selectedTables.map((t) => t.rows.length), null, 2)}
+cellsPerWorksheet: ${JSON.stringify(selectedTables.map((t) => t.rows.reduce((sum, r) => sum + r.length, 0)), null, 2)}
+xlsxBlobSize: ${blob.size} bytes
+`);
 
   return {
     blob,
