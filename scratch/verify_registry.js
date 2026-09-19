@@ -16,8 +16,8 @@ const slugs = ALL_TOOLS.map(t => t.slug);
 const duplicateSlugs = slugs.filter((slug, index) => slugs.indexOf(slug) !== index);
 console.log("Duplicate slugs:", duplicateSlugs);
 
-if (livePdfTools.length === 15 && soonPdfTools.length === 4 && duplicateSlugs.length === 0) {
-  console.log("REGISTRY VERIFICATION: PASS (15 Live, 4 Soon, 0 Duplicates)");
+if (livePdfTools.length === 16 && soonPdfTools.length === 3 && duplicateSlugs.length === 0) {
+  console.log("REGISTRY VERIFICATION: PASS (16 Live, 3 Soon, 0 Duplicates)");
 } else {
   console.error("REGISTRY VERIFICATION: FAIL");
   process.exit(1);

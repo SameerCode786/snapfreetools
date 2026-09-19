@@ -506,12 +506,14 @@ export const ALL_TOOLS = [
     slug: "sign-pdf",
     group: "PDF Tools",
     category: "Edit & Annotate",
-    description: "Draw or upload an e-signature to sign PDF contracts.",
+    description: "Draw, type, or upload an e-signature to sign PDF documents.",
     icon: "PenTool",
     featured: false,
-    popular: false,
-    status: "soon",
-    future: true
+    popular: true,
+    status: "live",
+    future: false,
+    seoTitle: "Sign PDF Online Free – Add Your Signature to PDF | SnapFreeTools",
+    seoDescription: "Sign PDF documents online for free. Draw, type, or upload your electronic signature and place it on any PDF page. 100% private in-browser processing without file uploads."
   },
   {
     id: "pdf-to-text",

@@ -241,6 +241,12 @@ export const METADATA_CONFIG = {
     keywords: "pdf to excel, pdf to excel converter, free pdf to excel converter, pdf to excel online, convert pdf to excel, pdf to excel free, scanned pdf to excel, scanned pdf to excel converter, convert scanned pdf to excel, scanned pdf to excel free, image pdf to excel, image pdf to excel converter, OCR pdf to excel, OCR PDF to Excel converter, free OCR PDF to Excel, free OCR pdf converter, PDF OCR converter, convert scanned document to Excel, extract tables from scanned PDF, convert scanned table to Excel",
     path: "/pdf-to-excel"
   },
+  "sign-pdf": {
+    title: "Sign PDF Online Free – Add Your Signature to PDF | SnapFreeTools",
+    description: "Sign PDF documents online for free. Draw, type, or upload your electronic signature and place it on any PDF page. 100% private in-browser processing without file uploads.",
+    keywords: "sign pdf, sign pdf online, sign pdf online free, add signature to pdf, electronic signature pdf, sign pdf document, sign pdf without printing, draw signature on pdf, add handwritten signature to pdf, upload signature to pdf, sign pdf on phone, sign pdf online free without registration",
+    path: "/sign-pdf"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",
