@@ -2,9 +2,20 @@ const env = require('./config/env');
 const app = require('./app');
 const logger = require('./utils/logger');
 const mail = require('./config/mail');
+const { connectDatabase, disconnectDatabase } = require('./config/database');
 
 const startServer = async () => {
   try {
+    // Attempt database connection if configured
+    try {
+      await connectDatabase();
+    } catch (dbErr) {
+      logger.warn('Database initialization deferred or failed:', { error: dbErr.message });
+      if (env.NODE_ENV === 'production' && env.MONGODB_URI) {
+        throw dbErr; // Fail fast in production if DB is required and configured
+      }
+    }
+
     const server = app.listen(env.PORT, () => {
       logger.info(`Backend server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
@@ -20,10 +31,12 @@ const startServer = async () => {
       process.exit(1);
     });
 
-    const shutdown = () => {
+    const shutdown = async () => {
       logger.info('Shutting down server gracefully...');
-      server.close(() => {
-        logger.info('Server closed');
+      server.close(async () => {
+        logger.info('HTTP server closed');
+        await disconnectDatabase();
+        logger.info('Graceful shutdown completed');
         process.exit(0);
       });
     };
@@ -36,3 +49,4 @@ const startServer = async () => {
   }
 };
 startServer();
+

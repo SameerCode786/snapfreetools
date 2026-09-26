@@ -151,6 +151,16 @@ export default function SplitPdfEducationalContent() {
             </h4>
             <p className="text-[11px] text-slate-500 font-medium">Convert PDF files into editable DOCX format.</p>
           </Link>
+
+          <Link 
+            href="/pdf-to-text" 
+            className="p-4 bg-white border border-slate-200 hover:border-amber-400 rounded-2xl transition-all space-y-1 block group"
+          >
+            <h4 className="font-bold text-slate-900 text-xs group-hover:text-amber-600 flex items-center justify-between">
+              PDF to Text <ArrowRight size={14} />
+            </h4>
+            <p className="text-[11px] text-slate-500 font-medium">Extract plain text (.txt) from PDF files instantly.</p>
+          </Link>
         </div>
       </section>
 

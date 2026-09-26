@@ -291,6 +291,21 @@ export const ALL_TOOLS = [
     seoDescription: "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting."
   },
   {
+    id: "pdf-to-text",
+    name: "PDF to Text",
+    slug: "pdf-to-text",
+    group: "PDF Tools",
+    category: "Convert from PDF",
+    description: "Extract raw plain text (.txt) from PDF files instantly in your browser without uploads.",
+    icon: "FileText",
+    featured: true,
+    popular: true,
+    status: "live",
+    future: false,
+    seoTitle: "PDF to Text Converter - Extract Text from PDF Online Free",
+    seoDescription: "Extract text from PDF files online free inside your browser. Convert PDF to plain text (.txt) instantly without uploads, registration, or file limits."
+  },
+  {
     id: "merge-pdf",
     name: "Merge PDF",
     slug: "merge-pdf",
@@ -514,19 +529,6 @@ export const ALL_TOOLS = [
     future: false,
     seoTitle: "Sign PDF Online Free – Add Your Signature to PDF | SnapFreeTools",
     seoDescription: "Sign PDF documents online for free. Draw, type, or upload your electronic signature and place it on any PDF page. 100% private in-browser processing without file uploads."
-  },
-  {
-    id: "pdf-to-text",
-    name: "PDF to Text",
-    slug: "pdf-to-text",
-    group: "PDF Tools",
-    category: "Convert from PDF",
-    description: "Extract raw text content or OCR text from PDF files.",
-    icon: "FileText",
-    featured: false,
-    popular: false,
-    status: "soon",
-    future: true
   },
   {
     id: "extract-pdf-images",

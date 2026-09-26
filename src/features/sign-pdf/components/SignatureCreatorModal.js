@@ -25,7 +25,13 @@ const SIGNATURE_COLORS = [
   { id: "red", name: "Dark Red", hex: "#b91c1c" }
 ];
 
-export default function SignatureCreatorModal({ isOpen, onClose, onSaveSignature }) {
+export default function SignatureCreatorModal({
+  isOpen,
+  onClose,
+  onSaveSignature,
+  onApplySignature,
+  onApply
+}) {
   const [activeTab, setActiveTab] = useState("draw"); // 'draw' | 'type' | 'upload'
   const [selectedColor, setSelectedColor] = useState(SIGNATURE_COLORS[0].hex);
 
@@ -178,12 +184,15 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSaveSignature
     }
 
     if (finalDataUrl) {
-      onSaveSignature({
-        dataUrl: finalDataUrl,
-        type,
-        color: selectedColor,
-        typedText: activeTab === "type" ? typedName.trim() : null
-      });
+      const saveCallback = onSaveSignature || onApplySignature || onApply;
+      if (typeof saveCallback === "function") {
+        saveCallback({
+          dataUrl: finalDataUrl,
+          type,
+          color: selectedColor,
+          typedText: activeTab === "type" ? typedName.trim() : null
+        });
+      }
       onClose();
     }
   };

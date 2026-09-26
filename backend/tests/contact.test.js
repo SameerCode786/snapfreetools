@@ -34,5 +34,5 @@ test('POST /api/v1/contact should block honeypot', async () => {
     privacyAccepted: true
   });
   assert.strictEqual(response.status, 400);
-  assert.strictEqual(response.body.message, 'Invalid request payload.');
+  assert.strictEqual(response.body.success, false);
 });

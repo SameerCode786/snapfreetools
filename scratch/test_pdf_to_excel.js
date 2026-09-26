@@ -445,10 +445,93 @@ async function runTests() {
     throw new Error("TEST 10 FAILED: Prose text must be honestly rejected (return null)!");
   }
 
-  console.log("TEST 10: PASS - vu-like mixed layout correctly reconstructed into 2-column table, and prose text honestly rejected!");
+  // -------------------------------------------------------------
+  // TEST 11: PDF to Text OCR Result Processing & Confidence Matrix
+  // -------------------------------------------------------------
+  console.log("\n--- TEST 11: PDF to Text OCR Result Processing & Low Confidence Matrix ---");
+
+  function processMockOcrResults(pages) {
+    let combinedText = "";
+    let totalConfidenceSum = 0;
+    let pagesWithTextCount = 0;
+
+    pages.forEach((p, idx) => {
+      const pageText = (p.text || "").trim();
+      const conf = p.confidence || 0;
+
+      if (pageText.length > 0 || conf > 0) {
+        totalConfidenceSum += conf;
+        pagesWithTextCount++;
+      }
+
+      if (pageText) {
+        if (combinedText) {
+          combinedText += `\n\n--- Page ${idx + 1} ---\n\n`;
+        }
+        combinedText += pageText;
+      }
+    });
+
+    const characterCount = combinedText.length;
+    const words = combinedText.trim() ? combinedText.trim().split(/\s+/).filter(Boolean) : [];
+    const wordCount = words.length;
+
+    if (characterCount === 0) {
+      throw new Error("NO_OCR_TEXT_FOUND");
+    }
+
+    const overallAvgConfidence = pagesWithTextCount > 0
+      ? Math.round(totalConfidenceSum / pagesWithTextCount)
+      : 0;
+
+    return {
+      fullText: combinedText,
+      pageCount: pages.length,
+      wordCount,
+      characterCount,
+      isScannedPDF: false,
+      isOcrResult: true,
+      avgConfidence: overallAvgConfidence,
+      isLowConfidence: overallAvgConfidence < 70
+    };
+  }
+
+  // 11.1 Normal OCR Result
+  const normalRes = processMockOcrResults([
+    { text: "Invoice 12345", confidence: 90 },
+    { text: "Total Amount $500", confidence: 80 }
+  ]);
+  // Words: "Invoice", "12345", "---", "Page", "2", "---", "Total", "Amount", "$500" = 9 words total including page header
+  if (normalRes.wordCount !== 9 || normalRes.avgConfidence !== 85 || normalRes.isLowConfidence !== false) {
+    throw new Error(`TEST 11.1 FAILED: Normal OCR result processing failed! Got wordCount: ${normalRes.wordCount}, avgConfidence: ${normalRes.avgConfidence}`);
+  }
+
+  // 11.2 Low Confidence OCR Result
+  const lowConfRes = processMockOcrResults([
+    { text: "Blurry text scan", confidence: 50 },
+    { text: "Unclear document", confidence: 60 }
+  ]);
+  if (lowConfRes.avgConfidence !== 55 || lowConfRes.isLowConfidence !== true) {
+    throw new Error("TEST 11.2 FAILED: Low confidence OCR result flag failed!");
+  }
+
+  // 11.3 Empty OCR Result (Must throw NO_OCR_TEXT_FOUND)
+  let threwNoTextErr = false;
+  try {
+    processMockOcrResults([{ text: "", confidence: 0 }, { text: "   ", confidence: 0 }]);
+  } catch (err) {
+    if (err.message === "NO_OCR_TEXT_FOUND") {
+      threwNoTextErr = true;
+    }
+  }
+  if (!threwNoTextErr) {
+    throw new Error("TEST 11.3 FAILED: Empty OCR result must throw NO_OCR_TEXT_FOUND!");
+  }
+
+  console.log("TEST 11: PASS - PDF to Text OCR result processing, low-confidence detection, and empty OCR handling all passed!");
 
   console.log("\n=======================================================");
-  console.log("ALL 10 TEST MATRIX SUITES PASSED CLEANLY WITH ZERO ERRORS!");
+  console.log("ALL 11 TEST MATRIX SUITES PASSED CLEANLY WITH ZERO ERRORS!");
   console.log("=======================================================");
 }
 
@@ -456,5 +539,6 @@ runTests().catch((err) => {
   console.error("Test Matrix Failed:", err);
   process.exit(1);
 });
+
 
 

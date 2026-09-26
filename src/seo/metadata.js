@@ -175,6 +175,12 @@ export const METADATA_CONFIG = {
     keywords: "pdf to jpg, pdf to jpeg, convert pdf to jpg, pdf pages to images, free pdf to jpg converter, online pdf to jpg, pdf image extractor",
     path: "/pdf-to-jpg"
   },
+  "pdf-to-text": {
+    title: "PDF to Text Converter - Extract Text from PDF Online Free | SnapFreeTools",
+    description: "Extract text from PDF files online free inside your browser. Convert PDF to plain text (.txt) instantly without uploads, registration, or file limits.",
+    keywords: "pdf to text, convert pdf to text, extract text from pdf, pdf to txt, copy text from pdf, get text from pdf, free pdf text extractor, browser pdf text converter",
+    path: "/pdf-to-text"
+  },
   "merge-pdf": {
     title: "Merge PDF Online – Combine PDF Files Free | SnapFreeTools",
     description: "Merge PDF files online free. Combine multiple PDF documents into a single PDF file quickly and securely inside your browser. No signups, no uploads.",

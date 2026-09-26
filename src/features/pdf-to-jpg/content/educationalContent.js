@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { FileImage, ShieldCheck, Cpu, Star, Layers, HelpCircle, ArrowRight } from "lucide-react";
+import { FileImage, FileText, ShieldCheck, Cpu, Star, Layers, HelpCircle, ArrowRight } from "lucide-react";
 
 export function EDUCATIONAL_CONTENT() {
   return (
@@ -155,6 +155,22 @@ export function EDUCATIONAL_CONTENT() {
               </h4>
               <p className="text-xs text-slate-500 font-medium leading-relaxed truncate">
                 Convert PDF to editable Word docx files.
+              </p>
+            </div>
+          </Link>
+          <Link
+            href="/pdf-to-text"
+            className="flex items-start gap-4 p-5 bg-white border border-slate-200 rounded-3xl shadow-sm hover:border-amber-300 hover:shadow-md transition-all group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 group-hover:bg-amber-50 flex items-center justify-center text-slate-500 group-hover:text-amber-600 transition-colors shrink-0">
+              <FileText size={18} />
+            </div>
+            <div className="space-y-1 py-0.5 min-w-0 flex-1">
+              <h4 className="font-bold text-slate-800 text-sm group-hover:text-amber-600 transition-colors truncate">
+                PDF to Text
+              </h4>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed truncate">
+                Extract plain text (.txt) from PDF files online.
               </p>
             </div>
           </Link>
