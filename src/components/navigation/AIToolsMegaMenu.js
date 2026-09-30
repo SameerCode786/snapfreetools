@@ -10,40 +10,32 @@ import {
   getFeaturedToolForGroup,
 } from "./navigationIndex";
 
-export default function ToolsMegaMenu({ onClose }) {
-  // Dynamically extract groups for utility ecosystem
-  const utilityGroups = useMemo(() => getGroupsByEcosystem("utility"), []);
+export default function AIToolsMegaMenu({ onClose }) {
+  // Extract groups for AI ecosystem
+  const aiGroups = useMemo(() => {
+    const groups = getGroupsByEcosystem("ai");
+    return groups.length > 0 ? groups : ["AI Writing & Content", "AI Document & PDF", "AI Developer"];
+  }, []);
 
-  // Active group state (defaults to first available group, e.g. "PDF Tools" or "Calculators")
-  const [activeGroup, setActiveGroup] = useState(() => utilityGroups[0] || "PDF Tools");
+  const [activeGroup, setActiveGroup] = useState(() => aiGroups[0] || "AI Writing & Content");
 
-  // Dynamic hub URL helper based on group name
-  const getGroupHubPath = (group) => {
-    if (group === "PDF Tools") return "/pdf-tools";
-    if (group === "Calculators") return "/calculators";
-    return "/calculators";
-  };
-
-  // Subcategories for active group
   const activeSubcategories = useMemo(
     () => getSubcategoriesByGroup(activeGroup),
     [activeGroup]
   );
 
-  // Featured tool for active group
   const featuredTool = useMemo(
     () => getFeaturedToolForGroup(activeGroup),
     [activeGroup]
   );
 
-  // Total tools count for active group (fast O(1) lookup)
   const totalGroupToolsCount = useMemo(
     () => getLiveToolsCountForGroup(activeGroup),
     [activeGroup]
   );
 
   const renderToolItem = (tool) => {
-    const IconComponent = Icons[tool.icon] || Icons.FileText;
+    const IconComponent = Icons[tool.icon] || Icons.Sparkles || Icons.FileText;
     const isLive = tool.status === "live" && !tool.future;
 
     if (!isLive) {
@@ -53,10 +45,10 @@ export default function ToolsMegaMenu({ onClose }) {
           className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg text-slate-400 cursor-not-allowed select-none text-xs"
         >
           <div className="flex items-center gap-2 truncate">
-            <IconComponent size={14} className="opacity-60 shrink-0" />
+            <IconComponent size={14} className="opacity-60 shrink-0 text-amber-500" />
             <span className="font-semibold truncate">{tool.name}</span>
           </div>
-          <span className="text-[8px] bg-slate-100 text-slate-500 border border-slate-200/60 px-1 py-0.2 rounded font-extrabold uppercase shrink-0">
+          <span className="text-[8px] bg-amber-50 text-amber-600 border border-amber-200/60 px-1 py-0.2 rounded font-extrabold uppercase shrink-0">
             Soon
           </span>
         </div>
@@ -72,7 +64,7 @@ export default function ToolsMegaMenu({ onClose }) {
         >
           <IconComponent
             size={14}
-            className="text-slate-400 group-hover:text-amber-500 transition-colors shrink-0"
+            className="text-amber-500 group-hover:text-amber-600 transition-colors shrink-0"
           />
           <span className="truncate">{tool.name}</span>
         </Link>
@@ -82,9 +74,9 @@ export default function ToolsMegaMenu({ onClose }) {
 
   return (
     <motion.div
-      id="desktop-tools-mega-menu"
+      id="desktop-ai-tools-mega-menu"
       role="region"
-      aria-label="Tools Directory Menu"
+      aria-label="AI Tools Directory Menu"
       initial={{ opacity: 0, y: 10, scale: 0.99 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 10, scale: 0.99 }}
@@ -95,23 +87,18 @@ export default function ToolsMegaMenu({ onClose }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Pane: Category Selector Sidebar (3 cols) */}
           <div className="lg:col-span-3 space-y-2 border-r border-slate-100 pr-4">
-            <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 mb-3">
-              Tool Categories
+            <h3 className="text-[10px] font-extrabold text-amber-600 uppercase tracking-widest px-2 mb-3 flex items-center gap-1.5">
+              <Icons.Sparkles size={12} /> AI Tool Ecosystem
             </h3>
-            <div className="space-y-1" role="tablist" aria-label="Tool Categories">
-              {utilityGroups.map((group) => {
+            <div className="space-y-1" role="tablist" aria-label="AI Tool Categories">
+              {aiGroups.map((group) => {
                 const isActive = activeGroup === group;
                 const count = getLiveToolsCountForGroup(group);
                 const IconComp =
-                  group === "PDF Tools"
-                    ? Icons.FileText
-                    : group === "Calculators"
-                    ? Icons.Calculator
-                    : group === "Text Tools"
-                    ? Icons.CaseSensitive
-                    : group === "Image Tools"
-                    ? Icons.Image
-                    : Icons.Sliders;
+                  (group.includes("Writing") ? Icons.Sparkles : null) ||
+                  (group.includes("Document") || group.includes("PDF") ? Icons.Bot : null) ||
+                  Icons.Code ||
+                  Icons.FileText;
 
                 return (
                   <button
@@ -119,26 +106,26 @@ export default function ToolsMegaMenu({ onClose }) {
                     type="button"
                     role="tab"
                     aria-selected={isActive}
-                    aria-controls={`panel-${group.toLowerCase().replace(/\s+/g, "-")}`}
+                    aria-controls={`panel-ai-${group.toLowerCase().replace(/\s+/g, "-")}`}
                     onClick={() => setActiveGroup(group)}
                     onMouseEnter={() => setActiveGroup(group)}
                     className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold transition-all text-left outline-none ${
                       isActive
-                        ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
+                        ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/15"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 truncate">
                       <IconComp
                         size={16}
-                        className={isActive ? "text-amber-400" : "text-slate-400"}
+                        className={isActive ? "text-slate-950" : "text-amber-500"}
                       />
                       <span className="truncate">{group}</span>
                     </div>
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold shrink-0 ${
                         isActive
-                          ? "bg-slate-800 text-amber-400"
+                          ? "bg-slate-950 text-amber-400"
                           : "bg-slate-100 text-slate-500"
                       }`}
                     >
@@ -150,9 +137,9 @@ export default function ToolsMegaMenu({ onClose }) {
             </div>
           </div>
 
-          {/* Right Pane: Dynamic Active Category View (9 cols) */}
+          {/* Right Pane: Dynamic Active AI Category View (9 cols) */}
           <div
-            id={`panel-${activeGroup.toLowerCase().replace(/\s+/g, "-")}`}
+            id={`panel-ai-${activeGroup.toLowerCase().replace(/\s+/g, "-")}`}
             role="tabpanel"
             className="lg:col-span-9 space-y-6 pl-2"
           >
@@ -161,21 +148,21 @@ export default function ToolsMegaMenu({ onClose }) {
               <div>
                 <h4 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                   {activeGroup}
-                  <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                    {totalGroupToolsCount} Tools Available
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/60 px-2.5 py-0.5 rounded-full">
+                    {totalGroupToolsCount} AI Tools
                   </span>
                 </h4>
                 <p className="text-xs text-slate-400 font-medium mt-0.5">
-                  Browse curated, fast, and private browser-local tools.
+                  AI-powered tools for writing, document analysis, and coding automation.
                 </p>
               </div>
 
               <Link
-                href={getGroupHubPath(activeGroup)}
+                href="/ai-tools"
                 onClick={onClose}
-                className="py-2 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 text-amber-700 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
+                className="py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
               >
-                View all {activeGroup} &rarr;
+                View all AI Tools &rarr;
               </Link>
             </div>
 
@@ -183,7 +170,7 @@ export default function ToolsMegaMenu({ onClose }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Columns for Subcategories */}
               <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {activeSubcategories.slice(0, 4).map((subcat) => {
+                {(activeSubcategories.length > 0 ? activeSubcategories : ["Generation", "Optimization"]).map((subcat) => {
                   const subTools = getCuratedToolsForSubcategory(activeGroup, subcat, 4);
                   return (
                     <div key={subcat} className="space-y-2">
@@ -191,19 +178,25 @@ export default function ToolsMegaMenu({ onClose }) {
                         {subcat}
                       </h5>
                       <ul className="space-y-1">
-                        {subTools.map(renderToolItem)}
+                        {subTools.length > 0 ? (
+                          subTools.map(renderToolItem)
+                        ) : (
+                          <div className="text-xs text-slate-400 py-1 font-medium">
+                            AI tools launching soon.
+                          </div>
+                        )}
                       </ul>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Featured Tool Promo Sidebar Card */}
+              {/* Featured AI Tool Promo Card */}
               {featuredTool && (
-                <div className="md:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group">
+                <div className="md:col-span-1 bg-slate-900 text-white rounded-3xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden group border border-slate-800">
                   <div className="space-y-3 relative z-10">
                     <span className="bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-black uppercase px-2.5 py-1 rounded-full inline-block">
-                      Featured Tool
+                      Featured AI Tool
                     </span>
                     <h5 className="font-extrabold text-sm leading-snug text-white group-hover:text-amber-300 transition-colors">
                       {featuredTool.name}
@@ -213,13 +206,13 @@ export default function ToolsMegaMenu({ onClose }) {
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-4 border-t border-slate-700/60 relative z-10">
+                  <div className="pt-4 mt-4 border-t border-slate-800 relative z-10">
                     <Link
                       href={`/${featuredTool.slug}`}
                       onClick={onClose}
                       className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
                     >
-                      Open Tool &rarr;
+                      Open AI Tool &rarr;
                     </Link>
                   </div>
                 </div>

@@ -86,7 +86,9 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
         "Input your adjusted grade marks to calculate overall averages."
       ]
     }
-  ];
+  ];  const handlePresetCollege = () => {
+    resetCalculator();
+  };
 
   return (
     <CalculatorLayout 
@@ -96,7 +98,7 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
       activeResult={activeResult}
     >
       <div className="space-y-8">
-        {/* Tool Header */}
+        {/* Tool Header & Courses Card */}
         <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -107,21 +109,29 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
                 {initialScale ? `Official ${activeScale.description} grading system.` : "Track your semester grade point averages."}
               </p>
             </div>
-            {!initialScale ? (
-              <GradeScaleSelector value={scale} onChange={(val) => {
-                setScale(val);
-                // Normalize course grades to fit the new scale
-                const newGrades = Object.keys(GRADE_SCALES[val].grades);
-                setCourses(prev => prev.map(c => ({
-                  ...c,
-                  grade: newGrades.includes(c.grade) ? c.grade : newGrades[0]
-                })));
-              }} />
-            ) : (
-              <div className="bg-amber-50 text-amber-600 border border-amber-100 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider">
-                Locked Scale: {activeScale.name}
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {!initialScale ? (
+                <GradeScaleSelector value={scale} onChange={(val) => {
+                  setScale(val);
+                  // Normalize course grades to fit the new scale
+                  const newGrades = Object.keys(GRADE_SCALES[val].grades);
+                  setCourses(prev => prev.map(c => ({
+                    ...c,
+                    grade: newGrades.includes(c.grade) ? c.grade : newGrades[0]
+                  })));
+                }} />
+              ) : (
+                <div className="bg-amber-50 text-amber-600 border border-amber-100 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider">
+                  Locked Scale: {activeScale.name}
+                </div>
+              )}
+              <button
+                onClick={resetCalculator}
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           {/* Table Headers */}
@@ -183,68 +193,7 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
             ))}
           </div>
 
-        </div>
-
-        {/* Course Form Matrix */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm">
-          <div className="flex justify-between items-center flex-wrap gap-4 border-b border-slate-100 pb-4">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">Courses & Grades</h2>
-              <p className="text-xs text-slate-500 font-medium">Log your individual subject credits and grade marks.</p>
-            </div>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={handlePresetCollege}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
-              >
-                Reset 4 Courses
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {courses.map((course, idx) => (
-              <div key={course.id} className="flex items-center gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
-                <span className="w-6 text-center text-xs font-bold text-slate-400">{idx + 1}</span>
-                <input
-                  type="text"
-                  placeholder="Course Name (Optional)"
-                  value={course.name}
-                  onChange={(e) => updateCourse(course.id, "name", e.target.value)}
-                  className="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-400"
-                />
-                <input
-                  type="number"
-                  placeholder="Credits"
-                  value={course.credits}
-                  onChange={(e) => updateCourse(course.id, "credits", e.target.value)}
-                  className="w-20 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-amber-400"
-                  step="0.5"
-                  min="0"
-                />
-                <select
-                  value={course.grade}
-                  onChange={(e) => updateCourse(course.id, "grade", e.target.value)}
-                  className="w-24 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-400 cursor-pointer"
-                >
-                  {activeScale.grades.map((g) => (
-                    <option key={g.letter} value={g.letter}>
-                      {g.letter} ({g.points})
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => removeCourse(course.id)}
-                  disabled={courses.length <= 1}
-                  className="p-2 text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-
+          {/* Add Course Button */}
           <div className="pt-2">
             <button
               onClick={addCourse}

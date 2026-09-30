@@ -13,6 +13,8 @@ export default async function sitemap() {
   // Need to ensure unique routes just in case
   const coreRoutes = Array.from(new Set([
     "",
+    "/tools",
+    "/ai-tools",
     "/about",
     "/contact",
     "/calculators",

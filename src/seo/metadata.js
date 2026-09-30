@@ -253,6 +253,18 @@ export const METADATA_CONFIG = {
     keywords: "sign pdf, sign pdf online, sign pdf online free, add signature to pdf, electronic signature pdf, sign pdf document, sign pdf without printing, draw signature on pdf, add handwritten signature to pdf, upload signature to pdf, sign pdf on phone, sign pdf online free without registration",
     path: "/sign-pdf"
   },
+  "extract-pdf-images": {
+    title: "Extract Images from PDF Online Free - Save PDF Pictures | SnapFreeTools",
+    description: "Extract images from PDF online free inside your browser. Pull embedded photos, logos, and graphics from PDF files instantly as original JPG or PNG files without server uploads.",
+    keywords: "extract images from pdf, extract images from pdf online, extract images from pdf free, pdf image extractor, extract pdf images, extract embedded images from pdf, save images from pdf, extract photos from pdf, extract pictures from pdf, extract jpg from pdf, extract png from pdf, download images from pdf, how to extract images from a pdf, how to save pictures from a pdf",
+    path: "/extract-pdf-images"
+  },
+  "edit-pdf-metadata": {
+    title: "Edit PDF Metadata Online Free - Change PDF Properties | SnapFreeTools",
+    description: "Edit PDF metadata online free inside your browser. Change PDF title, author, subject, keywords, creator and document properties instantly without server uploads.",
+    keywords: "edit pdf metadata, pdf metadata editor, edit pdf properties, change pdf title, change pdf author, edit pdf document properties, edit pdf title author subject, pdf metadata editor online, edit pdf metadata online free, remove pdf metadata, clear pdf metadata, change pdf subject, change pdf keywords, pdf properties editor",
+    path: "/edit-pdf-metadata"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

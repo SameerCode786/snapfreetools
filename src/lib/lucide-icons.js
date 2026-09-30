@@ -73,7 +73,10 @@ import {
   Trash2,
   GripVertical,
   Move,
-  ArrowUpDown
+  ArrowUpDown,
+  Sparkles,
+  Bot,
+  Code
 } from "lucide-react";
 
 export const Icons = {
@@ -151,5 +154,8 @@ export const Icons = {
   Trash2,
   GripVertical,
   Move,
-  ArrowUpDown
+  ArrowUpDown,
+  Sparkles,
+  Bot,
+  Code
 };
