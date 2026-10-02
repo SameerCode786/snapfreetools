@@ -752,8 +752,10 @@ export const ALL_TOOLS = [
     icon: "SunMedium",
     featured: false,
     popular: false,
-    status: "coming_soon",
-    future: true,
+    status: "live",
+    future: false,
+    seoTitle: "Convert PDF to Grayscale Online Free — Make PDF Black & White",
+    seoDescription: "Convert color PDF pages to grayscale online free inside your browser. Turn PDF documents into black and white for eco-friendly printing and reduced toner usage.",
     tags: ["pdf", "grayscale", "black-and-white", "print", "color"]
   },
   {
@@ -763,12 +765,14 @@ export const ALL_TOOLS = [
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Manage PDFs",
-    description: "Extract selected pages from a PDF and create a new PDF document.",
+    description: "Extract selected pages from a PDF document online for free.",
     icon: "Copy",
     featured: false,
     popular: false,
-    status: "coming_soon",
-    future: true,
+    status: "live",
+    future: false,
+    seoTitle: "Extract PDF Pages Online Free - Save Selected Pages | SnapFreeTools",
+    seoDescription: "Extract selected pages from a PDF online for free. Select individual pages or ranges and save them as a new PDF directly in your browser with no upload or signup.",
     tags: ["pdf", "extract", "pages", "split", "select"]
   },
   {
@@ -782,8 +786,10 @@ export const ALL_TOOLS = [
     icon: "ArrowUpDown",
     featured: false,
     popular: false,
-    status: "coming_soon",
-    future: true,
+    status: "live",
+    future: false,
+    seoTitle: "Reverse PDF Pages Online Free - Reverse PDF Order",
+    seoDescription: "Reverse PDF pages online for free inside your browser. Rearrange PDF documents into reverse page order with 100% client-side privacy.",
     tags: ["pdf", "reverse", "pages", "order", "reorder"]
   },
   {
