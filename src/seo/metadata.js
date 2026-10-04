@@ -265,6 +265,30 @@ export const METADATA_CONFIG = {
     keywords: "edit pdf metadata, pdf metadata editor, edit pdf properties, change pdf title, change pdf author, edit pdf document properties, edit pdf title author subject, pdf metadata editor online, edit pdf metadata online free, remove pdf metadata, clear pdf metadata, change pdf subject, change pdf keywords, pdf properties editor",
     path: "/edit-pdf-metadata"
   },
+  "draw-on-pdf": {
+    title: "Draw on PDF Online Free - Annotate PDF Pages | SnapFreeTools",
+    description: "Draw on PDF files online for free. Add freehand drawings, highlights, shapes, arrows, and text annotations directly to PDF pages in your browser with private client-side processing.",
+    keywords: "draw on pdf, draw on pdf online, annotate pdf online, write on pdf, draw on pdf pages, free pdf drawing tool, pdf annotation tool, how to draw on a pdf, how to annotate a pdf, highlight pdf online, add text to pdf, add arrows to pdf, add shapes to pdf, freehand draw on pdf",
+    path: "/draw-on-pdf"
+  },
+  "pdf-page-sorter": {
+    title: "PDF Page Sorter Free – Sort & Reorder PDF Pages | SnapFreeTools",
+    description: "Sort and reorder PDF pages online for free. Visually drag, drop, and rearrange PDF page order directly in your browser with private client-side processing.",
+    keywords: "pdf page sorter, sort pdf pages, reorder pdf pages, rearrange pdf pages, change pdf page order, pdf page rearranger, reorder pages in pdf online, pdf page organizer, sort pdf pages online free",
+    path: "/pdf-page-sorter"
+  },
+  "pdf-to-png": {
+    title: "PDF to PNG Converter Free – Convert PDF to PNG Online | SnapFreeTools",
+    description: "Convert PDF pages into high-quality PNG images online for free. Convert selected or all PDF pages directly in your browser with private client-side processing.",
+    keywords: "pdf to png, pdf to png converter, convert pdf to png, convert pdf to png online, pdf to png converter free, export pdf as png, pdf pages to png, client side pdf to png",
+    path: "/pdf-to-png"
+  },
+  "resize-pdf": {
+    title: "Resize PDF Pages Online — Change PDF Page Size Free | SnapFreeTools",
+    description: "Resize PDF pages to A4, Letter, Legal, A3 and custom dimensions. Fit, keep, or stretch content directly in your browser with private client-side processing.",
+    keywords: "resize pdf, resize pdf pages, change pdf page size, change pdf page dimensions, resize pdf to A4, resize pdf to Letter, resize PDF pages online, custom PDF page size, change PDF paper size, pdf page size converter",
+    path: "/resize-pdf"
+  },
   "scholarship-calculator": {
     title: "Scholarship Calculator – Estimate Tuition Savings",
     description: "Calculate scholarship amounts, tuition after scholarship, annual savings, and total program costs using a percentage or fixed award.",

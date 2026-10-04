@@ -567,13 +567,15 @@ export const ALL_TOOLS = [
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Convert from PDF",
-    description: "Convert PDF pages into PNG images with configurable image quality.",
+    description: "Convert PDF pages into high-quality PNG images online for free directly in your browser.",
     icon: "FileImage",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["pdf", "png", "convert", "image", "extract"]
+    popular: true,
+    status: "live",
+    future: false,
+    tags: ["pdf", "png", "convert", "image", "extract"],
+    seoTitle: "PDF to PNG Converter Free – Convert PDF to PNG Online | SnapFreeTools",
+    seoDescription: "Convert PDF pages into high-quality PNG images online for free. Convert selected or all PDF pages directly in your browser with private client-side processing."
   },
   {
     id: "png-to-pdf",
@@ -672,13 +674,15 @@ export const ALL_TOOLS = [
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Edit & Annotate",
-    description: "Resize PDF pages to standard or custom page dimensions.",
+    description: "Resize PDF pages to standard or custom dimensions directly in your browser.",
     icon: "Scaling",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["pdf", "resize", "scale", "dimensions", "page-size"]
+    popular: true,
+    status: "live",
+    future: false,
+    tags: ["pdf", "resize", "scale", "dimensions", "page-size"],
+    seoTitle: "Resize PDF Pages Online — Change PDF Page Size Free",
+    seoDescription: "Resize PDF pages to A4, Letter, Legal, A3 and custom dimensions. Fit, keep, or stretch content directly in your browser with private client-side processing."
   },
   {
     id: "add-text-to-pdf",
@@ -720,9 +724,11 @@ export const ALL_TOOLS = [
     description: "Draw freehand annotations and marks directly on PDF pages.",
     icon: "Pencil",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
+    popular: true,
+    status: "live",
+    future: false,
+    seoTitle: "Draw on PDF Online Free - Annotate PDF Pages | SnapFreeTools",
+    seoDescription: "Draw on PDF files online for free. Add freehand drawings, highlights, shapes, arrows, and text annotations directly to PDF pages in your browser with private client-side processing.",
     tags: ["pdf", "draw", "freehand", "sketch", "annotate"]
   },
   {
@@ -802,10 +808,12 @@ export const ALL_TOOLS = [
     description: "Sort and rearrange PDF pages into a custom page order.",
     icon: "LayoutList",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["pdf", "sort", "rearrange", "organize", "pages"]
+    popular: true,
+    status: "live",
+    future: false,
+    seoTitle: "PDF Page Sorter Free – Sort & Reorder PDF Pages | SnapFreeTools",
+    seoDescription: "Sort and reorder PDF pages online for free. Visually drag, drop, and rearrange PDF page order directly in your browser with private client-side processing.",
+    tags: ["pdf", "sort", "reorder", "rearrange", "organize", "pages"]
   },
   {
     id: "redact-pdf",
