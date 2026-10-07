@@ -584,13 +584,15 @@ export const ALL_TOOLS = [
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Convert to PDF",
-    description: "Convert PNG images into a single PDF document.",
+    description: "Convert PNG images into a single PDF document online for free.",
     icon: "Image",
     featured: false,
     popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["png", "pdf", "convert", "image", "combine"]
+    status: "live",
+    future: false,
+    tags: ["png", "pdf", "convert", "image", "combine"],
+    seoTitle: "PNG to PDF Converter Free – Convert PNG Images to PDF Online | SnapFreeTools",
+    seoDescription: "Convert PNG images into a single PDF online for free. Combine multiple PNG files, arrange page order, and choose page sizes directly in your browser."
   },
   {
     id: "pdf-to-ppt",

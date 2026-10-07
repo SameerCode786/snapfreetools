@@ -15,7 +15,11 @@ import {
   PNG_SAFETY_LIMITS
 } from "./utils/pngToPdfEngine.js";
 
-export default function PngToPdfFeature() {
+import FAQSection from "@/features/student-hub/shared/components/FAQSection";
+import PngToPdfEducationalContent from "./content/educationalContent.js";
+import { PNG_TO_PDF_FAQS } from "./content/faqs.js";
+
+export default function PngToPdfFeature({ faqs = PNG_TO_PDF_FAQS }) {
   // Step state machine: 'upload' | 'workspace' | 'processing' | 'success'
   const [stage, setStage] = useState("upload");
   const [images, setImages] = useState([]);
@@ -270,8 +274,9 @@ export default function PngToPdfFeature() {
     <ToolLayout
       title="PNG to PDF Converter — Convert PNG Images to PDF Online"
       description="Convert PNG images into a single PDF document directly in your browser."
+      currentSlug="png-to-pdf"
     >
-      <div className="space-y-8">
+      <div className="space-y-12">
         <section className="min-h-[420px] flex flex-col justify-center">
           {stage === "upload" && (
             <UploadState
@@ -305,6 +310,12 @@ export default function PngToPdfFeature() {
             />
           )}
         </section>
+
+        {/* Educational Content Section */}
+        <PngToPdfEducationalContent />
+
+        {/* FAQ Section */}
+        <FAQSection faqs={faqs} />
       </div>
     </ToolLayout>
   );

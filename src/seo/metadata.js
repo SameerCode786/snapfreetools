@@ -378,6 +378,12 @@ export const METADATA_CONFIG = {
     description: "Convert JPG, JPEG, and PNG images into a PDF file locally inside your browser. No files are uploaded to any server. Free and secure.",
     keywords: "jpg to pdf, jpeg to pdf, convert jpg to pdf, convert jpeg to pdf, images to pdf, merge images into pdf, free online jpg to pdf",
     path: "/jpg-to-pdf"
+  },
+  "png-to-pdf": {
+    title: "PNG to PDF Converter Free – Convert PNG Images to PDF Online | SnapFreeTools",
+    description: "Convert PNG images into a single PDF online for free. Combine multiple PNG files, arrange page order, and choose page sizes directly in your browser.",
+    keywords: "png to pdf, png to pdf converter, convert png to pdf, convert png to pdf online, png images to pdf, png to pdf online, combine png images into pdf, convert multiple png to pdf, png to one pdf, png to pdf free",
+    path: "/png-to-pdf"
   }
 };
 
