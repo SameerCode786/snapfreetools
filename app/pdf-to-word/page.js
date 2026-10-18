@@ -54,7 +54,7 @@ const FAQS_DATA = [
   },
   {
     question: "Does this converter use OCR?",
-    answer: "No. This converter focuses on privacy-first local conversion. Your files stay inside your browser and are never uploaded to external servers. OCR is not currently included."
+    answer: "Yes! Our converter includes built-in Free In-Browser OCR. When a scanned or image-based PDF is detected, our OCR engine runs 100% locally on your device to extract text characters and compile them into an editable Word (.docx) document without uploading your files to any external server."
   }
 ];
 

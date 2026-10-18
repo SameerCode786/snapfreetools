@@ -631,13 +631,15 @@ export const ALL_TOOLS = [
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Convert to PDF",
-    description: "Convert HTML content or web pages into PDF documents.",
+    description: "Convert public website URLs, raw HTML code, or uploaded .html files into clean PDF documents.",
     icon: "FileCode",
     featured: false,
     popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["html", "web", "pdf", "convert", "webpage"]
+    status: "live",
+    future: false,
+    tags: ["html", "web", "pdf", "convert", "webpage"],
+    seoTitle: "HTML to PDF Converter Free – Convert Webpages to PDF Online | SnapFreeTools",
+    seoDescription: "Convert public website URLs, raw HTML code, or uploaded .html files into clean PDF documents using our secure Chromium rendering engine."
   },
   {
     id: "pdf-to-pdfa",

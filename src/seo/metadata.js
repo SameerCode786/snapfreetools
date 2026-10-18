@@ -384,6 +384,12 @@ export const METADATA_CONFIG = {
     description: "Convert PNG images into a single PDF online for free. Combine multiple PNG files, arrange page order, and choose page sizes directly in your browser.",
     keywords: "png to pdf, png to pdf converter, convert png to pdf, convert png to pdf online, png images to pdf, png to pdf online, combine png images into pdf, convert multiple png to pdf, png to one pdf, png to pdf free",
     path: "/png-to-pdf"
+  },
+  "html-to-pdf": {
+    title: "HTML to PDF Converter Free – Convert Webpages to PDF Online | SnapFreeTools",
+    description: "Convert public website URLs, raw HTML code, or uploaded .html files into clean PDF documents using our secure Chromium rendering engine.",
+    keywords: "html to pdf, convert html to pdf, webpage to pdf, url to pdf, website to pdf converter, save webpage as pdf, online html to pdf",
+    path: "/html-to-pdf"
   }
 };
 

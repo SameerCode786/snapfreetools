@@ -1,34 +1,76 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  FileText, UploadCloud, CheckCircle, Loader2, Download, 
-  RefreshCw, Trash2, ArrowRight, Shield, Zap, Sparkles, 
-  HelpCircle, Eye, AlertCircle, FileEdit, Award, Info, Rocket,
-  FileCheck, Layers
+import {
+  FileText,
+  UploadCloud,
+  CheckCircle2,
+  Loader2,
+  Download,
+  RefreshCw,
+  Trash2,
+  ArrowRight,
+  Shield,
+  Zap,
+  Sparkles,
+  HelpCircle,
+  AlertCircle,
+  FileEdit,
+  Award,
+  Info,
+  Layers,
+  Globe,
+  FileCheck,
+  CheckCircle,
 } from "lucide-react";
-import Link from "next/link";
 import ToolLayout from "@/layouts/tool-layout";
+import ScannedPdfModal from "./components/ScannedPdfModal";
+import { inspectPdfDocument } from "./utils/pdf-inspector";
+import { runOCR, SUPPORTED_OCR_LANGUAGES, MAX_OCR_PAGES } from "./utils/ocr-engine";
+import { generateDocxFromPages } from "./utils/docx-generator";
+import { formatOCRText } from "./utils/ocr-text-formatter";
+
+async function getPdfJsEngine() {
+  let pdfjsModule;
+  try {
+    pdfjsModule = await import("pdfjs-dist");
+  } catch {
+    pdfjsModule = await import("pdfjs-dist/build/pdf.mjs");
+  }
+  const pdfjs = pdfjsModule.default || pdfjsModule;
+  if (typeof window !== "undefined" && pdfjs.GlobalWorkerOptions) {
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+  }
+  return pdfjs;
+}
 
 export default function PDFToWord({ faqs = [] }) {
   const [file, setFile] = useState(null);
   const [fileError, setFileError] = useState(null);
   const [pageCount, setPageCount] = useState(null);
-  const [conversionState, setConversionState] = useState("idle"); // idle, converting, completed
+  const [inspectionDetails, setInspectionDetails] = useState(null);
+  const [isInspecting, setIsInspecting] = useState(false);
+  const [showScannedModal, setShowScannedModal] = useState(false);
+
+  const [conversionState, setConversionState] = useState("idle"); // idle | converting | completed | error
+  const [conversionMode, setConversionMode] = useState("standard"); // standard | ocr
+  const [selectedLanguage, setSelectedLanguage] = useState("eng");
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [docBlob, setDocBlob] = useState(null);
-  const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const [scannedPDFDetected, setScannedPDFDetected] = useState(false);
-  const [showOcrDialog, setShowOcrDialog] = useState(false);
-  const [showOcrConfirmation, setShowOcrConfirmation] = useState(false);
-  const [ocrConfidenceWarning, setOcrConfidenceWarning] = useState(null);
   const [isOcrCompleted, setIsOcrCompleted] = useState(false);
+  const [ocrConfidenceWarning, setOcrConfidenceWarning] = useState(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
   const fileInputRef = useRef(null);
   const activeOcrJobRef = useRef(null);
+  const cachedPdfDocRef = useRef(null);
 
-  React.useEffect(() => {
+  // Cancel any active OCR worker when component unmounts
+  useEffect(() => {
     return () => {
       if (activeOcrJobRef.current) {
         activeOcrJobRef.current.cancel();
@@ -41,15 +83,18 @@ export default function PDFToWord({ faqs = [] }) {
   const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    validateAndSetFile(selectedFile);
+    const selectedFile = e.target.files?.[0];
+    validateAndInspectFile(selectedFile);
   };
 
-  const validateAndSetFile = (selectedFile) => {
+  const validateAndInspectFile = async (selectedFile) => {
     setFileError(null);
     if (!selectedFile) return;
 
-    if (selectedFile.type !== "application/pdf" && !selectedFile.name.endsWith(".pdf")) {
+    if (
+      selectedFile.type !== "application/pdf" &&
+      !selectedFile.name.toLowerCase().endsWith(".pdf")
+    ) {
       setFileError("Invalid file type. Please select a PDF document (.pdf).");
       return;
     }
@@ -59,47 +104,51 @@ export default function PDFToWord({ faqs = [] }) {
       return;
     }
 
+    // Cancel any previous job
     if (activeOcrJobRef.current) {
       activeOcrJobRef.current.cancel();
       activeOcrJobRef.current = null;
     }
+
     setFile(selectedFile);
     setConversionState("idle");
     setProgress(0);
     setDocBlob(null);
-    setScannedPDFDetected(false);
-    setShowOcrDialog(false);
-    setShowOcrConfirmation(false);
-    setOcrConfidenceWarning(null);
     setIsOcrCompleted(false);
-    
-    // Estimate page count client-side by reading raw file text
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const arrBuffer = e.target.result;
-      try {
-        const text = new TextDecoder("ascii").decode(new Uint8Array(arrBuffer));
-        
-        // Search for "/Type /Pages /Count X" in the PDF catalog structure
-        const countMatch = text.match(/\/Type\s*\/Pages\s*\/Count\s*(\d+)/);
-        if (countMatch && countMatch[1]) {
-          setPageCount(parseInt(countMatch[1], 10));
-          return;
-        }
+    setOcrConfidenceWarning(null);
+    setInspectionDetails(null);
+    setIsInspecting(true);
+    setStatusMessage("Inspecting PDF document...");
 
-        // Fallback: count /Type /Page objects
-        const pageMatches = text.match(/\/Type\s*\/Page\b/g);
-        if (pageMatches) {
-          setPageCount(pageMatches.length);
-          return;
-        }
-        
-        setPageCount(1); // Default fallback
-      } catch (err) {
-        setPageCount(1); // Default fallback on parse error
+    try {
+      const pdfjs = await getPdfJsEngine();
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const pdfDoc = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      cachedPdfDocRef.current = pdfDoc;
+
+      setPageCount(pdfDoc.numPages);
+      setTotalPages(pdfDoc.numPages);
+
+      // Perform deep inspection to detect scanned pages vs digital text
+      const inspection = await inspectPdfDocument(pdfDoc);
+      setInspectionDetails(inspection);
+
+      if (inspection.isScanned) {
+        // Scanned or mixed PDF detected -> show iLovePDF-inspired modal
+        setConversionMode("ocr");
+        setShowScannedModal(true);
+      } else {
+        // Purely digital text PDF -> keep standard conversion mode
+        setConversionMode("standard");
+        setShowScannedModal(false);
       }
-    };
-    reader.readAsArrayBuffer(selectedFile);
+    } catch (inspectErr) {
+      console.warn("PDF inspection fallback:", inspectErr);
+      setPageCount(1);
+      setTotalPages(1);
+    } finally {
+      setIsInspecting(false);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -108,12 +157,12 @@ export default function PDFToWord({ faqs = [] }) {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const droppedFile = e.dataTransfer.files[0];
-    validateAndSetFile(droppedFile);
+    const droppedFile = e.dataTransfer.files?.[0];
+    validateAndInspectFile(droppedFile);
   };
 
   const triggerFileSelect = () => {
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
   const removeFile = () => {
@@ -121,15 +170,16 @@ export default function PDFToWord({ faqs = [] }) {
       activeOcrJobRef.current.cancel();
       activeOcrJobRef.current = null;
     }
+    cachedPdfDocRef.current = null;
     setFile(null);
     setPageCount(null);
     setFileError(null);
+    setInspectionDetails(null);
     setConversionState("idle");
+    setConversionMode("standard");
     setProgress(0);
     setDocBlob(null);
-    setScannedPDFDetected(false);
-    setShowOcrDialog(false);
-    setShowOcrConfirmation(false);
+    setShowScannedModal(false);
     setOcrConfidenceWarning(null);
     setIsOcrCompleted(false);
     if (fileInputRef.current) {
@@ -137,412 +187,218 @@ export default function PDFToWord({ faqs = [] }) {
     }
   };
 
-  const handleConversion = async () => {
+  // 1. Primary Action from Scanned Modal or Convert Button: Free OCR Conversion
+  const handleStartOcrConversion = async (languageOverride) => {
     if (!file) return;
 
+    setShowScannedModal(false);
+    setConversionMode("ocr");
     setConversionState("converting");
-    setProgress(0);
-    setFileError(null);
-
-    try {
-      // 1. Loading PDF and worker engine
-      setStatusMessage("Loading PDF...");
-      setProgress(5);
-
-      const pdfjs = await import("pdfjs-dist");
-      
-      // Load worker script from cdnjs dynamically to avoid webpack loading issues
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      const numPages = pdfDoc.numPages;
-      setPageCount(numPages);
-
-      // 2. Reading pages & Extracting text
-      setStatusMessage("Reading pages...");
-      setProgress(15);
-
-      const pageTexts = [];
-      let totalTextLength = 0;
-
-      for (let i = 1; i <= numPages; i++) {
-        setStatusMessage(`Extracting text from page ${i} of ${numPages}...`);
-        
-        // Progress grows from 20% to 75% depending on extracted pages
-        const progressIncrement = Math.round((i / numPages) * 55) + 15;
-        setProgress(progressIncrement);
-
-        const page = await pdfDoc.getPage(i);
-        const textContent = await page.getTextContent();
-        
-        // Extract text items safely, filtering out metadata tags
-        const pageText = textContent.items
-          .filter(item => typeof item.str === "string")
-          .map(item => item.str)
-          .join(" ");
-
-        pageTexts.push(pageText);
-        totalTextLength += pageText.trim().length;
-      }
-
-      // Check if document has selectable text
-      if (totalTextLength === 0) {
-        setConversionState("idle");
-        setScannedPDFDetected(true);
-        return;
-      }
-
-      // 3. Building DOCX container
-      setStatusMessage("Building DOCX...");
-      setProgress(80);
-
-      const docx = await import("docx");
-      const { Document, Paragraph, TextRun, PageBreak, Packer } = docx;
-
-      const docChildren = [];
-
-      for (let i = 0; i < pageTexts.length; i++) {
-        // Add a PageBreak before subsequent pages
-        if (i > 0) {
-          docChildren.push(new Paragraph({
-            children: [new PageBreak()]
-          }));
-        }
-
-        // Map line breaks and paragraph separations
-        const paragraphs = pageTexts[i].split("\n\n").map(pText => {
-          if (!pText.trim()) return null;
-          return new Paragraph({
-            children: [
-              new TextRun({
-                text: pText.trim(),
-                size: 24, // 12pt font size
-                font: "Arial"
-              })
-            ],
-            spacing: {
-              after: 160 // 8pt padding after paragraphs
-            }
-          });
-        }).filter(p => p !== null);
-
-        // Ensure at least one placeholder paragraph is added if the page has whitespace text
-        if (paragraphs.length === 0 && pageTexts[i].trim().length > 0) {
-          paragraphs.push(new Paragraph({
-            children: [
-              new TextRun({
-                text: pageTexts[i].trim(),
-                size: 24,
-                font: "Arial"
-              })
-            ]
-          }));
-        }
-
-        docChildren.push(...paragraphs);
-      }
-
-      // 4. Preparing download package
-      setStatusMessage("Preparing download...");
-      setProgress(95);
-
-      const doc = new Document({
-        sections: [
-          {
-            properties: {},
-            children: docChildren
-          }
-        ]
-      });
-
-      const blob = await Packer.toBlob(doc);
-      setDocBlob(blob);
-      setProgress(100);
-      setConversionState("completed");
-    } catch (err) {
-      console.error("Client-side PDF compilation error:", err);
-      setConversionState("idle");
-      setFileError(`Conversion failed: ${err.message || "An unexpected error occurred during processing."}`);
-    }
-  };
-
-  const handleConvertAsImages = async () => {
-    if (!file) return;
-
-    setConversionState("converting");
-    setProgress(0);
-    setScannedPDFDetected(false);
-    setFileError(null);
-
-    try {
-      setStatusMessage("Preparing pages...");
-      setProgress(10);
-
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      const numPages = pdfDoc.numPages;
-      setPageCount(numPages);
-
-      const docx = await import("docx");
-      const { Document, Paragraph, ImageRun, PageBreak, Packer } = docx;
-
-      const docChildren = [];
-
-      for (let i = 1; i <= numPages; i++) {
-        setStatusMessage(`Rendering PDF pages (Page ${i} of ${numPages})...`);
-        const progressIncrement = Math.round((i / numPages) * 50) + 15; // 15% to 65%
-        setProgress(progressIncrement);
-
-        const page = await pdfDoc.getPage(i);
-        
-        // Render PDF page to canvas
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        const viewport = page.getViewport({ scale: 1.5 });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport
-        };
-        await page.render(renderContext).promise;
-
-        // Get blob data from canvas
-        const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.90));
-        
-        // Extract array buffer from blob
-        const imgBuffer = await imageBlob.arrayBuffer();
-
-        // Standard margin net A4 width is 450pt
-        const ratio = viewport.height / viewport.width;
-        const imgWidth = 450;
-        const imgHeight = 450 * ratio;
-
-        // Add a PageBreak before subsequent pages
-        if (i > 1) {
-          docChildren.push(new Paragraph({
-            children: [new PageBreak()]
-          }));
-        }
-
-        setStatusMessage(`Embedding images into Word (Page ${i} of ${numPages})...`);
-        
-        // Add paragraph containing the image
-        docChildren.push(new Paragraph({
-          children: [
-            new ImageRun({
-              data: imgBuffer,
-              transformation: {
-                width: imgWidth,
-                height: imgHeight
-              }
-            })
-          ],
-          alignment: docx.AlignmentType.CENTER,
-          spacing: {
-            before: 200,
-            after: 200
-          }
-        }));
-      }
-
-      setStatusMessage("Generating DOCX...");
-      setProgress(85);
-
-      const doc = new Document({
-        sections: [
-          {
-            properties: {},
-            children: docChildren
-          }
-        ]
-      });
-
-      setStatusMessage("Preparing download...");
-      setProgress(95);
-
-      const blob = await Packer.toBlob(doc);
-      setDocBlob(blob);
-      setProgress(100);
-      setConversionState("completed");
-    } catch (err) {
-      console.error("Scanned PDF Image Conversion Error:", err);
-      setConversionState("idle");
-      setScannedPDFDetected(true);
-      setFileError(`Image conversion failed: ${err.message || "An unexpected error occurred."}`);
-    }
-  };
-
-  const handleStartOcrConversion = async () => {
-    if (!file) return;
-
-    // Estimate/Validate pages limit (10 pages)
-    if (pageCount !== null && pageCount > 10) {
-      setFileError("This OCR version supports up to 10 scanned pages per document. Please split larger PDFs and try again.");
-      setShowOcrConfirmation(false);
-      return;
-    }
-
-    setConversionState("converting");
-    setProgress(0);
+    setProgress(5);
     setFileError(null);
     setOcrConfidenceWarning(null);
-    setShowOcrConfirmation(false);
     setIsOcrCompleted(false);
 
+    const langToUse = languageOverride || selectedLanguage || "eng";
+
     try {
-      setStatusMessage("Preparing OCR engine...");
-      setProgress(5);
-
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      const numPages = pdfDoc.numPages;
-      setPageCount(numPages);
-
-      if (numPages > 10) {
-        throw new Error("limit_exceeded");
+      setStatusMessage("Preparing PDF document...");
+      let pdfDoc = cachedPdfDocRef.current;
+      if (!pdfDoc) {
+        const pdfjs = await getPdfJsEngine();
+        const arrayBuffer = await file.arrayBuffer();
+        pdfDoc = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        cachedPdfDocRef.current = pdfDoc;
       }
 
-      // Initialize OCR engine run
-      const { runOCR } = await import("./utils/ocr-engine");
+      const numPages = pdfDoc.numPages;
+      setPageCount(numPages);
+      setTotalPages(numPages);
+
+      if (numPages > MAX_OCR_PAGES) {
+        const limitErr = new Error(
+          `This free in-browser OCR version supports up to ${MAX_OCR_PAGES} scanned pages per document. Please split larger PDFs and try again.`
+        );
+        limitErr.code = "LIMIT_EXCEEDED";
+        throw limitErr;
+      }
+
+      // Initialize OCR Engine with cached inspection and balanced quality
       const job = runOCR({
         pdfDoc,
-        onProgress: (stage, page, total, percent) => {
+        lang: langToUse,
+        quality: "balanced",
+        pageInspection: inspectionDetails,
+        onProgress: (stage, current, total, percent) => {
           setStatusMessage(stage);
+          setCurrentPage(current);
+          setTotalPages(total);
           setProgress(percent);
-        }
+        },
       });
 
       activeOcrJobRef.current = job;
-
       const { ocrResults, averageConfidence } = await job.promise;
       activeOcrJobRef.current = null;
 
-      // 5. Building editable DOCX
-      setStatusMessage("Building editable DOCX...");
-      setProgress(90);
+      // Stage: Compiling editable DOCX document
+      setStatusMessage("Generating editable Microsoft Word (.docx) file...");
+      setProgress(92);
 
-      // Collect recognized text lengths
-      let totalTextLength = 0;
-      ocrResults.forEach(r => {
-        r.paragraphs.forEach(p => {
-          totalTextLength += p.trim().length;
-        });
-      });
-
-      if (totalTextLength === 0) {
-        throw new Error("no_readable_text");
-      }
-
-      const docx = await import("docx");
-      const { Document, Paragraph, TextRun, PageBreak, Packer } = docx;
-
-      const docChildren = [];
-
-      for (let i = 0; i < ocrResults.length; i++) {
-        const pageResult = ocrResults[i];
-
-        // Add a PageBreak before subsequent pages
-        if (i > 0) {
-          docChildren.push(new Paragraph({
-            children: [new PageBreak()]
-          }));
-        }
-
-        const paragraphs = pageResult.paragraphs.map(pText => {
-          return new Paragraph({
-            children: [
-              new TextRun({
-                text: pText,
-                size: 24, // 12pt
-                font: "Arial"
-              })
-            ],
-            spacing: {
-              after: 160 // 8pt padding
-            }
-          });
-        });
-
-        docChildren.push(...paragraphs);
-      }
-
-      setStatusMessage("Finalizing download...");
-      setProgress(95);
-
-      const doc = new Document({
-        sections: [
-          {
-            properties: {},
-            children: docChildren
-          }
-        ]
-      });
-
-      const blob = await Packer.toBlob(doc);
+      const blob = await generateDocxFromPages(ocrResults);
       setDocBlob(blob);
 
       if (averageConfidence < 60) {
-        setOcrConfidenceWarning("OCR completed, but some text may require manual review because the scan quality was low.");
+        setOcrConfidenceWarning(
+          "OCR completed, but some text may require manual review because the scan quality was low."
+        );
       }
 
       setIsOcrCompleted(true);
       setProgress(100);
       setConversionState("completed");
-
     } catch (err) {
       activeOcrJobRef.current = null;
       console.error("OCR execution error:", err);
-      
+
       if (err.message === "cancelled") {
         setConversionState("idle");
-        setScannedPDFDetected(true);
         setProgress(0);
+        setStatusMessage("");
         return;
       }
 
-      setConversionState("idle");
-      setScannedPDFDetected(true);
-
-      if (err.message === "limit_exceeded") {
-        setFileError("This OCR version supports up to 10 scanned pages per document. Please split larger PDFs and try again.");
-      } else if (err.message === "no_readable_text") {
-        setFileError("OCR could not detect readable text. Please try a clearer or higher-resolution scan.");
+      setConversionState("error");
+      if (err.code === "LIMIT_EXCEEDED") {
+        setFileError(
+          `This free OCR tool supports up to ${MAX_OCR_PAGES} scanned pages per document. Please split your file and try in batches.`
+        );
+      } else if (err.code === "NO_TEXT_FOUND") {
+        setFileError(
+          "OCR completed, but no readable text was detected. The scanned pages may be blank or too low resolution. Try uploading a clearer scan."
+        );
+      } else if (err.code === "UNSUPPORTED_LANGUAGE") {
+        setFileError(err.message);
+      } else if (err.code === "LANGUAGE_LOAD_FAILED") {
+        setFileError(
+          `Failed to load OCR language data for '${langToUse}'. Please ensure an active internet connection or switch to English.`
+        );
       } else {
-        setFileError(`OCR compilation failed: ${err.message || "An unexpected error occurred during processing."}`);
+        setFileError(
+          `OCR conversion failed: ${err.message || "An unexpected error occurred during processing."}`
+        );
       }
     }
   };
 
+  // 2. Secondary Action: Standard Native Conversion (Without OCR)
+  const handleStandardConversion = async () => {
+    if (!file) return;
+
+    setShowScannedModal(false);
+    setConversionMode("standard");
+    setConversionState("converting");
+    setProgress(5);
+    setFileError(null);
+    setOcrConfidenceWarning(null);
+    setIsOcrCompleted(false);
+
+    try {
+      setStatusMessage("Loading PDF document...");
+      let pdfDoc = cachedPdfDocRef.current;
+      if (!pdfDoc) {
+        const pdfjs = await getPdfJsEngine();
+        const arrayBuffer = await file.arrayBuffer();
+        pdfDoc = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        cachedPdfDocRef.current = pdfDoc;
+      }
+
+      const numPages = pdfDoc.numPages;
+      setPageCount(numPages);
+      setTotalPages(numPages);
+
+      setStatusMessage("Extracting text and paragraphs...");
+      setProgress(20);
+
+      const pageResults = [];
+      let totalTextLength = 0;
+
+      for (let i = 1; i <= numPages; i++) {
+        setCurrentPage(i);
+        setStatusMessage(`Reading page ${i} of ${numPages}...`);
+        const pct = Math.round(20 + (i / numPages) * 60);
+        setProgress(pct);
+
+        const page = await pdfDoc.getPage(i);
+        const textContent = await page.getTextContent();
+
+        const pageText = (textContent.items || [])
+          .filter((item) => typeof item.str === "string")
+          .map((item) => item.str)
+          .join(" ")
+          .trim();
+
+        totalTextLength += pageText.length;
+        const paragraphs = formatOCRText(pageText);
+
+        pageResults.push({
+          pageNumber: i,
+          paragraphs,
+          confidence: 100,
+          isOcr: false,
+        });
+      }
+
+      // Check if document was purely scanned and had 0 selectable text
+      if (totalTextLength === 0) {
+        setConversionState("idle");
+        setFileError(
+          "No selectable digital text was found in this PDF. This document requires OCR to recognize text. Please click 'Convert with Free OCR' to extract text from scanned pages."
+        );
+        setShowScannedModal(true);
+        return;
+      }
+
+      setStatusMessage("Building Word (.docx) document...");
+      setProgress(85);
+
+      const blob = await generateDocxFromPages(pageResults);
+      setDocBlob(blob);
+      setProgress(100);
+      setConversionState("completed");
+    } catch (err) {
+      console.error("Standard PDF conversion error:", err);
+      setConversionState("error");
+      setFileError(
+        `Conversion failed: ${err.message || "An unexpected error occurred during processing."}`
+      );
+    }
+  };
+
+  // Safe Cancel handler
   const handleCancelConversion = () => {
     if (activeOcrJobRef.current) {
       activeOcrJobRef.current.cancel();
       activeOcrJobRef.current = null;
     }
     setConversionState("idle");
-    setScannedPDFDetected(true);
-    setShowOcrConfirmation(false);
     setProgress(0);
+    setStatusMessage("Conversion cancelled.");
   };
 
+  // File download handler
   const handleDownload = () => {
     if (!docBlob || !file) return;
 
     const originalName = file.name;
     const cleanName = originalName.replace(/\.[^/.]+$/, "");
     const url = URL.createObjectURL(docBlob);
-    
+
     const a = document.createElement("a");
     a.href = url;
-    a.download = isOcrCompleted ? `${cleanName}-ocr-converted.docx` : `${cleanName}-converted.docx`;
+    a.download = isOcrCompleted
+      ? `${cleanName}-ocr-converted.docx`
+      : `${cleanName}-converted.docx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -556,101 +412,162 @@ export default function PDFToWord({ faqs = [] }) {
   return (
     <ToolLayout
       title="PDF to Word Converter"
-      description="Convert PDF files into editable Word documents online. Fast, secure, and easy to use."
+      description="Convert PDF files into editable Word documents online with Free In-Browser OCR. Fast, secure, and 100% private."
       currentSlug="pdf-to-word"
-      result={conversionState === "completed" && docBlob ? {
-        summary: `Converted PDF file (${pageCount || 1} pages) into an editable Word document (.docx).`
-      } : null}
+      result={
+        conversionState === "completed" && docBlob
+          ? {
+              summary: `Converted PDF file (${pageCount || 1} pages) into an editable Word document (.docx)${
+                isOcrCompleted ? " via Free In-Browser OCR" : ""
+              }.`,
+            }
+          : null
+      }
       seoContent={
         <div className="space-y-12">
-          {/* Limitation Warnings */}
-          <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 flex gap-3">
-              <AlertCircle size={20} className="text-red-500 shrink-0 mt-0.5" />
+          {/* Limitation & Information Badges */}
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-amber-50/60 border border-amber-100 rounded-2xl p-4 flex gap-3">
+              <Sparkles size={20} className="text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-xs text-red-800 uppercase tracking-wider">Scanned PDFs</h4>
-                <p className="text-[11px] text-red-700 leading-relaxed font-semibold mt-1">
-                  Scanned or image-based PDFs require OCR to extract editable text.
+                <h4 className="font-bold text-xs text-amber-900 uppercase tracking-wider">
+                  Free In-Browser OCR Included
+                </h4>
+                <p className="text-[11px] text-amber-800 leading-relaxed font-semibold mt-1">
+                  Scanned and image-based PDFs are automatically detected and converted into editable Word paragraphs without any cloud upload.
                 </p>
-                <button 
-                  onClick={() => setShowOcrDialog(true)}
-                  className="mt-2 text-[11px] font-bold text-red-600 underline hover:text-red-800 transition-colors cursor-pointer"
-                >
-                  Learn about scanned PDF conversion →
-                </button>
               </div>
             </div>
-            <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex gap-3">
-              <Info size={20} className="text-amber-500 shrink-0 mt-0.5" />
+            <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 flex gap-3">
+              <Info size={20} className="text-blue-500 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-xs text-amber-800 uppercase tracking-wider">Complex Formatting</h4>
-                <p className="text-[11px] text-amber-700 leading-relaxed font-semibold mt-1">
-                  Complex multi-column layouts, tables, or non-standard fonts may require manual adjustment in Word after conversion.
+                <h4 className="font-bold text-xs text-blue-900 uppercase tracking-wider">
+                  Layout & Formatting Preservation
+                </h4>
+                <p className="text-[11px] text-blue-800 leading-relaxed font-semibold mt-1">
+                  Original paragraphs, line spacing, and page order are preserved. Complex multi-column articles or complex tables may require manual adjustment in Word.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Info Comparison Box */}
+          {/* Info Feature Comparison Box */}
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
               <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                 <FileCheck size={20} />
               </div>
-              <h3 className="font-black text-slate-900 text-lg">Native Text Extraction Engine</h3>
+              <h3 className="font-black text-slate-900 text-lg">
+                Dual Conversion: Digital & Scanned
+              </h3>
               <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-                Extracts original PDF text strings directly into standard Microsoft Word paragraph structures, preserving fonts, bold weights, and bullet points.
+                SnapFreeTools inspects your PDF on upload. Native digital PDFs convert instantly, while scanned documents get high-accuracy OCR text recognition with editable DOCX output.
               </p>
               <div className="border-t border-slate-100 pt-3">
-                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Supported Features</h4>
-                <ul className="text-xs text-slate-650 font-semibold space-y-2 text-slate-700">
-                  <li className="flex items-center gap-2">• Clean paragraph text preservation</li>
-                  <li className="flex items-center gap-2">• Paragraph spacing and line breaks</li>
-                  <li className="flex items-center gap-2">• Standard font weights & styling</li>
+                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">
+                  Key Capabilities
+                </h4>
+                <ul className="text-xs text-slate-700 font-semibold space-y-2">
+                  <li className="flex items-center gap-2">• Clean paragraph & list preservation</li>
+                  <li className="flex items-center gap-2">• Unwraps hyphenated word line breaks</li>
+                  <li className="flex items-center gap-2">• Multilingual OCR (English, Spanish, French, etc.)</li>
+                  <li className="flex items-center gap-2">• Strict page order & break preservation</li>
                 </ul>
               </div>
             </div>
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm">
-              <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-                <Layers size={20} />
+
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                <Shield size={20} />
               </div>
-              <h3 className="font-black text-slate-900 text-lg">Privacy-First Offline Architecture</h3>
+              <h3 className="font-black text-slate-900 text-lg">
+                100% Client-Side Privacy
+              </h3>
               <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-                Unlike cloud-based PDF services, our engine processes files entirely inside your client browser tab using WebAssembly & JavaScript.
+                Unlike cloud converters that upload your confidential documents to external servers, our WebAssembly OCR engine runs entirely inside your browser tab.
               </p>
               <div className="border-t border-slate-100 pt-3">
-                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Coming Improvements</h4>
-                <ul className="text-xs text-slate-655 font-semibold space-y-2.5 text-slate-700">
-                  <li className="flex items-center gap-2">• Enhanced table layout formatting</li>
-                  <li className="flex items-center gap-2">• Complex multi-column page translation</li>
-                  <li className="flex items-center gap-2">• Advanced font matching systems</li>
+                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">
+                  Privacy Guarantees
+                </h4>
+                <ul className="text-xs text-slate-700 font-semibold space-y-2">
+                  <li className="flex items-center gap-2">• Zero server uploads or file storage</li>
+                  <li className="flex items-center gap-2">• Free forever with no registration or sign-in</li>
+                  <li className="flex items-center gap-2">• No payment wall or credit card required</li>
+                  <li className="flex items-center gap-2">• No watermarks or hidden branding</li>
                 </ul>
               </div>
+            </div>
+          </div>
+
+          {/* FAQ Accordion Section */}
+          <div className="max-w-4xl mx-auto space-y-6 border-t border-slate-100 pt-10">
+            <h2 className="text-2xl font-black text-slate-900 text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3">
+              {faqs.map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200"
+                  >
+                    <button
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full flex justify-between items-center py-4 px-6 text-left font-bold text-slate-800 hover:text-amber-500 transition-colors gap-4 cursor-pointer"
+                    >
+                      <span className="text-sm">{faq.question}</span>
+                      <HelpCircle
+                        size={18}
+                        className={`text-slate-400 shrink-0 transition-transform ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden bg-slate-50/50 border-t border-slate-100"
+                        >
+                          <div className="p-6 text-slate-600 text-xs font-semibold leading-relaxed">
+                            {faq.answer}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       }
     >
-      <div id="pdf-to-word-page" className="space-y-12">
+      <div id="pdf-to-word-page" className="space-y-10">
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
             PDF to Word Converter
           </h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
-            Convert PDF files into editable Word documents online. Fast, secure, and easy to use.
+          <p className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+            Convert native & scanned PDF files into fully editable Word documents (.docx). Free, private, and powered by In-Browser OCR.
           </p>
-          
+
           {/* Trust Badges */}
-          <div className="flex flex-wrap justify-center gap-3 pt-3">
+          <div className="flex flex-wrap justify-center gap-2.5 pt-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100">
-              <Zap size={13} /> Free to Use
+              <Zap size={13} /> 100% Free
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100">
-              <Shield size={13} /> No Signup Required
+              <Sparkles size={13} /> Free In-Browser OCR
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100">
-              <Award size={13} /> Secure Processing
+              <Shield size={13} /> 100% Client-Side Privacy
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-purple-700 bg-purple-50 border border-purple-100">
               <FileEdit size={13} /> Editable DOCX Output
@@ -658,91 +575,255 @@ export default function PDFToWord({ faqs = [] }) {
           </div>
         </div>
 
-        {/* Dropzone / Upload Form */}
+        {/* Scanned PDF Detection Modal (iLovePDF-inspired prompt) */}
+        <ScannedPdfModal
+          isOpen={showScannedModal}
+          onClose={() => setShowScannedModal(false)}
+          onConvertWithOcr={handleStartOcrConversion}
+          onConvertWithoutOcr={handleStandardConversion}
+          selectedLanguage={selectedLanguage}
+          onSelectLanguage={setSelectedLanguage}
+          inspectionDetails={inspectionDetails}
+        />
+
+        {/* Upload Zone / Dropzone */}
         {conversionState === "idle" && !file && (
-          <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto space-y-6">
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={triggerFileSelect}
-              className="border-2 border-dashed border-slate-200 hover:border-amber-400 hover:bg-slate-50/50 rounded-2xl p-10 text-center cursor-pointer transition-all group flex flex-col items-center justify-center min-h-[220px]"
+              className="border-2 border-dashed border-slate-200 hover:border-amber-400 hover:bg-slate-50/50 rounded-3xl p-10 sm:p-12 text-center cursor-pointer transition-all group flex flex-col items-center justify-center min-h-[240px] shadow-xs"
             >
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={(e) => e.target.files && validateAndSetFile(e.target.files[0])}
-                accept=".pdf"
+                onChange={handleFileChange}
+                accept=".pdf,application/pdf"
                 className="hidden"
               />
-              <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300">
-                <UploadCloud size={30} />
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-inner">
+                <UploadCloud size={32} />
               </div>
-              <h3 className="font-bold text-slate-800 text-lg">
+              <h3 className="font-black text-slate-800 text-lg sm:text-xl">
                 Drag & drop PDF file here
               </h3>
-              <p className="text-slate-400 text-xs font-semibold mt-1">
-                or click to browse from your computer
+              <p className="text-slate-400 text-xs sm:text-sm font-semibold mt-1.5">
+                or click to browse from your device
               </p>
-              <div className="mt-4 flex gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              <div className="mt-5 flex flex-wrap justify-center gap-3 text-[11px] text-slate-400 font-bold uppercase tracking-wider">
                 <span>PDF format only</span>
                 <span>•</span>
-                <span>Max file size 25MB</span>
+                <span>Max 25MB</span>
+                <span>•</span>
+                <span>Up to 10 scanned pages for OCR</span>
               </div>
+            </div>
+
+            {fileError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-xs">
+                <AlertCircle size={18} className="shrink-0 text-red-500" />
+                <span>{fileError}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* File Ready Card */}
+        {conversionState === "idle" && file && (
+          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0 shadow-inner">
+                <FileText size={28} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-black text-slate-900 text-base sm:text-lg truncate">
+                  {file.name}
+                </h4>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-semibold mt-1">
+                  <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                  <span>•</span>
+                  <span>{pageCount !== null ? `${pageCount} page${pageCount === 1 ? "" : "s"}` : "Counting pages..."}</span>
+                  {inspectionDetails?.isScanned && (
+                    <>
+                      <span>•</span>
+                      <span className="text-amber-600 font-bold flex items-center gap-1">
+                        <Sparkles size={12} /> Scanned PDF
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={removeFile}
+                className="text-slate-400 hover:text-red-500 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+                title="Remove file"
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
+
+            {/* Scanned PDF Notification banner if detected */}
+            {inspectionDetails?.isScanned && (
+              <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-black text-amber-900">
+                    <Sparkles size={16} className="text-amber-600" />
+                    Scanned Pages Detected
+                  </div>
+                  <button
+                    onClick={() => setShowScannedModal(true)}
+                    className="text-[11px] font-bold text-amber-700 underline hover:text-amber-900 cursor-pointer"
+                  >
+                    View OCR Options
+                  </button>
+                </div>
+                <p className="text-xs text-amber-800 leading-relaxed font-semibold">
+                  This document contains scanned pages. Free In-Browser OCR will be used to extract editable text.
+                </p>
+
+                {/* OCR Language Selector in Card */}
+                <div className="pt-1 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 shrink-0">
+                    <Globe size={14} className="text-amber-600" /> Language:
+                  </span>
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
+                  >
+                    {SUPPORTED_OCR_LANGUAGES.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {fileError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2.5 text-xs font-bold">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{fileError}</span>
+              </div>
+            )}
+
+            {/* Convert Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              {inspectionDetails?.isScanned ? (
+                <>
+                  <button
+                    onClick={() => handleStartOcrConversion(selectedLanguage)}
+                    disabled={isInspecting}
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-black py-4 px-6 rounded-2xl shadow-lg shadow-amber-500/20 hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-50"
+                  >
+                    <Sparkles size={18} />
+                    Convert with Free OCR
+                    <ArrowRight size={16} />
+                  </button>
+
+                  <button
+                    onClick={handleStandardConversion}
+                    disabled={isInspecting}
+                    className="bg-slate-100 hover:bg-slate-200 active:scale-[0.99] text-slate-700 font-bold py-4 px-5 rounded-2xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+                  >
+                    Convert without OCR
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleStandardConversion}
+                  disabled={isInspecting}
+                  className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-black py-4 px-6 rounded-2xl shadow-lg shadow-amber-500/20 hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-50"
+                >
+                  Convert to Word (.docx)
+                  <ArrowRight size={18} />
+                </button>
+              )}
             </div>
           </div>
         )}
 
         {/* Conversion in Progress */}
         {conversionState === "converting" && (
-          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6 text-center">
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto animate-pulse">
-              <RefreshCw size={28} className="animate-spin" />
+          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-sm space-y-6 text-center">
+            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+              <Loader2 size={32} className="animate-spin text-amber-500" />
             </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold text-slate-800">Converting Your PDF to Word...</h3>
-              <p className="text-xs text-slate-500 font-semibold">{statusMessage}</p>
+
+            <div className="space-y-1.5">
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                {conversionMode === "ocr" ? "Performing OCR & Converting..." : "Converting PDF to Word..."}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 font-semibold">{statusMessage}</p>
             </div>
 
             <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
-              <div 
+              <div
                 className="bg-amber-500 h-full transition-all duration-300 rounded-full"
-                style={{ width: `${conversionProgress}%` }}
+                style={{ width: `${progress}%` }}
               />
             </div>
 
-            <div className="flex justify-between text-xs font-bold text-slate-400">
-              <span>Extracting text & formatting</span>
-              <span>{conversionProgress}%</span>
+            <div className="flex justify-between items-center text-xs font-bold text-slate-400">
+              <span>
+                {conversionMode === "ocr"
+                  ? `Scanning Page ${currentPage} of ${totalPages}`
+                  : `Processing Page ${currentPage} of ${totalPages}`}
+              </span>
+              <span>{progress}%</span>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={handleCancelConversion}
+                className="text-xs text-slate-500 hover:text-red-600 font-bold px-4 py-2 rounded-xl hover:bg-slate-50 border border-slate-200 transition-colors cursor-pointer"
+              >
+                Cancel Conversion
+              </button>
             </div>
           </div>
         )}
 
         {/* Success / Download Section */}
         {conversionState === "completed" && docBlob && (
-          <div className="max-w-3xl mx-auto bg-emerald-50/40 border border-emerald-100 rounded-3xl p-8 text-center space-y-6 shadow-sm">
+          <div className="max-w-3xl mx-auto bg-emerald-50/40 border border-emerald-100 rounded-3xl p-8 sm:p-10 text-center space-y-6 shadow-sm">
             <div className="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md shadow-emerald-500/20">
-              <CheckCircle2 size={32} />
+              <CheckCircle2 size={34} />
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-black text-slate-900">PDF Converted Successfully!</h3>
-              <p className="text-slate-600 text-sm font-semibold">
-                Your Word document (.docx) is ready for download.
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+                PDF Converted Successfully!
+              </h3>
+              <p className="text-slate-600 text-xs sm:text-sm font-semibold max-w-md mx-auto">
+                {isOcrCompleted
+                  ? "Your scanned pages have been recognized via Free In-Browser OCR and compiled into an editable Word document."
+                  : "Your PDF text has been extracted and compiled into an editable Word document."}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-2">
+            {ocrConfidenceWarning && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-4 text-xs font-medium text-left flex gap-3 max-w-lg mx-auto">
+                <Info size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Quality Notice:</strong> {ocrConfidenceWarning}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
               <button
                 onClick={handleDownload}
-                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-black px-8 py-4 rounded-2xl shadow-lg shadow-amber-500/20 hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
               >
                 <Download size={18} /> Download Word Document (.docx)
               </button>
 
               <button
-                onClick={handleReset}
-                className="bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                onClick={removeFile}
+                className="bg-white border border-slate-200 hover:border-slate-300 active:scale-[0.99] text-slate-700 font-bold px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-xs"
               >
                 <RefreshCw size={16} /> Convert Another PDF
               </button>
@@ -752,61 +833,36 @@ export default function PDFToWord({ faqs = [] }) {
 
         {/* Error Section */}
         {conversionState === "error" && (
-          <div className="max-w-2xl mx-auto bg-red-50/60 border border-red-100 rounded-3xl p-8 text-center space-y-6">
-            <div className="w-14 h-14 bg-red-100 text-red-500 rounded-2xl flex items-center justify-center mx-auto">
-              <AlertCircle size={28} />
+          <div className="max-w-2xl mx-auto bg-red-50/60 border border-red-100 rounded-3xl p-8 sm:p-10 text-center space-y-6">
+            <div className="w-16 h-16 bg-red-100 text-red-500 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+              <AlertCircle size={32} />
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-red-950">Conversion Failed</h3>
-              <p className="text-xs text-red-700 font-semibold">{errorMessage}</p>
+              <h3 className="text-xl sm:text-2xl font-black text-red-950">Conversion Failed</h3>
+              <p className="text-xs sm:text-sm text-red-700 font-semibold max-w-md mx-auto">
+                {fileError || "An unexpected error occurred during processing."}
+              </p>
             </div>
 
-            <button
-              onClick={handleReset}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition-all shadow-md cursor-pointer"
-            >
-              Try Again
-            </button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+              {inspectionDetails?.isScanned && (
+                <button
+                  onClick={() => handleStartOcrConversion(selectedLanguage)}
+                  className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles size={15} /> Retry with OCR
+                </button>
+              )}
+              <button
+                onClick={removeFile}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-xs transition-all shadow-md cursor-pointer"
+              >
+                Upload Different File
+              </button>
+            </div>
           </div>
         )}
-
-        {/* OCR Coming Soon Modal Dialog */}
-        <AnimatePresence>
-          {showOcrDialog && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            >
-              <motion.div 
-                initial={{ scale: 0.95, y: 10 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 10 }}
-                className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 md:p-8 max-w-md w-full space-y-6 text-center"
-              >
-                <div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                  <Rocket size={24} />
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-lg font-black text-slate-950">OCR Coming Soon</h3>
-                  <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                    OCR conversion for scanned PDFs is currently under development. The current version of SnapFreeTools focuses on privacy-first browser processing. Future updates will support editable OCR conversion without compromising user privacy.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setShowOcrDialog(false)}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-md shadow-slate-900/10 hover:shadow-lg cursor-pointer"
-                >
-                  OK
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </ToolLayout>
   );

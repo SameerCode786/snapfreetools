@@ -3,6 +3,7 @@ const router = express.Router();
 
 const contactRoutes = require('./contact.routes');
 const wordToPdfRoutes = require('./wordToPdf.routes');
+const htmlToPdfRoutes = require('./htmlToPdf.routes');
 
 const env = require('../config/env');
 const libreOffice = require('../services/libreOffice.service');
@@ -25,11 +26,15 @@ router.get('/health', (req, res) => {
     wordToPdf: {
       enabled: process.env.WORD_TO_PDF_ENABLED === 'true',
       engineAvailable: libreOffice.isAvailable()
+    },
+    htmlToPdf: {
+      enabled: process.env.HTML_TO_PDF_ENABLED !== 'false'
     }
   });
 });
 
 router.use('/contact', contactRoutes);
 router.use('/convert/word-to-pdf', wordToPdfRoutes);
+router.use('/convert/html-to-pdf', htmlToPdfRoutes);
 
 module.exports = router;
