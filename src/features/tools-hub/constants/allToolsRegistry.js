@@ -595,19 +595,21 @@ export const ALL_TOOLS = [
     seoDescription: "Convert PNG images into a single PDF online for free. Combine multiple PNG files, arrange page order, and choose page sizes directly in your browser."
   },
   {
-    id: "pdf-to-ppt",
+    id: "pdf-to-powerpoint",
     name: "PDF to PowerPoint",
-    slug: "pdf-to-ppt",
+    slug: "pdf-to-powerpoint",
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Convert from PDF",
     description: "Convert PDF documents into editable PowerPoint presentation files.",
     icon: "Presentation",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["pdf", "ppt", "pptx", "powerpoint", "convert", "slides"]
+    popular: true,
+    status: "live",
+    future: false,
+    tags: ["pdf", "ppt", "pptx", "powerpoint", "convert", "slides"],
+    seoTitle: "PDF to PowerPoint Converter Free – Convert PDF to PPTX Online | SnapFreeTools",
+    seoDescription: "Convert PDF to PowerPoint online for free. Turn PDF pages into editable or high-fidelity PPTX slides directly in your browser with private client-side processing."
   },
   {
     id: "ppt-to-pdf",

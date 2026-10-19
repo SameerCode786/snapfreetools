@@ -247,6 +247,12 @@ export const METADATA_CONFIG = {
     keywords: "pdf to excel, pdf to excel converter, free pdf to excel converter, pdf to excel online, convert pdf to excel, pdf to excel free, scanned pdf to excel, scanned pdf to excel converter, convert scanned pdf to excel, scanned pdf to excel free, image pdf to excel, image pdf to excel converter, OCR pdf to excel, OCR PDF to Excel converter, free OCR PDF to Excel, free OCR pdf converter, PDF OCR converter, convert scanned document to Excel, extract tables from scanned PDF, convert scanned table to Excel",
     path: "/pdf-to-excel"
   },
+  "pdf-to-powerpoint": {
+    title: "PDF to PowerPoint Converter Free – Convert PDF to PPTX Online | SnapFreeTools",
+    description: "Convert PDF to PowerPoint online for free. Turn PDF pages into editable or high-fidelity PPTX slides directly in your browser with private client-side processing.",
+    keywords: "pdf to powerpoint, pdf to ppt, pdf to pptx, convert pdf to powerpoint, convert pdf to ppt, pdf to powerpoint converter, pdf to powerpoint online, convert PDF into editable PowerPoint, PDF presentation converter, PDF to PPTX converter, free pdf to powerpoint, private pdf to powerpoint, client side pdf to pptx",
+    path: "/pdf-to-powerpoint"
+  },
   "sign-pdf": {
     title: "Sign PDF Online Free – Add Your Signature to PDF | SnapFreeTools",
     description: "Sign PDF documents online for free. Draw, type, or upload your electronic signature and place it on any PDF page. 100% private in-browser processing without file uploads.",
