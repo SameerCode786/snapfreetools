@@ -76,7 +76,8 @@ import {
   ArrowUpDown,
   Sparkles,
   Bot,
-  Code
+  Code,
+  Presentation
 } from "lucide-react";
 
 export const Icons = {
@@ -157,5 +158,6 @@ export const Icons = {
   ArrowUpDown,
   Sparkles,
   Bot,
-  Code
+  Code,
+  Presentation
 };

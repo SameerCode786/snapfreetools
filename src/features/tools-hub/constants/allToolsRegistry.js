@@ -612,19 +612,21 @@ export const ALL_TOOLS = [
     seoDescription: "Convert PDF to PowerPoint online for free. Turn PDF pages into editable or high-fidelity PPTX slides directly in your browser with private client-side processing."
   },
   {
-    id: "ppt-to-pdf",
+    id: "powerpoint-to-pdf",
     name: "PowerPoint to PDF",
-    slug: "ppt-to-pdf",
+    slug: "powerpoint-to-pdf",
     ecosystem: "utility",
     group: "PDF Tools",
     category: "Convert to PDF",
-    description: "Convert PowerPoint presentations into PDF documents.",
+    description: "Convert PowerPoint presentations (.pptx) into PDF documents directly in your browser.",
     icon: "Presentation",
     featured: false,
-    popular: false,
-    status: "coming_soon",
-    future: true,
-    tags: ["ppt", "pptx", "powerpoint", "pdf", "convert", "slides"]
+    popular: true,
+    status: "live",
+    future: false,
+    tags: ["powerpoint", "ppt", "pptx", "pdf", "convert", "slides"],
+    seoTitle: "PowerPoint to PDF Converter Free – Convert PPTX to PDF | SnapFreeTools",
+    seoDescription: "Convert PowerPoint to PDF online for free. Turn PPTX presentations into PDF documents while preserving slide layout and formatting. Fast and easy conversion with SnapFreeTools."
   },
   {
     id: "html-to-pdf",

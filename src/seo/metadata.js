@@ -253,6 +253,12 @@ export const METADATA_CONFIG = {
     keywords: "pdf to powerpoint, pdf to ppt, pdf to pptx, convert pdf to powerpoint, convert pdf to ppt, pdf to powerpoint converter, pdf to powerpoint online, convert PDF into editable PowerPoint, PDF presentation converter, PDF to PPTX converter, free pdf to powerpoint, private pdf to powerpoint, client side pdf to pptx",
     path: "/pdf-to-powerpoint"
   },
+  "powerpoint-to-pdf": {
+    title: "PowerPoint to PDF Converter Free – Convert PPTX to PDF | SnapFreeTools",
+    description: "Convert PowerPoint to PDF online for free. Turn PPTX presentations into PDF documents while preserving slide layout and formatting. Fast and easy conversion with SnapFreeTools.",
+    keywords: "powerpoint to pdf, pptx to pdf, ppt to pdf, convert powerpoint to pdf, powerpoint to pdf converter, convert pptx to pdf, powerpoint presentation to pdf, powerpoint pdf converter, save powerpoint as pdf, export powerpoint to pdf, free powerpoint to pdf, private powerpoint to pdf",
+    path: "/powerpoint-to-pdf"
+  },
   "sign-pdf": {
     title: "Sign PDF Online Free – Add Your Signature to PDF | SnapFreeTools",
     description: "Sign PDF documents online for free. Draw, type, or upload your electronic signature and place it on any PDF page. 100% private in-browser processing without file uploads.",

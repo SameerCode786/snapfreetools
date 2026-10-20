@@ -33,6 +33,11 @@ const nextConfig = {
         destination: "/pdf-to-powerpoint",
         permanent: true,
       },
+      {
+        source: "/ppt-to-pdf",
+        destination: "/powerpoint-to-pdf",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
