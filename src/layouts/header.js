@@ -87,12 +87,13 @@ export default function Header() {
                 onMouseLeave={handleMenuLeave}
               >
                 <Link
-                  href="/calculators"
+                  href="/tools"
                   aria-expanded={activeMenu === "tools"}
                   aria-haspopup="true"
                   aria-controls="desktop-tools-mega-menu"
                   className={`text-sm font-medium transition-colors hover:text-amber-500 flex items-center gap-1 h-full outline-none focus-visible:text-amber-500 rounded-md px-2 ${
                     activeMenu === "tools" ||
+                    pathname === "/tools" ||
                     pathname === "/calculators" ||
                     pathname === "/pdf-tools" ||
                     pathname.includes("calculator") ||
@@ -116,8 +117,8 @@ export default function Header() {
                 onMouseEnter={() => handleMenuEnter("ai-tools")}
                 onMouseLeave={handleMenuLeave}
               >
-                <button
-                  type="button"
+                <Link
+                  href="/ai-tools"
                   aria-expanded={activeMenu === "ai-tools"}
                   aria-haspopup="true"
                   aria-controls="desktop-ai-tools-mega-menu"
@@ -129,7 +130,7 @@ export default function Header() {
                 >
                   <Sparkles size={13} className="text-amber-500" />
                   AI Tools <ChevronDown size={14} />
-                </button>
+                </Link>
                 <AnimatePresence>
                   {activeMenu === "ai-tools" && (
                     <AIToolsMegaMenu onClose={() => setActiveMenu(null)} />
@@ -199,7 +200,7 @@ export default function Header() {
               </button>
 
               <Link
-                href="/calculators"
+                href="/tools"
                 className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-full text-xs font-extrabold transition-all shadow-md shadow-amber-500/10 outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 Get Started

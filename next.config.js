@@ -38,6 +38,11 @@ const nextConfig = {
         destination: "/powerpoint-to-pdf",
         permanent: true,
       },
+      {
+        source: "/gpa-calculator-pakistan",
+        destination: "/gpa-calculator/pakistan",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

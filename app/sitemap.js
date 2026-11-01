@@ -23,6 +23,38 @@ export default async function sitemap() {
     ...toolRoutes
   ]));
 
+  // Dedicated academic guides and grading scale documentation
+  const academicGuideRoutes = [
+    "/fast-gpa-scale",
+    "/nust-gpa-scale",
+    "/how-to-calculate-gpa",
+    "/what-is-gpa",
+    "/what-is-a-good-gpa",
+    "/gpa-vs-cgpa",
+    "/cgpa-to-percentage-formula"
+  ];
+
+  // Pre-rendered university-specific calculator scale pages
+  const universityCalculatorRoutes = [
+    "/gpa-calculator/fast",
+    "/gpa-calculator/nust",
+    "/gpa-calculator/comsats",
+    "/gpa-calculator/uet",
+    "/gpa-calculator/lums",
+    "/gpa-calculator/pakistan",
+    "/merit-calculator/fast",
+    "/merit-calculator/nust",
+    "/merit-calculator/comsats",
+    "/merit-calculator/uet"
+  ];
+
+  // Key educational and comparative resource hubs
+  const resourceHubRoutes = [
+    "/guides",
+    "/faqs",
+    "/comparisons"
+  ];
+
   const blogArticleRoutes = BLOG_ARTICLES.map(article => `/blog/${article.slug}`);
   const blogCategoryRoutes = BLOG_CATEGORIES.map(category => `/blog/category/${category.slug}`);
 
@@ -42,6 +74,24 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: route === "" ? 1.0 : 0.8
+    })),
+    ...academicGuideRoutes.map(route => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8
+    })),
+    ...universityCalculatorRoutes.map(route => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8
+    })),
+    ...resourceHubRoutes.map(route => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7
     })),
     ...blogArticleRoutes.map(route => ({
       url: `${baseUrl}${route}`,

@@ -1,7 +1,62 @@
 import Link from "next/link";
-import { ArrowLeft, Star, FileImage, GraduationCap, Edit3 } from "lucide-react";
+import { ArrowLeft, Star, FileText } from "lucide-react";
+import { ALL_TOOLS } from "@/features/tools-hub/constants/allToolsRegistry";
+import { Icons } from "@/lib/lucide-icons";
 
 import ShareSystem from "@/components/share";
+
+function getRelatedTools(currentSlug) {
+  const liveTools = ALL_TOOLS.filter((t) => t.status === "live" && !t.future);
+  const currentTool = liveTools.find((t) => t.slug === currentSlug);
+
+  let candidates = [];
+
+  if (currentTool) {
+    if (currentTool.group === "Image Tools") {
+      candidates = liveTools.filter(
+        (t) =>
+          t.slug !== currentSlug &&
+          (t.group === "Image Tools" || t.slug === "png-to-pdf" || t.slug === "jpg-to-pdf")
+      );
+    } else if (currentTool.group === "Text Tools") {
+      candidates = liveTools.filter(
+        (t) =>
+          t.slug !== currentSlug &&
+          (t.group === "Text Tools" || t.slug === "pdf-to-text" || t.slug === "word-to-pdf")
+      );
+    } else {
+      // Prioritize same category first, then same group
+      const sameCategory = liveTools.filter(
+        (t) =>
+          t.slug !== currentSlug &&
+          t.group === currentTool.group &&
+          t.category === currentTool.category
+      );
+      const sameGroup = liveTools.filter(
+        (t) =>
+          t.slug !== currentSlug &&
+          t.group === currentTool.group &&
+          t.category !== currentTool.category
+      );
+      candidates = [...sameCategory, ...sameGroup];
+    }
+  }
+
+  // Fallback if fewer than 3 candidates
+  if (candidates.length < 3) {
+    const fallbacks = liveTools.filter(
+      (t) => t.slug !== currentSlug && !candidates.some((c) => c.slug === t.slug)
+    );
+    candidates = [...candidates, ...fallbacks];
+  }
+
+  return candidates.slice(0, 3).map((tool) => ({
+    name: tool.name,
+    href: `/${tool.slug}`,
+    desc: tool.description,
+    icon: Icons[tool.icon] || Icons.FileText || FileText,
+  }));
+}
 
 export default function ToolLayout({ 
   title, 
@@ -14,26 +69,7 @@ export default function ToolLayout({
   seoContent = null,
   children 
 }) {
-  const relatedTools = [
-    { 
-      name: "Image Compressor", 
-      href: "/image-compressor", 
-      desc: "Compress JPEG, PNG, and WebP images without losing quality.", 
-      icon: FileImage 
-    },
-    { 
-      name: "GPA Calculator", 
-      href: "/gpa-calculator", 
-      desc: "Calculate your semester and cumulative grade point average.", 
-      icon: GraduationCap 
-    },
-    { 
-      name: "Word Counter", 
-      href: "/word-counter", 
-      desc: "Analyze word count, keyword density, and text readability instantly.", 
-      icon: Edit3 
-    }
-  ];
+  const relatedTools = getRelatedTools(currentSlug);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">

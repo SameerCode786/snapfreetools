@@ -19,6 +19,7 @@ export const FOOTER_NAVIGATION = {
     {
       title: "Tools",
       links: [
+        { name: "All Tools Directory", route: "/tools" },
         { name: "PDF Tools", route: "/pdf-tools" },
         { name: "Calculators", route: "/calculators" },
         { name: "Word Counter", route: "/word-counter" },

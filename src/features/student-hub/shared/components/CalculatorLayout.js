@@ -43,6 +43,37 @@ export default function CalculatorLayout({
       .slice(0, 3);
   }
 
+  const academicGuides = [
+    { title: "How to Calculate GPA", href: "/how-to-calculate-gpa", desc: "Step-by-step credit hour and grade point formula." },
+    { title: "GPA vs CGPA Guide", href: "/gpa-vs-cgpa", desc: "Key differences and cumulative weight calculation." },
+    { title: "CGPA to % Formula", href: "/cgpa-to-percentage-formula", desc: "Convert GPA and CGPA scores to percentage." },
+    { title: "What is a Good GPA?", href: "/what-is-a-good-gpa", desc: "Honors benchmarks, graduate admissions & cutoffs." },
+    { title: "What is GPA?", href: "/what-is-gpa", desc: "Grade Point Average explained for college & school." },
+    { title: "FAST GPA Scale", href: "/fast-gpa-scale", desc: "Official FAST NUCES letter grade and point breakdown." },
+    { title: "NUST GPA Scale", href: "/nust-gpa-scale", desc: "Official NUST grading criteria and GPA mapping." },
+    { title: "HEC Pakistan Scale", href: "/gpa-calculator/pakistan", desc: "Higher Education Commission standard 4.0 calculator." },
+  ];
+
+  const isAcademic = [
+    "gpa-calculator",
+    "cgpa-calculator",
+    "sgpa-calculator",
+    "gpa-to-percentage",
+    "percentage-to-gpa",
+    "required-gpa-calculator",
+    "final-grade-calculator",
+    "grade-calculator",
+    "merit-calculator",
+    "admission-calculator",
+    "fast-gpa-scale",
+    "nust-gpa-scale",
+    "how-to-calculate-gpa",
+    "what-is-gpa",
+    "what-is-a-good-gpa",
+    "gpa-vs-cgpa",
+    "cgpa-to-percentage-formula"
+  ].includes(currentSlug) || currentSlug.startsWith("gpa-calculator/") || currentSlug.startsWith("merit-calculator/");
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -143,6 +174,37 @@ export default function CalculatorLayout({
               >
                 <ArrowLeft size={14} /> View All Calculators
               </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Academic Guides & Grading Scales Cluster (SEO & Educational Value) */}
+        {isAcademic && (
+          <div className="border-t border-slate-100 pt-10 mt-12 space-y-6">
+            <div className="flex items-center gap-2">
+              <Star size={18} className="text-amber-500 fill-amber-500" />
+              <h3 className="font-extrabold text-slate-800 text-base">Grading Scales & Academic Guides</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {academicGuides
+                .filter(guide => guide.href !== `/${currentSlug}`)
+                .slice(0, 4)
+                .map((guide) => (
+                  <Link
+                    key={guide.href}
+                    href={guide.href}
+                    className="flex flex-col justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-xs hover:border-amber-300 hover:shadow-sm transition-all group"
+                  >
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-xs group-hover:text-amber-600 transition-colors">
+                        {guide.title} &rarr;
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-1 line-clamp-2">
+                        {guide.desc}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </div>
         )}
