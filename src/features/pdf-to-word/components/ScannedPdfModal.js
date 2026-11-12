@@ -86,13 +86,13 @@ export default function ScannedPdfModal({
             <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-center gap-2">
               <Zap size={16} className="text-emerald-600 shrink-0" />
               <div className="text-[11px] font-bold text-emerald-800 leading-tight">
-                100% Free & No Signup
+                Free, No Signup
               </div>
             </div>
             <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-3 flex items-center gap-2">
               <Shield size={16} className="text-blue-600 shrink-0" />
               <div className="text-[11px] font-bold text-blue-800 leading-tight">
-                100% Client-Side Privacy
+                PDF Stays in Browser
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function ScannedPdfModal({
           <div className="bg-amber-50/60 border border-amber-100 rounded-xl p-3 flex gap-2.5 text-amber-900">
             <Info size={16} className="text-amber-600 shrink-0 mt-0.5" />
             <div className="text-[11px] font-medium leading-relaxed">
-              <strong>Extraction Note:</strong> Text, headings, lists, and paragraphs are extracted into standard Word styles. Complex tables, multi-column layouts, images, and original fonts are not recreated, and OCR accuracy depends on scan quality. Scanned OCR supports up to 10 pages per PDF.
+              <strong>Extraction Note:</strong> Text, headings, lists, and paragraphs are extracted into standard Word styles. Complex tables, multi-column layouts, images, and original fonts are not recreated, and OCR accuracy depends on scan quality. Select the language that matches your document. Accented characters can still be misread, so please review the output. Scanned OCR supports up to 10 pages per PDF.
             </div>
           </div>
 

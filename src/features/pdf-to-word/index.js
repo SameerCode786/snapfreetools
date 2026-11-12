@@ -492,7 +492,7 @@ export default function PDFToWord({ faqs = [] }) {
                   OCR Accuracy &amp; Layout Reality
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-                  OCR accuracy depends directly on scan resolution, lighting, and font clarity—low-quality scans can misread characters and trigger a review warning. Both modes output plain text structure (headings, lists, paragraphs); complex tables, multi-column layouts, images, and original fonts are not recreated. For spreadsheet tables, try{" "}
+                  OCR accuracy depends directly on scan resolution, lighting, and font clarity—low-quality scans can misread characters and trigger a review warning. Select the language that matches your document. Accented characters can still be misread, so please review the output. Both modes output plain text structure (headings, lists, paragraphs); complex tables, multi-column layouts, images, and original fonts are not recreated. For spreadsheet tables, try{" "}
                   <Link href="/pdf-to-excel" className="text-amber-700 underline hover:text-amber-900">
                     PDF to Excel
                   </Link>
@@ -745,7 +745,7 @@ export default function PDFToWord({ faqs = [] }) {
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-2.5 pt-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100">
-              <Zap size={13} /> 100% Free &amp; No Signup
+              <Zap size={13} /> Free, No Signup
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100">
               <Sparkles size={13} /> Free In-Browser OCR
@@ -767,9 +767,10 @@ export default function PDFToWord({ faqs = [] }) {
                 <strong className="text-slate-900">Native PDFs:</strong> No hard page cap (<strong>25MB max upload</strong> for all PDFs).
               </span>
             </div>
-            <span className="text-[11px] text-slate-500 shrink-0">
-              6 OCR languages (English bundled; 5 fetch on first use)
-            </span>
+            <div className="flex flex-col sm:items-end text-[11px] text-slate-500 shrink-0 space-y-0.5">
+              <span>6 OCR languages (English bundled; 5 fetch on first use)</span>
+              <span>OCR on up to 10 pages can take a minute or more, depending on your device and language.</span>
+            </div>
           </div>
         </div>
 

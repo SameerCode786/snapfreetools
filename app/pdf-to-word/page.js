@@ -26,7 +26,7 @@ const FAQS_DATA = [
   },
   {
     question: "What is OCR and what affects its accuracy?",
-    answer: "OCR (Optical Character Recognition) renders scanned PDF pages onto a browser canvas and uses Tesseract.js WebAssembly to convert image characters into editable text. Output quality depends on scan clarity: crisp printed text converts well, while low-resolution, skewed, shadowed, or handwritten scans can produce errors and require manual review."
+    answer: "OCR (Optical Character Recognition) renders scanned PDF pages onto a browser canvas and uses Tesseract.js WebAssembly to convert image characters into editable text. Output quality depends on scan clarity: crisp printed text converts well, while low-resolution, skewed, shadowed, or handwritten scans can produce errors and require manual review. Select the language that matches your document. Accented characters can still be misread, so please review the output."
   },
   {
     question: "Is the converted file editable?",
