@@ -10,12 +10,12 @@ import { formatOCRText } from "./ocr-text-formatter.js";
 export const MAX_OCR_PAGES = 10;
 
 export const SUPPORTED_OCR_LANGUAGES = [
-  { code: "eng", name: "English (Default & Offline)", isOffline: true },
-  { code: "spa", name: "Spanish (Español)", isOffline: false },
-  { code: "fra", name: "French (Français)", isOffline: false },
-  { code: "deu", name: "German (Deutsch)", isOffline: false },
-  { code: "ita", name: "Italian (Italiano)", isOffline: false },
-  { code: "por", name: "Portuguese (Português)", isOffline: false },
+  { code: "eng", name: "English (Default — Bundled)", isOffline: true },
+  { code: "spa", name: "Spanish (Español — Downloads on first use)", isOffline: false },
+  { code: "fra", name: "French (Français — Downloads on first use)", isOffline: false },
+  { code: "deu", name: "German (Deutsch — Downloads on first use)", isOffline: false },
+  { code: "ita", name: "Italian (Italiano — Downloads on first use)", isOffline: false },
+  { code: "por", name: "Portuguese (Português — Downloads on first use)", isOffline: false },
 ];
 
 export function isLanguageSupported(langCode) {
