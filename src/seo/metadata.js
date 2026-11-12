@@ -80,9 +80,9 @@ export const METADATA_CONFIG = {
     path: "/accessibility"
   },
   "image-compressor": {
-    title: "Image Compressor & Converter – Compress and Convert Images Online Free | SnapFreeTools",
-    description: "Compress and convert JPG, PNG, WEBP, and AVIF images online free without losing quality. Professional tool with client-side browser processing.",
-    keywords: "image compressor, convert png to jpg, jpg to webp converter, compress image online free, avif converter",
+    title: "Compress Image to 20KB, 50KB, 100KB, 200KB Online Free | SnapFreeTools",
+    description: "Compress JPG, PNG, WebP, and AVIF images to target file sizes like 20KB, 50KB, 100KB, or 200KB online for free. 100% private in-browser compression without file uploads.",
+    keywords: "compress image to 50kb, compress image to 100kb, compress image to 20kb, compress image to 200kb, reduce image size in kb online free, image compressor, compress image online, convert png to jpg, jpg to webp",
     path: "/image-compressor"
   },
   "image-resizer": {

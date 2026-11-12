@@ -29,6 +29,7 @@ import React from "react";
 import Link from "next/link";
 import ToolLayout from "@/layouts/tool-layout";
 import { formatSize } from "./utils/size-formatter";
+import { compressCanvas, compressToTargetSize } from "./utils/target-compression";
 
 // --- STATIC CONFIGURATIONS ---
 
@@ -123,90 +124,50 @@ const GEO_CARDS = [
   },
   {
     q: "How can I reduce image size to 100KB?",
-    a: "Upload your image to SnapFreeTools, select WebP or JPEG, choose the 100KB target size option, and our local browser engine will automatically adjust compression parameters to hit 100KB."
+    a: "Upload your image to SnapFreeTools, choose the 100KB target size option, and our local browser engine will automatically adjust compression parameters and dimensions to keep the output at or below 100KB (use Image Converter to switch large PNGs to WebP or JPG first if needed)."
   }
 ];
 
 const FAQS_DATA = [
   {
-    question: "How do I compress an image to 20KB online free?",
-    answer: "Upload your image to SnapFreeTools, select '20KB' from the Target File Size option, and click compress. Our binary search engine will automatically adjust quality variables client-side to output a file as close to 20KB as possible."
+    question: "How do I compress an image to 20KB, 50KB, 100KB, or 200KB online for free?",
+    answer: "Upload your image to SnapFreeTools, click the 'Target File Size' dropdown in compression settings, and choose your required preset: 20KB, 50KB, 100KB, or 200KB. Our client-side bisection search automatically adjusts compression parameters, validates output bytes, and downsamples dimensions in browser memory to aim for outputs strictly at or below your target limit whenever technically achievable."
   },
   {
-    question: "Can I compress an image to 50KB without losing quality?",
-    answer: "Yes. By choosing the 50KB target size option, our client-side compression algorithm adjusts the parameters to maintain high fidelity while cutting file size down to 50KB. WebP or AVIF are best for this range."
+    question: "Will an image lose quality when compressed to 50KB or 20KB?",
+    answer: "Compressing an image down to aggressive targets like 20KB or 50KB involves trade-offs. The compressor prioritizes perceptual clarity while reducing data density and scaling dimensions when necessary to aim for outputs strictly at or below your target threshold whenever technically achievable. Converting photographic images from PNG to WebP or JPG allows you to reach smaller KB limits with minimal visible artifacts."
   },
   {
-    question: "What is the best way to compress images to 100KB?",
-    answer: "Select the '100KB' target size preset. For photos, converting the file to WebP or JPG at 80% quality will usually drop the size below 100KB instantly while preserving high-definition details."
+    question: "What should I do if my image cannot reach the 20KB or 50KB target size?",
+    answer: "If a high-resolution or detailed image exceeds your target limit, first convert the format from PNG to WebP or JPG, as PNG is lossless and inherently larger. Additionally, you can crop unnecessary borders or use our free Image Resizer (/image-resizer) to reduce pixel dimensions before compressing."
   },
   {
-    question: "How can I reduce image size to 200KB for online forms?",
-    answer: "Select the '200KB' target size option and compress. The browser will process the image locally and download the optimized version immediately, ensuring you meet strict online upload portals limits."
+    question: "What is the difference between image dimensions (pixels), DPI, and file size (KB)?",
+    answer: "Dimensions refer to the total pixel width and height (e.g., 1920x1080 px). DPI (dots per inch) is a print density measurement that does not affect digital screen file weight. File size (measured in kilobytes, KB) is the actual disk storage occupied by the image data, determined by pixel count, color information, and compression level."
   },
   {
-    question: "Can I compress high-resolution photos to 1MB?",
-    answer: "Yes. High-resolution camera photos (often 10MB+) can easily be compressed to 1MB by uploading them in bulk and using our 1MB target preset to clear email or portal submission thresholds."
+    question: "Why does converting PNG to JPG or WebP reduce file size so significantly?",
+    answer: "PNG is a lossless format designed for sharp graphics, meaning it preserves every pixel value and can produce large files for photographic content. JPG uses lossy compression to discard imperceptible color variations, while modern WebP uses advanced predictive encoding to achieve 25% to 35% smaller file sizes than JPG at comparable visual clarity."
   },
   {
-    question: "What is the difference between JPG and PNG format?",
-    answer: "JPG is a lossy format best for photographic images where tiny details can be discarded to save space. PNG is a lossless format that supports transparent backgrounds, making it ideal for logos."
+    question: "Does converting PNG to WebP preserve transparent backgrounds?",
+    answer: "Yes. Unlike standard JPG which fills transparent areas with a solid color (typically white), WebP fully supports 8-bit alpha transparency while offering significantly smaller file sizes than PNG."
   },
   {
-    question: "Why is WebP better than JPG for websites?",
-    answer: "WebP is a modern web standard that achieves 25% to 35% smaller file sizes than JPG at equivalent visual quality, helping speed up loading times and improve your Google SEO rankings."
+    question: "Are my uploaded photos and documents private and secure?",
+    answer: "Yes, 100%. SnapFreeTools performs all image compression and format conversion directly inside your web browser using HTML5 Canvas and WebAssembly. Your images, personal photos, and sensitive documents are never uploaded to any external server or saved in any database."
   },
   {
-    question: "Should I convert my images to WebP or AVIF?",
-    answer: "AVIF provides superior next-generation compression (saving up to 50% over JPG), but WebP has slightly wider browser support. Both are excellent choices for modern SEO image optimization."
+    question: "Can I batch compress multiple images to a specific target size at once?",
+    answer: "Yes. You can upload multiple images simultaneously, apply a target size (such as 50KB or 100KB) across all files in the batch queue, and download them individually or as a single collection."
   },
   {
-    question: "What is the best image format for SEO performance?",
-    answer: "WebP is the industry standard for SEO as it is officially recommended by Google PageSpeed tools. AVIF is also highly effective for improving Largest Contentful Paint (LCP) scores."
+    question: "Which image formats are supported for compression and conversion?",
+    answer: "Our tool accepts JPG, PNG, WebP, AVIF, GIF, and BMP formats for input. You can compress and export your files as JPG, PNG, WebP, or AVIF."
   },
   {
-    question: "How does browser-side image compression work?",
-    answer: "Our tool processes your images directly on your device using native browser APIs like HTML5 Canvas and FileReader. This guarantees absolute privacy since your files never leave your computer."
-  },
-  {
-    question: "Is it safe to upload my private photos to SnapFreeTools?",
-    answer: "Absolutely. SnapFreeTools works 100% inside your web browser. No files are uploaded to any server, meaning your sensitive images, screenshots, and profiles remain entirely private."
-  },
-  {
-    question: "Can I convert JPG to PNG and PNG to JPG here?",
-    answer: "Yes, our online tool works as a robust image converter. You can change JPG to PNG, PNG to JPG, JPG to WebP, WebP to JPG, and convert AVIF formats instantly."
-  },
-  {
-    question: "How do I convert images to WebP on mobile?",
-    answer: "Simply open SnapFreeTools on your mobile browser, select WebP as your target format, upload your photos, and download the converted results. It works on all Android and iOS systems."
-  },
-  {
-    question: "What is the difference between lossy and lossless compression?",
-    answer: "Lossy compression permanently discards non-critical image data to yield tiny file sizes. Lossless compression shrinks files without removing any data, ensuring identical visual replication."
-  },
-  {
-    question: "Why is PNG recommended for logos and screenshots?",
-    answer: "PNG is lossless and preserves sharp edges, text, and transparent backgrounds. Applying lossy compression to logos can cause visual artifacts and blurry boundaries."
-  },
-  {
-    question: "Can I batch compress multiple images at once?",
-    answer: "Yes, our suite supports bulk uploads. You can upload multiple images, apply settings globally or individually, and compress or download them all at once."
-  },
-  {
-    question: "What is aspect ratio and why does it matter?",
-    answer: "Aspect ratio is the width-to-height proportion (e.g. 16:9). Maintaining the original aspect ratio prevents images from stretching or squeezing during dimensions adjustments."
-  },
-  {
-    question: "Why does my compressed image look blurry?",
-    answer: "This happens if you request aggressive compression targets (like 20KB for a large poster). The engine must lower the visual quality to hit your size target, resulting in soft pixelation."
-  },
-  {
-    question: "Does converting PNG to WebP preserve transparency?",
-    answer: "Yes, WebP fully supports alpha-channel transparency, allowing you to reduce the file sizes of transparent graphics while maintaining their cut-out backgrounds."
-  },
-  {
-    question: "Is AVIF supported by all web browsers?",
-    answer: "AVIF is supported by over 93% of modern browsers, including Chrome, Firefox, Safari, and Edge. If a user's browser does not support AVIF, our tool gracefully falls back to WebP."
+    question: "When should I use the Image Resizer instead of the Image Compressor?",
+    answer: "Use the Image Compressor when an application portal specifies a file size limit (e.g., under 50KB or 100KB). Use the Image Resizer (/image-resizer) when a portal requires specific physical dimensions (such as 600x600 pixels or passport width-to-height ratios)."
   }
 ];
 
@@ -359,50 +320,6 @@ function getAspectRatio(width, height) {
   if (Math.abs(decimal - 1.25) < 0.02) return "5:4";
 
   return wRatio < 50 && hRatio < 50 ? `${wRatio}:${hRatio}` : `${decimal.toFixed(2)}:1`;
-}
-
-// Native Canvas Compress helper
-async function compressCanvas(img, quality, mimeType) {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return reject(new Error("Canvas context extraction failed"));
-
-    // Set white background for JPEGs to avoid black fill transparency
-    if (mimeType === "image/jpeg") {
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    ctx.drawImage(img, 0, 0);
-
-    canvas.toBlob(
-      (blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error("toBlob output empty"));
-      },
-      mimeType,
-      quality
-    );
-  });
-}
-
-// Native dimensions-resizing compressor for PNG target sizes
-async function compressPNGScale(img, scale) {
-  return new Promise((resolve) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return resolve(null);
-
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      resolve(blob);
-    }, "image/png");
-  });
 }
 
 export default function ImageCompressor() {
@@ -716,11 +633,14 @@ export default function ImageCompressor() {
         const targetFormatStr = item.targetFormat;
         let actualFormat = targetFormatStr;
         let finalQualityUsed = item.quality;
+        const targetBytes = item.targetSizeOption !== "auto" ? Number(item.targetSizeOption) : null;
+        let targetMet = true;
 
         if (item.targetSizeOption === "auto") {
           // Standard quality adjustment
           try {
             compressedBlob = await compressCanvas(img, item.quality, targetFormatStr);
+            if (compressedBlob?.type) actualFormat = compressedBlob.type;
           } catch {
             if (targetFormatStr === "image/avif") {
               setToast({ type: "warning", message: "AVIF export unsupported by browser. Falling back to WebP." });
@@ -731,139 +651,19 @@ export default function ImageCompressor() {
             }
           }
         } else {
-          // Target size mode requested (Bisection Binary Search)
-          const targetBytes = Number(item.targetSizeOption);
-          const isSameFormat = (targetFormatStr === "image/jpeg" && item.originalFormat === "JPG") ||
-            (targetFormatStr === "image/png" && item.originalFormat === "PNG") ||
-            (targetFormatStr === "image/webp" && item.originalFormat === "WEBP") ||
-            (targetFormatStr === "image/avif" && item.originalFormat === "AVIF");
-
-          if (item.originalSize <= targetBytes) {
-            if (isSameFormat) {
-              compressedBlob = item.file;
-              finalQualityUsed = 1.0;
-            } else {
-              try {
-                if (targetFormatStr === "image/png") {
-                  compressedBlob = await compressPNGScale(img, 1.0);
-                } else {
-                  compressedBlob = await compressCanvas(img, 0.95, targetFormatStr);
-                }
-              } catch {
-                if (targetFormatStr === "image/avif") {
-                  actualFormat = "image/webp";
-                  compressedBlob = await compressCanvas(img, 0.95, "image/webp");
-                }
-              }
-              finalQualityUsed = 0.95;
-            }
-          } else if (targetFormatStr === "image/png") {
-            // PNG is lossless; scale dimensions down to hit target size
-            compressedBlob = await compressPNGScale(img, 1.0);
-            if (compressedBlob && compressedBlob.size > targetBytes) {
-              let minScale = 0.05;
-              let maxScale = 0.98;
-              let bestBlob = compressedBlob;
-              let bestDiff = Math.abs(compressedBlob.size - targetBytes);
-
-              for (let step = 0; step < 6; step++) {
-                const mid = (minScale + maxScale) / 2;
-                const tempBlob = await compressPNGScale(img, mid);
-                if (tempBlob) {
-                  const diff = Math.abs(tempBlob.size - targetBytes);
-                  if (diff < bestDiff) {
-                    bestDiff = diff;
-                    bestBlob = tempBlob;
-                  }
-                  if (tempBlob.size > targetBytes) {
-                    maxScale = mid;
-                  } else {
-                    minScale = mid;
-                  }
-                }
-              }
-              compressedBlob = bestBlob;
-              finalQualityUsed = maxScale; // dimension scale factor acts as quality rating
-            }
-          } else {
-            // Lossy JPG/WEBP/AVIF: Binary Search on Canvas quality setting
-            let currentFormat = targetFormatStr;
-            let minQ = 0.02;
-            let maxQ = 1.0;
-            let bestBlob = null;
-            let bestDiff = Infinity;
-            let bestQ = 0.8;
-
-            for (let step = 0; step < 6; step++) {
-              const q = (minQ + maxQ) / 2;
-              let tempBlob = null;
-              try {
-                tempBlob = await compressCanvas(img, q, currentFormat);
-              } catch {
-                if (currentFormat === "image/avif") {
-                  currentFormat = "image/webp";
-                  actualFormat = "image/webp";
-                  tempBlob = await compressCanvas(img, q, currentFormat);
-                }
-              }
-
-              if (tempBlob) {
-                const diff = Math.abs(tempBlob.size - targetBytes);
-                if (diff < bestDiff) {
-                  bestDiff = diff;
-                  bestBlob = tempBlob;
-                  bestQ = q;
-                }
-                if (tempBlob.size > targetBytes) {
-                  maxQ = q;
-                } else {
-                  minQ = q;
-                }
-              }
-            }
-
-            // Fallback: If still slightly exceeding size limit, perform minor scaling
-            if (bestBlob && bestBlob.size > targetBytes * 1.1) {
-              let scaleMin = 0.2;
-              let scaleMax = 0.95;
-              let scaledBest = bestBlob;
-              let scaledDiff = Math.abs(bestBlob.size - targetBytes);
-
-              for (let s = 0; s < 4; s++) {
-                const scale = (scaleMin + scaleMax) / 2;
-                const canvas = document.createElement("canvas");
-                canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-                canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-                const ctx = canvas.getContext("2d");
-                if (ctx) {
-                  if (actualFormat === "image/jpeg") {
-                    ctx.fillStyle = "#FFFFFF";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                  }
-                  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                  const sBlob = await new Promise((res) => {
-                    canvas.toBlob(res, actualFormat, 0.65);
-                  });
-                  if (sBlob) {
-                    const diff = Math.abs(sBlob.size - targetBytes);
-                    if (diff < scaledDiff) {
-                      scaledDiff = diff;
-                      scaledBest = sBlob;
-                    }
-                    if (sBlob.size > targetBytes) {
-                      scaleMax = scale;
-                    } else {
-                      scaleMin = scale;
-                    }
-                  }
-                }
-              }
-              compressedBlob = scaledBest;
-              finalQualityUsed = 0.5; // fallback scaling reduces quality rank
-            } else {
-              compressedBlob = bestBlob;
-              finalQualityUsed = bestQ;
-            }
+          const result = await compressToTargetSize({
+            img,
+            originalFile: item.file,
+            originalFormat: item.originalFormat,
+            targetFormat: targetFormatStr,
+            targetBytes
+          });
+          compressedBlob = result.blob;
+          finalQualityUsed = result.qualityUsed;
+          actualFormat = result.actualFormat || targetFormatStr;
+          targetMet = result.targetMet;
+          if (result.avifFallback) {
+            setToast({ type: "warning", message: "AVIF export unsupported by browser. Falling back to WebP." });
           }
         }
 
@@ -889,10 +689,9 @@ export default function ImageCompressor() {
           const compressionRatio = (item.originalSize / compressedBlob.size).toFixed(1);
 
           let accuracy = 100;
-          if (item.targetSizeOption !== "auto") {
-            const target = Number(item.targetSizeOption);
-            const deviation = Math.abs(target - compressedBlob.size);
-            accuracy = Math.max(0, Math.round((1 - deviation / target) * 100));
+          if (targetBytes !== null) {
+            const deviation = Math.abs(targetBytes - compressedBlob.size);
+            accuracy = Math.max(0, Math.round((1 - deviation / targetBytes) * 100));
           }
 
           updatedQueue[i] = {
@@ -910,7 +709,9 @@ export default function ImageCompressor() {
             ratio: `${compressionRatio}:1`,
             accuracy,
             finalQuality: finalQualityUsed,
-            targetFormat: actualFormat
+            targetFormat: actualFormat,
+            targetBytes,
+            targetMet
           };
         } else {
           updatedQueue[i] = { ...item, status: "failed" };
@@ -1236,21 +1037,7 @@ export default function ImageCompressor() {
   const totalSavingsPercent = totalOriginal > 0 ? parseFloat(((totalSavingsBytes / totalOriginal) * 100).toFixed(1)) : 0;
   const isAnyCompleted = queue.some((item) => item.status === "done");
 
-  // JSON-LD schema objects (SoftwareApplication, FAQPage, WebPage, BreadcrumbList)
-  const softwareAppSchema = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "SnapFree Tools Image Compressor & Converter",
-    "operatingSystem": "All",
-    "applicationCategory": "MultimediaApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Natively compress, optimize, and convert JPG, PNG, WEBP, and AVIF files directly inside your browser window. Zero upload required."
-  };
-
+  // JSON-LD schema objects (FAQPage, WebPage, BreadcrumbList)
   const faqPageSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -1269,8 +1056,8 @@ export default function ImageCompressor() {
     "@type": "WebPage",
     "@id": "https://www.snapfreetools.com/image-compressor#webpage",
     "url": "https://www.snapfreetools.com/image-compressor",
-    "name": "Image Compressor & Converter",
-    "description": "Compress and convert images online free. Natively compress JPG, PNG, WebP, and AVIF images to 20KB, 50KB, 100KB, or 200KB.",
+    "name": "Compress Image to 20KB, 50KB, 100KB, 200KB Online Free",
+    "description": "Compress JPG, PNG, WebP, and AVIF images to target file sizes like 20KB, 50KB, 100KB, or 200KB online for free with 100% private in-browser compression.",
     "breadcrumb": {
       "@id": "https://www.snapfreetools.com/image-compressor#breadcrumb"
     }
@@ -1305,86 +1092,251 @@ export default function ImageCompressor() {
 
   return (
     <ToolLayout
-      title="Image Compressor & Converter"
-      description="Reduce image size and convert file formats instantly with our private 100% browser-based engine."
+      title="Compress Image to 20KB, 50KB, 100KB, 200KB"
+      description="Compress images to target file sizes (20KB, 50KB, 100KB, 200KB) or convert formats online for free with 100% private in-browser processing."
       currentSlug="image-compressor"
       result={imageResult}
       seoContent={
-        <div className="space-y-12">
-          {/* HOW IT WORKS */}
-          <div className="space-y-6">
-            <h3 className="font-black text-slate-900 text-lg md:text-xl text-center">
-              How It Works
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="space-y-16 text-slate-700">
+          {/* SECTION 1: HOW IT WORKS FOR TARGET SIZES */}
+          <section className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                How to Compress Images to Target Sizes in KB
+              </h2>
+              <p className="text-sm text-slate-500 font-medium max-w-2xl mx-auto">
+                Follow these simple steps to reduce any JPG, PNG, WebP, or AVIF image to your required kilobyte limit right inside your browser.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { step: "Step 1", title: "Upload your image", text: "Drag-and-drop or select JPG, PNG, WEBP, or AVIF files from your file storage." },
-                { step: "Step 2", title: "Adjust quality and format", text: "Select a custom target size constraint or choose an exact output format (e.g. JPG to WebP)." },
-                { step: "Step 3", title: "Compress and download", text: "Natively process files inside your browser tab and save the optimized assets instantly." }
+                { step: "01", title: "Upload Image", text: "Drag & drop or select your photo from your device. Bulk uploads are supported." },
+                { step: "02", title: "Select Target Size", text: "Choose a target preset: 20 KB, 50 KB, 100 KB, or 200 KB in the Target File Size menu." },
+                { step: "03", title: "Automatic Bisection", text: "Our client-side algorithm optimizes quality and dimensions to meet your target limit without exceeding your cap." },
+                { step: "04", title: "Download Result", text: "Preview visual clarity before and after, then download your optimized image instantly." }
               ].map((s, idx) => (
-                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 text-center space-y-2 relative hover:border-emerald-200 transition-colors">
-                  <span className="inline-block text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-                    {s.step}
+                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 relative hover:border-emerald-300 transition-colors shadow-xs">
+                  <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 inline-block">
+                    Step {s.step}
                   </span>
-                  <h4 className="font-bold text-slate-800 text-sm md:text-base">{s.title}</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">{s.text}</p>
+                  <h3 className="font-bold text-slate-800 text-base">{s.title}</h3>
+                  <p className="text-slate-500 text-xs leading-relaxed font-medium">{s.text}</p>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* FEATURES GRID */}
-          <div className="space-y-6">
-            <h3 className="font-black text-slate-900 text-lg md:text-xl text-center">
-              Key Technical Features
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* SECTION 2: 4 SUPPORTED TARGET SIZES BREAKDOWN */}
+          <section className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                Supported Target File Sizes in KB
+              </h2>
+              <p className="text-sm text-slate-500 font-medium max-w-2xl mx-auto">
+                SnapFreeTools features built-in target-size presets to help meet upload limits on application portals, websites, and emails.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 uppercase tracking-wider">
+                    20 KB Preset
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">Target: ~20,480 Bytes</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Compress Image to 20KB</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Frequently required for digital signatures, compact user avatars, and application forms with strict file size caps. Because 20KB is an aggressive threshold, cropping unnecessary white borders and converting PNGs to WebP or JPG will preserve the best readability.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 uppercase tracking-wider">
+                    50 KB Preset
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">Target: ~51,200 Bytes</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Compress Image to 50KB</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  One of the most widely requested upload limits for online job applications, public exam submissions, and government registration forms. Choosing the 50KB preset balances sharp facial details and readable text with a lightweight file footprint.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 uppercase tracking-wider">
+                    100 KB Preset
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">Target: ~102,400 Bytes</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Compress Image to 100KB</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  The standard maximum file size for resume attachments, student admission portals, and identity verification cards. At 100KB, modern image formats maintain high-definition photographic clarity while preventing slow upload errors.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 uppercase tracking-wider">
+                    200 KB Preset
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">Target: ~204,800 Bytes</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Compress Image to 200KB</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Ideal for certificate scans, high-resolution photographs, and responsive blog graphics. Compressing to 200KB significantly accelerates website loading speeds and passes portal verification checks without perceptible compression artifacts.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 3: DIMENSIONS VS DPI VS FILE SIZE */}
+          <section className="bg-white border border-slate-200 rounded-3xl p-6 md:p-10 space-y-6 shadow-xs">
+            <div className="space-y-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                Understanding Image Dimensions, DPI, and File Size in KB
+              </h2>
+              <p className="text-sm text-slate-500 font-medium">
+                When preparing images for online submission, understanding how dimensions, DPI, and byte sizes interact prevents common upload errors.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              <div className="space-y-2 border-l-2 border-emerald-500 pl-4">
+                <h3 className="font-bold text-slate-800 text-base">1. Pixel Dimensions</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  Dimensions indicate the pixel width and height (e.g., 600×600 px or 1920×1080 px). Extra-large pixel dimensions multiply the total data points in an image. If your target is 20KB or 50KB, reducing pixel dimensions using our free <Link href="/image-resizer" className="text-emerald-600 font-bold underline hover:text-emerald-700">Image Resizer</Link> is often the most effective first step.
+                </p>
+              </div>
+
+              <div className="space-y-2 border-l-2 border-emerald-500 pl-4">
+                <h3 className="font-bold text-slate-800 text-base">2. DPI (Dots Per Inch)</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  DPI is a physical print measurement indicating how many ink dots print per inch on paper (such as 300 DPI for printed photos). For digital screens and web portals, DPI does not affect file weight—digital portals evaluate pixel count and byte size in KB, not physical DPI.
+                </p>
+              </div>
+
+              <div className="space-y-2 border-l-2 border-emerald-500 pl-4">
+                <h3 className="font-bold text-slate-800 text-base">3. File Size (KB)</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  File size measures digital disk storage in kilobytes (1 KB = 1,024 bytes). It is determined by the total number of pixels, color complexity, and the compression efficiency of the container format (JPG, PNG, WebP, or AVIF).
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 font-medium flex items-center gap-2">
+              <Info size={16} className="text-emerald-500 shrink-0" />
+              <span>
+                Need specific pixel dimensions (like 600×600 px or 35mm×45mm)? Resize dimensions first with <Link href="/image-resizer" className="text-emerald-600 font-bold underline hover:text-emerald-700">Image Resizer</Link>, then compress here to satisfy your KB limit.
+              </span>
+            </div>
+          </section>
+
+          {/* SECTION 4: WHY CONVERTING PNG TO JPG OR WEBP REDUCES FILE SIZE */}
+          <section className="bg-white border border-slate-200 rounded-3xl p-6 md:p-10 space-y-6 shadow-xs">
+            <div className="space-y-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                Why Converting PNG to JPG or WebP Reduces File Size
+              </h2>
+              <p className="text-sm text-slate-500 font-medium">
+                Choosing the optimal image format is the most reliable way to achieve small kilobyte sizes without heavy blurring.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-2">
+                <h3 className="font-bold text-slate-800 text-sm md:text-base">PNG (Lossless Format)</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  PNG stores pixel data without discarding any information. While this produces razor-sharp graphics and logos with transparent backgrounds, photographic images stored as PNG can be 5 to 10 times larger than the same image saved as JPG or WebP. Attempting to compress a photographic PNG to 20KB or 50KB without format conversion often requires severe downscaling.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-2">
+                <h3 className="font-bold text-slate-800 text-sm md:text-base">JPG & WebP (Modern Compression)</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  JPG applies lossy compression by selectively discarding color nuances that the human eye cannot perceive, significantly lowering file weight. Modern WebP goes further, achieving 25% to 35% smaller file sizes than JPG at equivalent clarity while supporting transparent backgrounds. Converting a PNG photo to WebP or JPG makes hitting 20KB or 50KB limits much easier.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 5: 100% PRIVATE IN-BROWSER PROCESSING */}
+          <section className="bg-emerald-50/40 border border-emerald-200 rounded-3xl p-6 md:p-10 space-y-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                <Shield size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-black text-emerald-950 tracking-tight">
+                  100% Private In-Browser Image Compression
+                </h2>
+                <p className="text-xs text-emerald-800 font-semibold">
+                  Zero cloud uploads. Zero remote server storage. Absolute data security.
+                </p>
+              </div>
+            </div>
+            <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium">
+              Unlike traditional image converter websites that upload your personal pictures, passports, signatures, or confidential documents to third-party cloud servers, SnapFreeTools executes all compression and format conversions directly inside your web browser. Utilizing HTML5 Canvas and local WebAssembly binaries, your image data never leaves your device memory, ensuring total privacy.
+            </p>
+          </section>
+
+          {/* SECTION 6: RELATED TOOLS */}
+          <section className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                Related Free Productivity Tools
+              </h2>
+              <p className="text-sm text-slate-500 font-medium max-w-xl mx-auto">
+                Explore complementary utilities to resize, convert, and prepare documents for online submissions.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { icon: Shield, title: "100% Client-Side Privacy", text: "Files are processed inside browser RAM. Zero network uploads to remote databases." },
-                { icon: Sparkles, title: "Smart Lossy & Lossless Math", text: "Fine-tune target quality multipliers or set exact kilobyte boundaries (e.g. 50KB limit)." },
-                { icon: ImageIcon, title: "Multi-Format Conversions", text: "Convert freely between JPG, PNG, WEBP, and AVIF image formats without software installation." },
-                { icon: FileText, title: "Batch Processing Queue", text: "Queue multiple image files simultaneously and export them individually or in a ZIP bundle." },
-                { icon: Download, title: "Instant Asset Exports", text: "No queue delays or server rendering waits. Immediate download access for all processed images." },
-                { icon: Check, title: "Zero Subscription Fees", text: "100% free web utility with no registration barriers, trial periods, or hidden fees." }
-              ].map((f, idx) => (
-                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:border-emerald-200 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                    <f.icon size={20} />
-                  </div>
-                  <h4 className="font-bold text-slate-800 text-sm md:text-base">{f.title}</h4>
-                  <p className="text-slate-500 text-xs leading-relaxed">{f.text}</p>
-                </div>
+                { title: "Image Resizer", href: "/image-resizer", desc: "Resize pixel dimensions, crop images, and adjust width-height ratios for passport requirements." },
+                { title: "JPG to PDF", href: "/jpg-to-pdf", desc: "Convert compressed JPG photographs and scans into standard single or multi-page PDF documents." },
+                { title: "PNG to PDF", href: "/png-to-pdf", desc: "Combine and convert transparent PNG graphics and document scans into clean PDF files." },
+                { title: "Word Counter", href: "/word-counter", desc: "Count words, characters, and sentences for job applications, personal statements, and essays." }
+              ].map((t, idx) => (
+                <Link
+                  key={idx}
+                  href={t.href}
+                  className="bg-white border border-slate-200 rounded-2xl p-6 space-y-2 hover:border-emerald-300 hover:shadow-sm transition-all group block"
+                >
+                  <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors text-base flex items-center justify-between">
+                    <span>{t.title}</span>
+                    <ArrowRight size={14} className="text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{t.desc}</p>
+                </Link>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* ACCORDION FAQ SECTION */}
-          <div className="space-y-6 border-t border-slate-200 pt-8 max-w-3xl mx-auto pb-12">
-            <div className="text-center">
-              <h2 className="font-black text-slate-900 text-lg md:text-xl">
+          {/* SECTION 7: ACCORDION FAQ SECTION */}
+          <div className="space-y-6 border-t border-slate-200 pt-10 max-w-3xl mx-auto pb-12">
+            <div className="text-center space-y-1">
+              <h2 className="font-black text-slate-900 text-2xl md:text-3xl tracking-tight">
                 Frequently Asked Questions
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
-                Get detailed answers about local browser processing, file privacy, and modern image formats.
+              <p className="text-xs md:text-sm text-slate-500 font-medium">
+                Clear, verified answers regarding target file sizes, formats, and client-side browser processing.
               </p>
             </div>
 
-            <div className="space-y-3">
-              {FAQS_DATA.slice(0, 10).map((faq, idx) => {
+            <div className="space-y-3 pt-2">
+              {FAQS_DATA.map((faq, idx) => {
                 const isOpen = openFaqIndex === idx;
                 return (
-                  <div key={idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm transition-all duration-200">
+                  <div key={idx} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs transition-all duration-200">
                     <button
                       onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                      className="w-full text-left p-4 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:text-emerald-600 focus:outline-none"
+                      className="w-full text-left p-5 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:text-emerald-600 focus:outline-none gap-4"
                     >
                       <span>{faq.question}</span>
-                      <span className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+                      <span className={`text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`}>
                         ▼
                       </span>
                     </button>
                     {isOpen && (
-                      <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500 leading-relaxed font-medium">
+                      <div className="p-5 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 leading-relaxed font-medium">
                         {faq.answer}
                       </div>
                     )}
@@ -1397,10 +1349,6 @@ export default function ImageCompressor() {
       }
     >
       {/* Schemas rendered inside head */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }}
@@ -1429,13 +1377,13 @@ export default function ImageCompressor() {
         <div className="text-center space-y-4 pt-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-200">
             <Sparkles size={13} className="animate-pulse" />
-            Premium SaaS Tool Suite
+            100% Free & Private Browser Tool
           </span>
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-            Image Compressor & Converter
+            Compress Image to 20KB, 50KB, 100KB, or 200KB Online
           </h1>
-          <p className="text-slate-500 text-sm md:text-base max-w-xl mx-auto font-medium">
-            Reduce image size and convert file formats instantly with our private 100% browser-based engine. No registration, no watermarks, unlimited processing.
+          <p className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto font-medium">
+            Reduce image file size in KB or convert formats directly inside your browser. Select preset target sizes like 20KB, 50KB, 100KB, or 200KB with 100% private client-side processing—no file uploads required.
           </p>
         </div>
 
@@ -1733,10 +1681,25 @@ export default function ImageCompressor() {
                                   <>
                                     <div>
                                       <span className="text-[9px] font-black uppercase text-slate-400 block">Status</span>
-                                      <span className="font-bold text-emerald-700">Compression Complete</span>
-                                      <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">
-                                        Image optimized successfully.
-                                      </span>
+                                      {item.targetSizeOption !== "auto" && item.targetMet === false ? (
+                                        <>
+                                          <span className="font-bold text-amber-700">Target Limit Exceeded</span>
+                                          <span className="text-[9px] text-amber-700 block mt-0.5 font-medium">
+                                            Smallest output ({formatSize(item.processedSize)}) exceeds {formatSize(item.targetBytes)}. Try converting to WebP or JPG.
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <span className="font-bold text-emerald-700">
+                                            {item.targetSizeOption !== "auto" ? "Target Size Achieved" : "Compression Complete"}
+                                          </span>
+                                          <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">
+                                            {item.targetSizeOption !== "auto" && item.targetBytes
+                                              ? `Verified within ${formatSize(item.targetBytes)} limit.`
+                                              : "Image optimized successfully."}
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
                                     <div>
                                       <span className="text-[9px] font-black uppercase text-slate-400 block">Optimized Size</span>
@@ -1781,9 +1744,15 @@ export default function ImageCompressor() {
 
                               <div className="flex items-center justify-between border-t border-emerald-100/60 pt-2 text-[10px]">
                                 {activeTab === "compressor" ? (
-                                  <div className="text-emerald-800 font-bold bg-emerald-100/60 px-2 py-0.5 rounded-md">
-                                    Compression Complete
-                                  </div>
+                                  item.targetSizeOption !== "auto" && item.targetMet === false ? (
+                                    <div className="text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-md">
+                                      Closest Size Reached
+                                    </div>
+                                  ) : (
+                                    <div className="text-emerald-800 font-bold bg-emerald-100/60 px-2 py-0.5 rounded-md">
+                                      {item.targetSizeOption !== "auto" ? "Within Target Limit" : "Compression Complete"}
+                                    </div>
+                                  )
                                 ) : (
                                   <div className="text-emerald-800 font-bold bg-emerald-100/60 px-2 py-0.5 rounded-md">
                                     Format Converted
@@ -2268,7 +2237,12 @@ export default function ImageCompressor() {
                         },
                         {
                           label: "Status",
-                          value: "Compression Complete",
+                          value:
+                            activeCompareItem.targetSizeOption !== "auto" && activeCompareItem.targetMet === false
+                              ? "Target Not Reached"
+                              : activeCompareItem.targetSizeOption !== "auto"
+                                ? "Target Limit Met"
+                                : "Compression Complete",
                           tip: "Current processing status of the image."
                         }
                       ];
