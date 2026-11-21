@@ -105,13 +105,38 @@ export function runOCR({
         12
       );
 
+      let timeoutTimer = null;
       try {
-        activeWorker = await createWorker(targetLang, 1, {
+        const timeoutMs = isEnglish ? 30000 : 60000;
+
+        const resetTimeout = () => {
+          if (timeoutTimer) {
+            clearTimeout(timeoutTimer);
+            timeoutTimer = null;
+          }
+          timeoutTimer = setTimeout(() => {
+            if (timeoutReject) {
+              timeoutReject(new Error("NETWORK_TIMEOUT"));
+            }
+          }, timeoutMs);
+        };
+
+        let timeoutReject = null;
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutReject = reject;
+          resetTimeout();
+        });
+
+        const workerPromise = createWorker(targetLang, 1, {
           workerPath,
           corePath,
           langPath,
           logger: (m) => {
             if (isCancelled) return;
+            // If download or worker initialization is making observable progress, reset the stall timer
+            if (m && (m.status === "loading language traineddata" || m.status === "loading tesseract core" || m.status === "recognizing text")) {
+              resetTimeout();
+            }
             if (m && m.status === "recognizing text") {
               const currentPg = ocrResults.length + 1;
               const pagePct = Math.round((m.progress || 0) * 100);
@@ -131,18 +156,46 @@ export function runOCR({
           },
         });
 
+        // If workerPromise finishes first or rejects, race finishes
+        activeWorker = await Promise.race([
+          workerPromise.then((w) => {
+            if (timeoutTimer) {
+              clearTimeout(timeoutTimer);
+              timeoutTimer = null;
+            }
+            return w;
+          }),
+          timeoutPromise.catch(async (err) => {
+            // On timeout, attach a late termination listener so when/if the worker ever resolves, it is terminated immediately
+            workerPromise
+              .then((lateWorker) => {
+                if (lateWorker && typeof lateWorker.terminate === "function") {
+                  lateWorker.terminate().catch(() => {});
+                }
+              })
+              .catch(() => {});
+            throw err;
+          }),
+        ]);
+
+        if (isCancelled) throw new Error("cancelled");
+
         // Configure Tesseract layout parameters for typography
         await activeWorker.setParameters({
           user_defined_dpi: targetDpi,
           preserve_interword_spaces: "1",
         });
       } catch (workerInitErr) {
+        if (timeoutTimer) {
+          clearTimeout(timeoutTimer);
+          timeoutTimer = null;
+        }
         if (isCancelled) throw new Error("cancelled");
         console.error("Worker initialization error:", workerInitErr);
         const err = new Error(
           isEnglish
             ? "Failed to initialize local OCR engine. Please refresh and try again."
-            : `Failed to load OCR language model for '${targetLang}'. Please ensure you have an internet connection or select English.`
+            : "Could not download the language data. Check your internet connection and try again, or use English."
         );
         err.code = "LANGUAGE_LOAD_FAILED";
         throw err;

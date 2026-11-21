@@ -168,6 +168,7 @@ export default function PDFToWord({ faqs = [] }) {
       activeOcrJobRef.current = null;
     }
     cachedPdfDocRef.current = null;
+    setSelectedLanguage("eng");
     setFile(null);
     setPageCount(null);
     setFileError(null);
@@ -278,7 +279,7 @@ export default function PDFToWord({ faqs = [] }) {
         setFileError(err.message);
       } else if (err.code === "LANGUAGE_LOAD_FAILED") {
         setFileError(
-          `Failed to load OCR language data for '${langToUse}'. Please ensure an active internet connection or switch to English.`
+          "Could not download the language data. Check your internet connection and try again, or use English."
         );
       } else {
         setFileError(
