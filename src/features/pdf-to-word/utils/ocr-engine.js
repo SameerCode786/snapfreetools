@@ -42,6 +42,15 @@ export function runOCR({
 }) {
   let isCancelled = false;
   let activeWorker = null;
+  let timeoutTimer = null;
+  let initDone = false;
+
+  const clearTimer = () => {
+    if (timeoutTimer) {
+      clearTimeout(timeoutTimer);
+      timeoutTimer = null;
+    }
+  };
 
   const promise = (async () => {
     // 1. Language validation
@@ -105,17 +114,14 @@ export function runOCR({
         12
       );
 
-      let timeoutTimer = null;
       try {
         const timeoutMs = isEnglish ? 30000 : 60000;
 
         const resetTimeout = () => {
-          if (timeoutTimer) {
-            clearTimeout(timeoutTimer);
-            timeoutTimer = null;
-          }
+          if (initDone || isCancelled) return;
+          clearTimer();
           timeoutTimer = setTimeout(() => {
-            if (timeoutReject) {
+            if (!initDone && timeoutReject) {
               timeoutReject(new Error("NETWORK_TIMEOUT"));
             }
           }, timeoutMs);
@@ -133,8 +139,8 @@ export function runOCR({
           langPath,
           logger: (m) => {
             if (isCancelled) return;
-            // If download or worker initialization is making observable progress, reset the stall timer
-            if (m && (m.status === "loading language traineddata" || m.status === "loading tesseract core" || m.status === "recognizing text")) {
+            // Stall timer applies strictly to worker initialization / model download
+            if (!initDone && m && (m.status === "loading language traineddata" || m.status === "loading tesseract core")) {
               resetTimeout();
             }
             if (m && m.status === "recognizing text") {
@@ -159,13 +165,12 @@ export function runOCR({
         // If workerPromise finishes first or rejects, race finishes
         activeWorker = await Promise.race([
           workerPromise.then((w) => {
-            if (timeoutTimer) {
-              clearTimeout(timeoutTimer);
-              timeoutTimer = null;
-            }
+            initDone = true;
+            clearTimer();
             return w;
           }),
           timeoutPromise.catch(async (err) => {
+            clearTimer();
             // On timeout, attach a late termination listener so when/if the worker ever resolves, it is terminated immediately
             workerPromise
               .then((lateWorker) => {
@@ -178,6 +183,9 @@ export function runOCR({
           }),
         ]);
 
+        initDone = true;
+        clearTimer();
+
         if (isCancelled) throw new Error("cancelled");
 
         // Configure Tesseract layout parameters for typography
@@ -186,10 +194,8 @@ export function runOCR({
           preserve_interword_spaces: "1",
         });
       } catch (workerInitErr) {
-        if (timeoutTimer) {
-          clearTimeout(timeoutTimer);
-          timeoutTimer = null;
-        }
+        initDone = true;
+        clearTimer();
         if (isCancelled) throw new Error("cancelled");
         console.error("Worker initialization error:", workerInitErr);
         const err = new Error(
@@ -336,6 +342,8 @@ export function runOCR({
         activeWorker = null;
       }
       throw err;
+    } finally {
+      clearTimer();
     }
   })();
 
@@ -343,6 +351,8 @@ export function runOCR({
     promise,
     cancel: () => {
       isCancelled = true;
+      initDone = true;
+      clearTimer();
       if (activeWorker) {
         activeWorker.terminate().catch((err) => console.warn("Worker termination on cancel failed:", err));
         activeWorker = null;
