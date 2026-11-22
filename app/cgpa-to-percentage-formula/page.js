@@ -53,15 +53,15 @@ export default function Page() {
     { grade: "F", points: "0.00", marks: "Below 50" }
   ];
 
-  // 4. CBSE 10.0 Scale Indicative Conversion Table (Circular 24/2010: CGPA * 9.5, computed by code)
+  // 4. CBSE 10.0 Scale Indicative Conversion Table (Circular 24/2010: CGPA * 9.5, computed with two decimals)
   const cbseTable = Array.from({ length: 9 }, (_, i) => {
     const cgpaVal = (6.0 + i * 0.5);
     const cgpa = cgpaVal.toFixed(1);
-    const pct = (cgpaVal * 9.5).toFixed(1);
+    const pct = (cgpaVal * 9.5).toFixed(2);
     return { cgpa, pct: `${pct}%` };
   });
 
-  // Approved FAQs incorporating all evidence-table verified facts and user corrections
+  // Approved FAQs incorporating all evidence-table verified facts and user revisions
   const faqs = [
     {
       question: "Does HEC Pakistan have an official formula to convert CGPA to percentage?",
@@ -85,11 +85,11 @@ export default function Page() {
     },
     {
       question: "What should I do if an employer or admissions portal requires a percentage?",
-      answer: "Check the reverse side of your official university transcript or Detailed Marks Certificate (DMC), where universities print their approved grading legend. If an official percentage is required and your transcript reports only CGPA, contact your university's examination branch. Some universities, such as UET Lahore, issue an official CGPA to percentage equivalence certificate on application."
+      answer: "Check the reverse side of your official university transcript or Detailed Marks Certificate (DMC), where universities usually print their approved grading scale. If an official percentage is required and your transcript reports only CGPA, contact your university's examination branch. Some universities, such as UET Lahore, issue an official CGPA to percentage equivalence certificate on application."
     },
     {
-      question: "Why do universities like NUST and FAST not print a percentage on transcripts?",
-      answer: "Modern semester systems evaluate academic standing using credit-weighted grade points on a continuous 4.00 scale rather than raw percentages. NUST officially uses a relative grading system (distribution gap method) where grades are awarded based on class performance distribution. FAST computes Semester GPA (SGPA) and Cumulative GPA (CGPA) on a 0.00 to 4.00 continuous scale without an internal percentage conversion."
+      question: "Do NUST and FAST publish a CGPA to percentage formula?",
+      answer: "In the regulations we reviewed for NUST (Academic Rules Regarding Students, PNEC copy, 2020) and FAST-NUCES (Academic Rules and Regulations), we did not find an official CGPA to percentage conversion formula. NUST evaluates coursework using relative grading according to the distribution gap method, while FAST computes Semester and Cumulative GPAs on a continuous 0.00 to 4.00 scale. Students who require an official percentage equivalence should contact their university's examination branch."
     },
     {
       question: "Can I accurately convert my percentage back to CGPA?",
@@ -97,7 +97,7 @@ export default function Page() {
     },
     {
       question: "Where can I find my university's official conversion rules?",
-      answer: "Check the reverse side or legend of your official academic transcript or Detailed Marks Certificate (DMC). Most accredited institutions print their grading scale and grade point definitions there. If no conversion table is provided, consult your university registrar or controller of examinations."
+      answer: "Check the reverse side or legend of your official academic transcript or Detailed Marks Certificate (DMC). Universities usually print their grading scale and grade point definitions there. If no conversion formula is provided, consult your university examination branch or registrar."
     }
   ];
 
@@ -112,6 +112,7 @@ export default function Page() {
         "name": "CGPA to Percentage Formula: 4.0 & 10.0 Scales Explained | SnapFreeTools",
         "description": "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, official HEC semester policies, and university grading rules.",
         "inLanguage": "en-US",
+        "dateModified": "2026-11-22",
         "isPartOf": {
           "@type": "WebSite",
           "@id": "https://www.snapfreetools.com/#website",
@@ -171,8 +172,16 @@ export default function Page() {
         <div className="space-y-10">
           {/* Header Card */}
           <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60 w-fit">
+                Academic Grading Guide
+              </span>
+              <span className="text-xs text-slate-400 font-medium">
+                Last reviewed: 22 November 2026
+              </span>
+            </div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
-              CGPA to Percentage Conversion Formulas & Grading Guide
+              CGPA to Percentage Conversion Formulas &amp; Grading Guide
             </h1>
             <p className="text-slate-600 text-sm md:text-base leading-relaxed">
               Converting a Cumulative Grade Point Average (CGPA) to an aggregate percentage is frequently needed for government recruitment, scholarship applications, and university admissions. However, because semester systems assess courses through credit-hour weighted quality points rather than simple averages, universal mathematical conversions are estimates unless officially defined by your degree-granting institution.
@@ -248,7 +257,7 @@ export default function Page() {
                 Percentage = (CGPA / Max Scale) × 100 = (CGPA / 4.0) × 100 = CGPA × 25
               </div>
               <p className="text-xs md:text-sm text-slate-600">
-                <strong>Limitation:</strong> This linear proportion assumes that a 0.00 GPA equals 0% and a 2.00 GPA equals 50%. However, in most Pakistani universities, 50% is the minimum passing score for an individual course, while a cumulative 2.00 CGPA is required to avoid probation or earn a bachelor degree.
+                <strong>Limitation:</strong> This linear proportion assumes that a 0.00 GPA equals 0% and a 2.00 GPA equals 50%. However, in the HEC draft table and the COMSATS table, a grade of D (50%–53%) is defined as the minimum passing grade for a course.
               </p>
             </div>
 
@@ -266,19 +275,28 @@ export default function Page() {
             </div>
           </article>
 
-          {/* Section 3: Official HEC Pakistan Policies & University Standards */}
+          {/* Section 3: HEC Pakistan Guidelines & University Rules */}
           <article className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6 text-slate-700 leading-relaxed text-sm md:text-base">
             <h2 className="text-2xl font-bold text-slate-900">
-              Official HEC Pakistan Policies & University Standards
+              HEC Pakistan Guidelines &amp; University Rules
             </h2>
 
             <div className="space-y-3">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                HEC Draft Policy Guidelines (Section 13.1)
+                <span>HEC Draft Policy Guidelines (Section 13.1)</span>
               </h3>
               <p>
-                Under Section 13.1 of the <em>HEC draft policy guidelines for implementation of a uniform semester examination system</em>, the Higher Education Commission provides a standardized course-level grading matrix that maps semester exam percentages into letter grades and grade points.
+                Under Section 13.1 of the <em>HEC draft policy guidelines for implementation of a uniform semester examination system</em> (
+                <a
+                  href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1"
+                >
+                  view BNU-hosted draft PDF <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+                ), the Higher Education Commission provides a standardized course-level grading matrix that maps semester exam percentages into letter grades and grade points.
               </p>
               <p className="text-xs md:text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <strong>Section 13.1 Guideline Note:</strong> The HEC draft guidelines note that when equating a CGPA in absolute or relative grading, the student is mapped to the minimum percentage of the corresponding bracket. For example, a CGPA of 3.00 maps to the lower boundary of the B grade tier (71%–74%), yielding an equivalent baseline of 71%.
@@ -288,16 +306,25 @@ export default function Page() {
             <div className="space-y-3 pt-4 border-t border-slate-100">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
-                HEC Notification on Equivalence Conversion (January 14, 2008)
+                <span>HEC Notification on Equivalence Conversion (January 14, 2008)</span>
               </h3>
               <p>
-                Under official <strong>Notification No. 8-65/HEC/A&amp;A/2007 dated January 14, 2008</strong>, the Higher Education Commission officially notified:
+                Under official <strong>Notification No. 8-65/HEC/A&amp;A/2007 dated January 14, 2008</strong> (Higher Education Commission, Islamabad;{" "}
+                <a
+                  href="https://www.hec.gov.pk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1"
+                >
+                  hec.gov.pk <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+                ), the Higher Education Commission officially notified:
               </p>
               <blockquote className="border-l-4 border-amber-400 pl-4 py-1 text-slate-700 italic text-sm">
                 &ldquo;...considering that the Universities both in Public and Private sectors have different formula for conversion of CGPA into percentage of marks/grades/divisions, it has been decided by the Competent Authority that... henceforth the Higher Education Commission would not carry out the job of conversion of CGPA into percentage of marks/grades/divisions.&rdquo;
               </blockquote>
               <p className="text-xs md:text-sm text-slate-600">
-                Consequently, official academic transcripts must clearly display the institution&apos;s grading scale, and degree equivalence relies on the specific policies of the awarding university.
+                The notification explains that the HEC had previously converted CGPA into percentages using an April 2003 committee formula, but discontinued this practice because universities use differing conversion formulas. Consequently, degree equivalence relies on the specific policies of the awarding university, and universities usually print their grading scale on the transcript.
               </p>
             </div>
 
@@ -305,9 +332,18 @@ export default function Page() {
               <h3 className="text-lg font-bold text-slate-800">University-Specific Regulations</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm">
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-                  <span className="font-bold text-slate-900 block">NUST (Relative Grading)</span>
+                  <span className="font-bold text-slate-900 block">NUST (Relative Grading – PNEC copy, 2020)</span>
                   <p className="text-slate-600">
-                    Section 5 of the NUST Academic Rules Regarding Students specifies that GPA is worked out by awarding relative grading on a 4.00 scale according to the distribution gap method on the performance of a class. Because grades are awarded on a curve, NUST transcripts report CGPA without a fixed percentage.
+                    Section 5 of the NUST Academic Rules Regarding Students (PNEC copy, 2020;{" "}
+                    <a
+                      href="https://pnec.nust.edu.pk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
+                    >
+                      pnec.nust.edu.pk <ExternalLink className="w-3 h-3" />
+                    </a>
+                    ) specifies that GPA is worked out by awarding relative grading on a 4.00 scale according to the distribution gap method on the performance of a class. In the regulations we reviewed, we did not find a CGPA to percentage formula.
                   </p>
                   <Link href="/nust-gpa-scale" className="text-amber-600 font-bold hover:underline inline-block pt-1">
                     View NUST Grading Scale &rarr;
@@ -317,7 +353,16 @@ export default function Page() {
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
                   <span className="font-bold text-slate-900 block">FAST-NUCES (Continuous 4.00 Scale)</span>
                   <p className="text-slate-600">
-                    Section 7 of the FAST-NUCES Academic Rules and Regulations establishes a continuous 0.00 to 4.00 scale for Semester GPA (SGPA) and Cumulative GPA (CGPA). Transcripts report GPA figures without an internal percentage conversion formula.
+                    Section 7 of the FAST-NUCES Academic Rules and Regulations (
+                    <a
+                      href="https://www.nu.edu.pk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
+                    >
+                      nu.edu.pk <ExternalLink className="w-3 h-3" />
+                    </a>
+                    ) establishes a continuous 0.00 to 4.00 scale for Semester GPA (SGPA) and Cumulative GPA (CGPA). In the regulations we reviewed, we did not find a CGPA to percentage formula.
                   </p>
                   <Link href="/fast-gpa-scale" className="text-amber-600 font-bold hover:underline inline-block pt-1">
                     View FAST GPA Scale &rarr;
@@ -327,7 +372,16 @@ export default function Page() {
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
                   <span className="font-bold text-slate-900 block">COMSATS University Islamabad</span>
                   <p className="text-slate-600">
-                    Section 2.11 of the COMSATS Graduate Handbook 2024-25 (Wah campus) outlines an absolute grading table for students admitted from Fall 2021 onwards (A = 85%+, B = 71–74%, D = 50–53% passing). Specific conversion criteria may differ across individual campuses.
+                    Section 2.11 of the COMSATS Graduate Handbook 2024-25 (Wah campus;{" "}
+                    <a
+                      href="https://wah.comsats.edu.pk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
+                    >
+                      wah.comsats.edu.pk <ExternalLink className="w-3 h-3" />
+                    </a>
+                    ) outlines an absolute grading table for students admitted from Fall 2021 onwards (A = 85%+, B = 71–74%, D = 50–53% passing). Specific conversion criteria may differ across individual campuses.
                   </p>
                   <Link href="/gpa-calculator/comsats" className="text-amber-600 font-bold hover:underline inline-block pt-1">
                     COMSATS GPA Calculator &rarr;
@@ -354,7 +408,7 @@ export default function Page() {
                 Conversion Reference Tables
               </h2>
               <p className="text-xs md:text-sm text-slate-500">
-                Every value in the tables below is computed by code or sourced directly from verified official academic documentation.
+                Every value in the tables below is computed by code or sourced directly from the sources listed on this page.
               </p>
             </div>
 
@@ -394,7 +448,16 @@ export default function Page() {
                 2. HEC Draft Policy Guidelines (Section 13.1) Course-Level Grading Table
               </h3>
               <p className="text-xs text-slate-500">
-                Source: <em>HEC Draft Policy Guidelines for the Implementation of Uniform Semester Examination System in HEIs of Pakistan</em>, Section 13.1, Page 18.
+                Source: <em>HEC Draft Policy Guidelines for the Implementation of Uniform Semester Examination System in HEIs of Pakistan</em>, Section 13.1, Page 18 (
+                <a
+                  href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
+                >
+                  BNU-hosted PDF <ExternalLink className="w-3 h-3" />
+                </a>
+                ).
               </p>
               <div className="overflow-x-auto border border-slate-200 rounded-2xl">
                 <table className="w-full text-left border-collapse text-xs md:text-sm">
@@ -426,7 +489,16 @@ export default function Page() {
                 3. COMSATS Course Grading Table (Graduate Handbook 2024-25, Wah Campus)
               </h3>
               <p className="text-xs text-slate-500">
-                Source: <em>COMSATS Graduate Handbook 2024-2025</em>, Section 2.11 (Page 25) for students admitted from Fall 2021 onwards.
+                Source: <em>COMSATS Graduate Handbook 2024-2025</em>, Section 2.11 (Page 25) for students admitted from Fall 2021 onwards (
+                <a
+                  href="https://wah.comsats.edu.pk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
+                >
+                  COMSATS Wah <ExternalLink className="w-3 h-3" />
+                </a>
+                ).
               </p>
               <div className="overflow-x-auto border border-slate-200 rounded-2xl">
                 <table className="w-full text-left border-collapse text-xs md:text-sm">
@@ -456,7 +528,16 @@ export default function Page() {
                 4. CBSE Secondary School Indicative Conversion Table (Circular 24/2010)
               </h3>
               <p className="text-xs text-slate-500">
-                Source: <em>Central Board of Secondary Education Circular No. 24/2010</em> (Indicative Percentage = CGPA × 9.5).
+                Source: <em>Central Board of Secondary Education Circular No. 24/2010</em> (Indicative Percentage = CGPA × 9.5;{" "}
+                <a
+                  href="https://www.cbse.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
+                >
+                  cbse.gov.in <ExternalLink className="w-3 h-3" />
+                </a>
+                ). Values are displayed to two decimal places.
               </p>
               <div className="overflow-x-auto border border-slate-200 rounded-2xl">
                 <table className="w-full text-left border-collapse text-xs md:text-sm">
@@ -522,8 +603,63 @@ export default function Page() {
               <span>Official Institutional Advice &amp; Disclaimer</span>
             </div>
             <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-              Third-party calculators and mathematical ratio formulas provide convenience estimates only. When applying for government recruitment commissions (such as FPSC, PPSC, or SPSC), armed forces recruitment, or foreign university admissions, you must adhere strictly to the grading legend printed on the reverse side of your official university transcript or Detailed Marks Certificate (DMC). If an official percentage is required and your degree awards only CGPA, contact your university&apos;s examination branch to obtain an official equivalence certificate.
+              Third-party calculators and mathematical ratio formulas provide convenience estimates only. Employers, recruitment agencies, and academic admissions offices may require specific conversion criteria or an official certificate. Always check the specific job advertisement or admission requirements and review the grading legend on your official university transcript or Detailed Marks Certificate (DMC). If an official percentage is required and your transcript awards only CGPA, contact your university&apos;s examination branch to request an official equivalence certificate.
             </p>
+          </div>
+
+          {/* Sources & Official References Card */}
+          <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h3 className="font-bold text-slate-900 text-base md:text-lg flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-amber-600" />
+              Official Academic Sources &amp; Policy References
+            </h3>
+            <ul className="text-xs md:text-sm text-slate-600 space-y-2.5 list-disc list-inside">
+              <li>
+                <strong>HEC Notification No. 8-65/HEC/A&amp;A/2007 (January 14, 2008):</strong> Higher Education Commission, Islamabad (
+                <a href="https://www.hec.gov.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  hec.gov.pk
+                </a>
+                ). Formal notification discontinuing CGPA-to-percentage conversion.
+              </li>
+              <li>
+                <strong>HEC Draft Policy Guidelines (Section 13.1):</strong> Implementation of Uniform Semester Examination System in HEIs of Pakistan (
+                <a href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  BNU-hosted draft PDF
+                </a>
+                ). Standardized course-level grading matrix.
+              </li>
+              <li>
+                <strong>COMSATS Graduate Handbook 2024-2025:</strong> Section 2.11, Wah campus (
+                <a href="https://wah.comsats.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  wah.comsats.edu.pk
+                </a>
+                ). Course grading table for admissions from Fall 2021 onwards.
+              </li>
+              <li>
+                <strong>CBSE Circular No. 24/2010 (May 17, 2010):</strong> Central Board of Secondary Education (
+                <a href="https://www.cbse.gov.in/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  cbse.gov.in
+                </a>
+                ). Indicative percentage formula (CGPA × 9.5) for secondary education.
+              </li>
+              <li>
+                <strong>NUST Academic Rules Regarding Students (PNEC copy, 2020):</strong> National University of Sciences and Technology (
+                <a href="https://pnec.nust.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  pnec.nust.edu.pk
+                </a>
+                ). Relative grading policy (distribution gap method).
+              </li>
+              <li>
+                <strong>FAST-NUCES Academic Rules and Regulations:</strong> National University of Computer and Emerging Sciences (
+                <a href="https://www.nu.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  nu.edu.pk
+                </a>
+                ). Continuous 0.00 to 4.00 SGPA/CGPA evaluation framework.
+              </li>
+            </ul>
+            <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-400 font-medium">
+              Last reviewed: 22 November 2026
+            </div>
           </div>
 
           {/* Section 7: Contextual Internal Links */}
