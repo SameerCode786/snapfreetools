@@ -10,12 +10,12 @@ import { formatOCRText } from "./ocr-text-formatter.js";
 export const MAX_OCR_PAGES = 10;
 
 export const SUPPORTED_OCR_LANGUAGES = [
-  { code: "eng", name: "English (Default & Offline)", isOffline: true },
-  { code: "spa", name: "Spanish (Español)", isOffline: false },
-  { code: "fra", name: "French (Français)", isOffline: false },
-  { code: "deu", name: "German (Deutsch)", isOffline: false },
-  { code: "ita", name: "Italian (Italiano)", isOffline: false },
-  { code: "por", name: "Portuguese (Português)", isOffline: false },
+  { code: "eng", name: "English (Default — Bundled)", isOffline: true },
+  { code: "spa", name: "Spanish (Español — Downloads on first use)", isOffline: false },
+  { code: "fra", name: "French (Français — Downloads on first use)", isOffline: false },
+  { code: "deu", name: "German (Deutsch — Downloads on first use)", isOffline: false },
+  { code: "ita", name: "Italian (Italiano — Downloads on first use)", isOffline: false },
+  { code: "por", name: "Portuguese (Português — Downloads on first use)", isOffline: false },
 ];
 
 export function isLanguageSupported(langCode) {
@@ -42,6 +42,15 @@ export function runOCR({
 }) {
   let isCancelled = false;
   let activeWorker = null;
+  let timeoutTimer = null;
+  let initDone = false;
+
+  const clearTimer = () => {
+    if (timeoutTimer) {
+      clearTimeout(timeoutTimer);
+      timeoutTimer = null;
+    }
+  };
 
   const promise = (async () => {
     // 1. Language validation
@@ -106,12 +115,34 @@ export function runOCR({
       );
 
       try {
-        activeWorker = await createWorker(targetLang, 1, {
+        const timeoutMs = isEnglish ? 30000 : 60000;
+
+        const resetTimeout = () => {
+          if (initDone || isCancelled) return;
+          clearTimer();
+          timeoutTimer = setTimeout(() => {
+            if (!initDone && timeoutReject) {
+              timeoutReject(new Error("NETWORK_TIMEOUT"));
+            }
+          }, timeoutMs);
+        };
+
+        let timeoutReject = null;
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutReject = reject;
+          resetTimeout();
+        });
+
+        const workerPromise = createWorker(targetLang, 1, {
           workerPath,
           corePath,
           langPath,
           logger: (m) => {
             if (isCancelled) return;
+            // Stall timer applies strictly to worker initialization / model download
+            if (!initDone && m && (m.status === "loading language traineddata" || m.status === "loading tesseract core")) {
+              resetTimeout();
+            }
             if (m && m.status === "recognizing text") {
               const currentPg = ocrResults.length + 1;
               const pagePct = Math.round((m.progress || 0) * 100);
@@ -131,18 +162,46 @@ export function runOCR({
           },
         });
 
+        // If workerPromise finishes first or rejects, race finishes
+        activeWorker = await Promise.race([
+          workerPromise.then((w) => {
+            initDone = true;
+            clearTimer();
+            return w;
+          }),
+          timeoutPromise.catch(async (err) => {
+            clearTimer();
+            // On timeout, attach a late termination listener so when/if the worker ever resolves, it is terminated immediately
+            workerPromise
+              .then((lateWorker) => {
+                if (lateWorker && typeof lateWorker.terminate === "function") {
+                  lateWorker.terminate().catch(() => {});
+                }
+              })
+              .catch(() => {});
+            throw err;
+          }),
+        ]);
+
+        initDone = true;
+        clearTimer();
+
+        if (isCancelled) throw new Error("cancelled");
+
         // Configure Tesseract layout parameters for typography
         await activeWorker.setParameters({
           user_defined_dpi: targetDpi,
           preserve_interword_spaces: "1",
         });
       } catch (workerInitErr) {
+        initDone = true;
+        clearTimer();
         if (isCancelled) throw new Error("cancelled");
         console.error("Worker initialization error:", workerInitErr);
         const err = new Error(
           isEnglish
             ? "Failed to initialize local OCR engine. Please refresh and try again."
-            : `Failed to load OCR language model for '${targetLang}'. Please ensure you have an internet connection or select English.`
+            : "Could not download the language data. Check your internet connection and try again, or use English."
         );
         err.code = "LANGUAGE_LOAD_FAILED";
         throw err;
@@ -283,6 +342,8 @@ export function runOCR({
         activeWorker = null;
       }
       throw err;
+    } finally {
+      clearTimer();
     }
   })();
 
@@ -290,6 +351,8 @@ export function runOCR({
     promise,
     cancel: () => {
       isCancelled = true;
+      initDone = true;
+      clearTimer();
       if (activeWorker) {
         activeWorker.terminate().catch((err) => console.warn("Worker termination on cancel failed:", err));
         activeWorker = null;

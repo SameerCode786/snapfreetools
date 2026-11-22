@@ -158,9 +158,9 @@ export const METADATA_CONFIG = {
     path: "/case-converter"
   },
   "pdf-to-word": {
-    title: "PDF to Word Converter – Convert PDF to Word Online Free",
-    description: "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
-    keywords: "pdf to word, pdf to word converter, convert pdf to word, pdf to docx, pdf to word online, pdf to word free, pdf to word ocr, pdf to editable word, pdf to word without losing formatting, pdf to word converter online free, pdf to word no signup, pdf to word no watermark",
+    title: "Scanned PDF to Word Converter with OCR Free | SnapFreeTools",
+    description: "Convert native or scanned PDFs to editable Word (DOCX) online free. In-browser OCR keeps files on your device. Scanned PDFs up to 10 pages.",
+    keywords: "scanned pdf to word converter with ocr free, pdf to word, pdf to word converter, convert scanned pdf to word, pdf to docx, pdf to word online free, browser ocr pdf to word, pdf to editable word, pdf to word no signup, pdf to word no watermark",
     path: "/pdf-to-word"
   },
   "word-to-pdf": {

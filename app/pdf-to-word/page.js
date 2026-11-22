@@ -9,52 +9,52 @@ export function generateMetadata() {
 
 const FAQS_DATA = [
   {
-    question: "How do I convert PDF to Word?",
-    answer: "Upload your PDF file by dragging and dropping it into the upload box or clicking the 'Browse File' button. Click 'Convert to Word' to initiate the conversion. Once the process completes, click 'Download Word File' to save your editable DOCX document."
+    question: "How do I convert a PDF or scanned PDF to Word?",
+    answer: "Drag and drop a PDF file (up to 25MB) into the upload box or click to browse from your device. For native digital PDFs, click 'Convert to Word (.docx)'. If scanned or image-based pages are detected, pick the document language, click 'Convert with Free OCR', and download your generated DOCX file."
   },
   {
-    question: "Is PDF to Word free?",
-    answer: "Yes, our PDF to Word converter is 100% free with no signup required, no trial limits, no daily restrictions, and no watermarks."
+    question: "Is this PDF to Word converter with OCR free?",
+    answer: "Yes. Both native-text extraction and in-browser OCR are free to use with no signup, email requirement, or watermarks. Scanned OCR is limited to 10 pages per PDF, while all uploads are subject to the 25MB file size limit."
   },
   {
-    question: "Will formatting stay the same?",
-    answer: "Our converter works to preserve your original layout, margins, fonts, tables, and paragraphs as closely as possible so you can edit without losing formatting."
+    question: "Will original formatting, tables, fonts, and layouts stay the same?",
+    answer: "No. This converter extracts readable text, detected headings, bullet lists, numbered lists, and paragraphs into standard Word formatting with page breaks. Complex tables, multi-column layouts, embedded images, and original fonts are not recreated and may need manual editing in Word."
   },
   {
-    question: "Can I convert scanned PDF to Word?",
-    answer: "Yes. Our converter supports scanned PDFs. For image-only files, OCR technology is applied to identify text shapes and convert them into fully editable text blocks."
+    question: "Can I convert a scanned PDF to editable Word?",
+    answer: "Yes, up to 10 pages per document. When uploaded pages have little or no selectable text, the converter offers in-browser OCR to recognize text from page images and output an editable DOCX document. Recognition accuracy depends on the resolution and clarity of the scan."
   },
   {
-    question: "What is OCR?",
-    answer: "OCR stands for Optical Character Recognition. It is a technology that scans and parses images of text (such as scanned papers or screenshots) and translates them into actual editable text characters."
+    question: "What is OCR and what affects its accuracy?",
+    answer: "OCR (Optical Character Recognition) renders scanned PDF pages onto a browser canvas and uses Tesseract.js WebAssembly to convert image characters into editable text. Output quality depends on scan clarity: crisp printed text converts well, while low-resolution, skewed, shadowed, or handwritten scans can produce errors and require manual review. Select the language that matches your document. Accented characters can still be misread, so please review the output."
   },
   {
     question: "Is the converted file editable?",
-    answer: "Absolutely. The output is a standard Word-compatible document (.docx) that you can edit, format, or type directly in Microsoft Word, Google Docs, WPS Office, or Pages."
+    answer: "Yes. The download is a standard Word document (.docx) formatted with extracted headings, lists, and paragraphs that you can edit in Microsoft Word, Google Docs, LibreOffice Writer, WPS Office, or Apple Pages."
   },
   {
-    question: "What is the difference between DOC and DOCX?",
-    answer: "DOC is the older binary file format used by Microsoft Word up to 2003. DOCX is the XML-based open standard format introduced in Word 2007, which is much smaller, secure, and compatible."
+    question: "Which OCR languages are supported?",
+    answer: "The OCR engine supports six languages: English, Spanish, French, German, Italian, and Portuguese. English language data is bundled directly with the tool, while Spanish, French, German, Italian, and Portuguese download their language data from a third-party CDN on first use and require an active internet connection."
   },
   {
-    question: "Can I open the file without Microsoft Word?",
-    answer: "Yes, you can edit the converted file using any compatible software such as Google Docs, LibreOffice, Apple Pages, WPS Office, or Apache OpenOffice."
+    question: "What are the page and file size limits?",
+    answer: "All uploaded PDFs have a 25MB maximum file size limit. Documents processed with OCR are capped at 10 pages per run to keep browser memory usage stable. Purely native-text PDFs converted without OCR have no hard page cap and are bounded by the 25MB file limit and your device's browser memory."
   },
   {
-    question: "Is my PDF secure?",
-    answer: "Yes, user privacy is our top priority. We do not store, copy, or read your PDF files. All processed files are permanently deleted automatically after conversion."
+    question: "Are my PDF files private, uploaded, or stored on a server?",
+    answer: "Your PDF never leaves your browser. All PDF inspection, page rendering, OCR recognition, and DOCX generation happen locally inside browser memory, so files are never uploaded to or stored on SnapFreeTools servers. Note that loading the converter still fetches the pdf.js worker script from Cloudflare CDN, and choosing non-English OCR languages downloads language data on first use."
   },
   {
-    question: "Does this tool add watermark?",
-    answer: "No. SnapFreeTools converts your documents cleanly without adding any watermarks, branding stamps, or watermark logos to the final files."
+    question: "Does this tool add watermarks or branding to the DOCX?",
+    answer: "No. The exported .docx file contains only the extracted text, headings, lists, and paragraphs from your PDF with no watermarks or branding added."
   },
   {
-    question: "Why can't some PDFs be converted?",
-    answer: "Some PDFs are created from cameras or scanners and contain only images instead of selectable text. Without OCR, there is no real text available to extract into an editable Word document."
+    question: "Why did standard conversion say no selectable text was found?",
+    answer: "Some PDFs are scans, camera photos, or image-only exports with no embedded digital text layer. Standard conversion extracts existing selectable text only; when none is present, switch to 'Convert with Free OCR' (up to 10 pages) to recognize text from the page images."
   },
   {
-    question: "Does this converter use OCR?",
-    answer: "Yes! Our converter includes built-in Free In-Browser OCR. When a scanned or image-based PDF is detected, our OCR engine runs 100% locally on your device to extract text characters and compile them into an editable Word (.docx) document without uploading your files to any external server."
+    question: "Can I open the converted DOCX file without Microsoft Word?",
+    answer: "Yes. Because .docx is an open XML document format, you can open and edit it in Google Docs, LibreOffice Writer, Apple Pages, WPS Office, or Apache OpenOffice without Microsoft Word installed."
   }
 ];
 
@@ -63,30 +63,32 @@ export default function Page() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "SoftwareApplication",
-        "name": "SnapFree PDF to Word Converter",
+        "@type": "WebApplication",
+        "name": "SnapFree Scanned PDF to Word Converter",
+        "url": "https://www.snapfreetools.com/pdf-to-word",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript and WebAssembly support",
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "Convert PDF files into editable Word (DOCX) documents online. Fast, secure, and free PDF to Word converter without losing formatting, signup, or watermarks."
+        "description": "Convert native or scanned PDFs to editable Word (DOCX) online free. In-browser OCR keeps files on your device. Scanned PDFs up to 10 pages."
       },
       {
         "@type": "WebPage",
-        "@id": "https://www.snapfreetools.com/pdf-to-word/#webpage",
+        "@id": "https://www.snapfreetools.com/pdf-to-word#webpage",
         "url": "https://www.snapfreetools.com/pdf-to-word",
-        "name": "PDF to Word Converter – Convert PDF to Word Online Free",
-        "description": "Convert PDF to Word online free. Convert your PDF documents into editable Microsoft Word (DOCX) files without signup, watermark, or losing formatting.",
+        "name": "Scanned PDF to Word Converter with OCR Free | SnapFreeTools",
+        "description": "Convert native or scanned PDFs to editable Word (DOCX) online free. In-browser OCR keeps files on your device. Scanned PDFs up to 10 pages.",
         "breadcrumb": {
-          "@id": "https://www.snapfreetools.com/pdf-to-word/#breadcrumb"
+          "@id": "https://www.snapfreetools.com/pdf-to-word#breadcrumb"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://www.snapfreetools.com/pdf-to-word/#breadcrumb",
+        "@id": "https://www.snapfreetools.com/pdf-to-word#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
@@ -101,17 +103,6 @@ export default function Page() {
             "item": "https://www.snapfreetools.com/pdf-to-word"
           }
         ]
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": FAQS_DATA.map((faq) => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
       }
     ]
   };

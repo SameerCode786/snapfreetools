@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import Link from "next/link";
 import {
   FileText,
   UploadCloud,
@@ -17,12 +17,9 @@ import {
   HelpCircle,
   AlertCircle,
   FileEdit,
-  Award,
   Info,
-  Layers,
   Globe,
   FileCheck,
-  CheckCircle,
 } from "lucide-react";
 import ToolLayout from "@/layouts/tool-layout";
 import ScannedPdfModal from "./components/ScannedPdfModal";
@@ -171,6 +168,7 @@ export default function PDFToWord({ faqs = [] }) {
       activeOcrJobRef.current = null;
     }
     cachedPdfDocRef.current = null;
+    setSelectedLanguage("eng");
     setFile(null);
     setPageCount(null);
     setFileError(null);
@@ -281,7 +279,7 @@ export default function PDFToWord({ faqs = [] }) {
         setFileError(err.message);
       } else if (err.code === "LANGUAGE_LOAD_FAILED") {
         setFileError(
-          `Failed to load OCR language data for '${langToUse}'. Please ensure an active internet connection or switch to English.`
+          "Could not download the language data. Check your internet connection and try again, or use English."
         );
       } else {
         setFileError(
@@ -411,8 +409,8 @@ export default function PDFToWord({ faqs = [] }) {
 
   return (
     <ToolLayout
-      title="PDF to Word Converter"
-      description="Convert PDF files into editable Word documents online with Free In-Browser OCR. Fast, secure, and 100% private."
+      title="Scanned PDF to Word Converter with OCR Free"
+      description="Convert native or scanned PDFs to editable Word (DOCX) online free. Your PDF never leaves your browser."
       currentSlug="pdf-to-word"
       result={
         conversionState === "completed" && docBlob
@@ -425,83 +423,274 @@ export default function PDFToWord({ faqs = [] }) {
       }
       seoContent={
         <div className="space-y-12">
-          {/* Limitation & Information Badges */}
+          {/* Quick Capabilities & Extraction Scope */}
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-amber-50/60 border border-amber-100 rounded-2xl p-4 flex gap-3">
               <Sparkles size={20} className="text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-xs text-amber-900 uppercase tracking-wider">
-                  Free In-Browser OCR Included
-                </h4>
+                <p className="font-bold text-xs text-amber-900 uppercase tracking-wider">
+                  In-Browser Tesseract OCR (Up to 10 Pages)
+                </p>
                 <p className="text-[11px] text-amber-800 leading-relaxed font-semibold mt-1">
-                  Scanned and image-based PDFs are automatically detected and converted into editable Word paragraphs without any cloud upload.
+                  Scanned and image-based PDFs are detected automatically and converted into editable Word (.docx) paragraphs right in your browser tab.
                 </p>
               </div>
             </div>
             <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 flex gap-3">
               <Info size={20} className="text-blue-500 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-xs text-blue-900 uppercase tracking-wider">
-                  Layout & Formatting Preservation
-                </h4>
+                <p className="font-bold text-xs text-blue-900 uppercase tracking-wider">
+                  What Gets Extracted to DOCX
+                </p>
                 <p className="text-[11px] text-blue-800 leading-relaxed font-semibold mt-1">
-                  Original paragraphs, line spacing, and page order are preserved. Complex multi-column articles or complex tables may require manual adjustment in Word.
+                  Readable text, headings, bullet/numbered lists, and paragraphs are extracted into Word. Complex tables, multi-column layouts, images, and original fonts are not recreated.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Info Feature Comparison Box */}
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
-              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                <FileCheck size={20} />
-              </div>
-              <h3 className="font-black text-slate-900 text-lg">
-                Dual Conversion: Digital & Scanned
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-                SnapFreeTools inspects your PDF on upload. Native digital PDFs convert instantly, while scanned documents get high-accuracy OCR text recognition with editable DOCX output.
+          {/* Scanned vs Native-Text PDFs & OCR Explanation */}
+          <section className="max-w-4xl mx-auto space-y-6">
+            <div className="space-y-2 text-center sm:text-left">
+              <h2 className="text-2xl font-black text-slate-900">
+                How Scanned vs. Native-Text PDF Conversion Works
+              </h2>
+              <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                PDF files are either created digitally with selectable text or saved as scanned page images. When you select a file, this converter checks up to the first 10 pages to choose the appropriate extraction path.
               </p>
-              <div className="border-t border-slate-100 pt-3">
-                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">
-                  Key Capabilities
-                </h4>
-                <ul className="text-xs text-slate-700 font-semibold space-y-2">
-                  <li className="flex items-center gap-2">• Clean paragraph & list preservation</li>
-                  <li className="flex items-center gap-2">• Unwraps hyphenated word line breaks</li>
-                  <li className="flex items-center gap-2">• Multilingual OCR (English, Spanish, French, etc.)</li>
-                  <li className="flex items-center gap-2">• Strict page order & break preservation</li>
-                </ul>
-              </div>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <FileCheck size={20} />
+                </div>
+                <h3 className="font-black text-slate-900 text-base">
+                  Native Digital Text PDFs
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                  PDFs exported from word processors or web pages already hold embedded character data. Standard mode reads that digital text directly via <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">pdf.js</code>, unwraps line-split hyphens, formats headings/lists, and writes a clean <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">.docx</code> file without running OCR.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Sparkles size={20} />
+                </div>
+                <h3 className="font-black text-slate-900 text-base">
+                  Scanned &amp; Image-Based PDFs
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                  Camera captures and flatbed scans contain flat images without selectable text. In OCR mode, each page is rendered onto a local canvas with contrast cleanup, processed by Tesseract.js WebAssembly in your browser, and structured into editable Word paragraphs and page breaks.
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-xs">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Info size={20} />
+                </div>
+                <h3 className="font-black text-slate-900 text-base">
+                  OCR Accuracy &amp; Layout Reality
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                  OCR accuracy depends directly on scan resolution, lighting, and font clarity—low-quality scans can misread characters and trigger a review warning. Select the language that matches your document. Accented characters can still be misread, so please review the output. Both modes output plain text structure (headings, lists, paragraphs); complex tables, multi-column layouts, images, and original fonts are not recreated. For spreadsheet tables, try{" "}
+                  <Link href="/pdf-to-excel" className="text-amber-700 underline hover:text-amber-900">
+                    PDF to Excel
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Limits & Supported OCR Languages */}
+          <section className="max-w-4xl mx-auto space-y-6">
+            <h2 className="text-2xl font-black text-slate-900 text-center sm:text-left">
+              Page Limits, File Size &amp; Supported OCR Languages
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <h3 className="font-black text-slate-900 text-lg">
+                  Document Limits: OCR vs. Native PDFs
+                </h3>
+                <ul className="text-xs text-slate-700 font-semibold space-y-2.5 leading-relaxed">
+                  <li>
+                    <strong className="text-slate-900">Scanned / OCR PDFs:</strong> Hard-capped at{" "}
+                    <strong className="text-amber-700">10 pages per document</strong> to prevent in-browser OCR rendering from exhausting device memory. Split longer scans before converting.
+                  </li>
+                  <li>
+                    <strong className="text-slate-900">Native Digital-Text PDFs:</strong> Have{" "}
+                    <strong className="text-emerald-700">no fixed page-count limit</strong> in standard extraction mode and are bounded practically by your browser tab memory.
+                  </li>
+                  <li>
+                    <strong className="text-slate-900">Maximum File Size (All PDFs):</strong> Every uploaded PDF is limited to{" "}
+                    <strong className="text-slate-900">25MB</strong> regardless of whether you convert with OCR or standard text extraction.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+                <h3 className="font-black text-slate-900 text-lg">
+                  All 6 Supported OCR Languages
+                </h3>
+                <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                  English OCR data is bundled with SnapFreeTools. The other five supported languages download their <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">.traineddata</code> model on first use and require an active internet connection:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold">
+                  <div className="flex items-center justify-between bg-emerald-50/70 border border-emerald-100 rounded-xl px-3 py-2">
+                    <span className="text-slate-900 font-bold">English (eng)</span>
+                    <span className="text-[10px] text-emerald-700 font-bold uppercase">Bundled</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                    <span className="text-slate-800">Spanish (spa)</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">1st-Use CDN</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                    <span className="text-slate-800">French (fra)</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">1st-Use CDN</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                    <span className="text-slate-800">German (deu)</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">1st-Use CDN</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                    <span className="text-slate-800">Italian (ita)</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">1st-Use CDN</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                    <span className="text-slate-800">Portuguese (por)</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">1st-Use CDN</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Privacy & Network Behavior */}
+          <section className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                 <Shield size={20} />
               </div>
-              <h3 className="font-black text-slate-900 text-lg">
-                100% Client-Side Privacy
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-                Unlike cloud converters that upload your confidential documents to external servers, our WebAssembly OCR engine runs entirely inside your browser tab.
-              </p>
-              <div className="border-t border-slate-100 pt-3">
-                <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">
-                  Privacy Guarantees
-                </h4>
-                <ul className="text-xs text-slate-700 font-semibold space-y-2">
-                  <li className="flex items-center gap-2">• Zero server uploads or file storage</li>
-                  <li className="flex items-center gap-2">• Free forever with no registration or sign-in</li>
-                  <li className="flex items-center gap-2">• No payment wall or credit card required</li>
-                  <li className="flex items-center gap-2">• No watermarks or hidden branding</li>
-                </ul>
-              </div>
+              <h2 className="text-2xl font-black text-slate-900">
+                Privacy &amp; In-Browser Processing Disclosure
+              </h2>
             </div>
-          </div>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-semibold">
+              <strong className="text-slate-900">Your PDF never leaves your browser.</strong> All document inspection, canvas rendering, OCR character recognition, and <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">.docx</code> packaging run directly inside your browser tab&apos;s memory. No uploaded PDF or converted Word file is sent to or stored on SnapFreeTools servers.
+            </p>
+            <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+              To run the converter in your browser, certain runtime scripts load over HTTPS: the <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">pdf.js</code> worker script loads from Cloudflare&apos;s CDN (<code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">cdnjs.cloudflare.com</code>), and selecting Spanish, French, German, Italian, or Portuguese downloads that language&apos;s OCR model from <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">tessdata.projectnaptha.com</code> on first use. English OCR data, Tesseract WebAssembly core files, and your PDF bytes stay in local origin/browser memory.
+            </p>
+          </section>
 
-          {/* FAQ Accordion Section */}
-          <div className="max-w-4xl mx-auto space-y-6 border-t border-slate-100 pt-10">
+          {/* Generic Browser-Based vs Server-Upload Comparison */}
+          <section className="max-w-4xl mx-auto space-y-4">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-black text-slate-900">
+                Browser-Based vs. Server-Upload PDF to Word Tools
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Depending on document sensitivity, page count, and formatting needs, browser-based converters and server-upload tools each have practical trade-offs.
+              </p>
+            </div>
+            <div className="overflow-x-auto bg-white border border-slate-200 rounded-3xl shadow-xs">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-900">
+                    <th className="py-3.5 px-5 font-black">Comparison Aspect</th>
+                    <th className="py-3.5 px-5 font-black">Browser-Based Tools (Client-Side)</th>
+                    <th className="py-3.5 px-5 font-black">Server-Upload Tools (Remote Processing)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                  <tr>
+                    <td className="py-3.5 px-5 font-bold text-slate-900">Document Transfer</td>
+                    <td className="py-3.5 px-5">PDF stays on your device in browser memory</td>
+                    <td className="py-3.5 px-5">PDF is uploaded over HTTPS to external servers</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-5 font-bold text-slate-900">Processing Resources</td>
+                    <td className="py-3.5 px-5">Uses your device CPU/RAM (OCR capped at 10 pages here)</td>
+                    <td className="py-3.5 px-5">Uses remote server hardware for heavier jobs</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-5 font-bold text-slate-900">Network Activity</td>
+                    <td className="py-3.5 px-5">Loads app/worker scripts &amp; optional language packs; no document upload</td>
+                    <td className="py-3.5 px-5">Uploads source PDF and downloads converted output</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-5 font-bold text-slate-900">Layout Reconstruction</td>
+                    <td className="py-3.5 px-5">Focused on editable text, headings, lists, and paragraphs</td>
+                    <td className="py-3.5 px-5">Varies by server engine; often targets complex layout recreation</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Contextual Internal Links */}
+          <section className="max-w-4xl mx-auto space-y-5">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-black text-slate-900">
+                Related PDF &amp; Document Conversion Tools
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Need plain unformatted text instead of a Word file? Use our{" "}
+                <Link href="/pdf-to-text" className="text-amber-700 font-bold underline hover:text-amber-900">
+                  PDF to Text converter
+                </Link>
+                . Working with tabular reports or financial sheets? Try{" "}
+                <Link href="/pdf-to-excel" className="text-amber-700 font-bold underline hover:text-amber-900">
+                  PDF to Excel
+                </Link>{" "}
+                for spreadsheet structure. Once you finish editing your Word file, convert it back with{" "}
+                <Link href="/word-to-pdf" className="text-amber-700 font-bold underline hover:text-amber-900">
+                  Word to PDF
+                </Link>
+                .
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link
+                href="/pdf-to-text"
+                className="bg-white border border-slate-200 hover:border-amber-300 rounded-2xl p-5 space-y-1.5 transition-all shadow-xs group"
+              >
+                <h3 className="font-black text-slate-900 text-sm group-hover:text-amber-600 transition-colors">
+                  PDF to Text
+                </h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  Extract clean plain text (.txt) directly from digital PDFs inside your browser.
+                </p>
+              </Link>
+              <Link
+                href="/pdf-to-excel"
+                className="bg-white border border-slate-200 hover:border-amber-300 rounded-2xl p-5 space-y-1.5 transition-all shadow-xs group"
+              >
+                <h3 className="font-black text-slate-900 text-sm group-hover:text-amber-600 transition-colors">
+                  PDF to Excel
+                </h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  Extract rows, columns, and scanned tables into editable Excel spreadsheets.
+                </p>
+              </Link>
+              <Link
+                href="/word-to-pdf"
+                className="bg-white border border-slate-200 hover:border-amber-300 rounded-2xl p-5 space-y-1.5 transition-all shadow-xs group"
+              >
+                <h3 className="font-black text-slate-900 text-sm group-hover:text-amber-600 transition-colors">
+                  Word to PDF
+                </h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  Turn your edited DOCX document back into a shareable PDF file locally.
+                </p>
+              </Link>
+            </div>
+          </section>
+
+          {/* FAQ Accordion Section (answers remain in DOM/SSR HTML for no-JS readability) */}
+          <section className="max-w-4xl mx-auto space-y-6 border-t border-slate-100 pt-10">
             <h2 className="text-2xl font-black text-slate-900 text-center">
               Frequently Asked Questions
             </h2>
@@ -514,6 +703,9 @@ export default function PDFToWord({ faqs = [] }) {
                     className="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200"
                   >
                     <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`pdf-to-word-faq-${idx}`}
                       onClick={() => toggleFaq(idx)}
                       className="w-full flex justify-between items-center py-4 px-6 text-left font-bold text-slate-800 hover:text-amber-500 transition-colors gap-4 cursor-pointer"
                     >
@@ -525,53 +717,61 @@ export default function PDFToWord({ faqs = [] }) {
                         }`}
                       />
                     </button>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden bg-slate-50/50 border-t border-slate-100"
-                        >
-                          <div className="p-6 text-slate-600 text-xs font-semibold leading-relaxed">
-                            {faq.answer}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div
+                      id={`pdf-to-word-faq-${idx}`}
+                      className={isOpen ? "block bg-slate-50/50 border-t border-slate-100" : "hidden"}
+                    >
+                      <div className="p-6 text-slate-600 text-xs font-semibold leading-relaxed">
+                        {faq.answer}
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </section>
         </div>
       }
     >
       <div id="pdf-to-word-page" className="space-y-10">
         {/* Hero Section */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
-            PDF to Word Converter
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
+            Scanned PDF to Word Converter with OCR Free
           </h1>
           <p className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto font-medium">
-            Convert native & scanned PDF files into fully editable Word documents (.docx). Free, private, and powered by In-Browser OCR.
+            Convert native or scanned PDF files into editable Word documents (.docx) inside your browser. Your PDF never leaves your browser—free, no signup, and no watermarks.
           </p>
 
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-2.5 pt-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100">
-              <Zap size={13} /> 100% Free
+              <Zap size={13} /> Free, No Signup
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100">
               <Sparkles size={13} /> Free In-Browser OCR
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100">
-              <Shield size={13} /> 100% Client-Side Privacy
+              <Shield size={13} /> PDF Stays in Browser
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-purple-700 bg-purple-50 border border-purple-100">
-              <FileEdit size={13} /> Editable DOCX Output
+              <FileEdit size={13} /> Editable .docx Output
             </span>
+          </div>
+
+          {/* Persistent Tool Limits & Language Notice */}
+          <div className="max-w-3xl mx-auto bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-700 font-semibold">
+            <div className="flex items-start sm:items-center gap-2">
+              <Info size={16} className="text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
+              <span>
+                <strong className="text-slate-900">OCR Limit:</strong> Up to <strong>10 scanned pages</strong> per PDF.{" "}
+                <strong className="text-slate-900">Native PDFs:</strong> No hard page cap (<strong>25MB max upload</strong> for all PDFs).
+              </span>
+            </div>
+            <div className="flex flex-col sm:items-end text-[11px] text-slate-500 shrink-0 space-y-0.5">
+              <span>6 OCR languages (English bundled; 5 fetch on first use)</span>
+              <span>OCR on up to 10 pages can take a minute or more, depending on your device and language.</span>
+            </div>
           </div>
         </div>
 
@@ -605,9 +805,9 @@ export default function PDFToWord({ faqs = [] }) {
               <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-inner">
                 <UploadCloud size={32} />
               </div>
-              <h3 className="font-black text-slate-800 text-lg sm:text-xl">
+              <h2 className="font-black text-slate-800 text-lg sm:text-xl">
                 Drag & drop PDF file here
-              </h3>
+              </h2>
               <p className="text-slate-400 text-xs sm:text-sm font-semibold mt-1.5">
                 or click to browse from your device
               </p>
@@ -637,9 +837,9 @@ export default function PDFToWord({ faqs = [] }) {
                 <FileText size={28} />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-black text-slate-900 text-base sm:text-lg truncate">
+                <h2 className="font-black text-slate-900 text-base sm:text-lg truncate">
                   {file.name}
-                </h4>
+                </h2>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-semibold mt-1">
                   <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                   <span>•</span>
@@ -753,9 +953,9 @@ export default function PDFToWord({ faqs = [] }) {
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                 {conversionMode === "ocr" ? "Performing OCR & Converting..." : "Converting PDF to Word..."}
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-semibold">{statusMessage}</p>
             </div>
 
@@ -794,9 +994,9 @@ export default function PDFToWord({ faqs = [] }) {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
                 PDF Converted Successfully!
-              </h3>
+              </h2>
               <p className="text-slate-600 text-xs sm:text-sm font-semibold max-w-md mx-auto">
                 {isOcrCompleted
                   ? "Your scanned pages have been recognized via Free In-Browser OCR and compiled into an editable Word document."
@@ -839,7 +1039,7 @@ export default function PDFToWord({ faqs = [] }) {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl font-black text-red-950">Conversion Failed</h3>
+              <h2 className="text-xl sm:text-2xl font-black text-red-950">Conversion Failed</h2>
               <p className="text-xs sm:text-sm text-red-700 font-semibold max-w-md mx-auto">
                 {fileError || "An unexpected error occurred during processing."}
               </p>
