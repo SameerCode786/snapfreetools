@@ -129,7 +129,7 @@ export const METADATA_CONFIG = {
   },
   "cgpa-to-percentage-formula": {
     title: "CGPA to Percentage Formula: 4.0 & 10.0 Scales Explained | SnapFreeTools",
-    description: "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, official HEC semester policies, and university grading rules.",
+    description: "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, HEC guidelines, and university grading rules.",
     keywords: "cgpa to percentage formula, convert cgpa to percentage, gpa to percentage, 4.0 cgpa to percentage, hec grading scale",
     path: "/cgpa-to-percentage-formula"
   },

@@ -7,7 +7,7 @@ import { ArrowRight, Calculator, CheckCircle2, AlertTriangle, BookOpen, External
 export function generateMetadata() {
   return {
     title: "CGPA to Percentage Formula: 4.0 & 10.0 Scales Explained | SnapFreeTools",
-    description: "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, official HEC semester policies, and university grading rules.",
+    description: "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, HEC guidelines, and university grading rules.",
     alternates: {
       canonical: "https://www.snapfreetools.com/cgpa-to-percentage-formula"
     }
@@ -110,7 +110,7 @@ export default function Page() {
         "@id": "https://www.snapfreetools.com/cgpa-to-percentage-formula#webpage",
         "url": "https://www.snapfreetools.com/cgpa-to-percentage-formula",
         "name": "CGPA to Percentage Formula: 4.0 & 10.0 Scales Explained | SnapFreeTools",
-        "description": "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, official HEC semester policies, and university grading rules.",
+        "description": "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, HEC guidelines, and university grading rules.",
         "inLanguage": "en-US",
         "dateModified": "2026-11-22",
         "isPartOf": {
@@ -289,7 +289,7 @@ export default function Page() {
               <p>
                 Under Section 13.1 of the <em>HEC draft policy guidelines for implementation of a uniform semester examination system</em> (
                 <a
-                  href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf"
+                  href="https://www.bnu.edu.pk/portals/HEC-Draft-Policy-Guidelines-for-Semester-Examination-System-(Final).pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1"
@@ -311,7 +311,7 @@ export default function Page() {
               <p>
                 Under official <strong>Notification No. 8-65/HEC/A&amp;A/2007 dated January 14, 2008</strong> (Higher Education Commission, Islamabad;{" "}
                 <a
-                  href="https://www.hec.gov.pk/"
+                  href="https://www.hec.gov.pk/english/services/students/DES/Documents/Conversion%20of%20CGPA%20in%20to%20Percentage.jpg"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1"
@@ -336,7 +336,7 @@ export default function Page() {
                   <p className="text-slate-600">
                     Section 5 of the NUST Academic Rules Regarding Students (PNEC copy, 2020;{" "}
                     <a
-                      href="https://pnec.nust.edu.pk/"
+                      href="https://pnec.nust.edu.pk/wp-content/uploads/2020/06/NUST-Academic-Rules-Regarding-Students.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
@@ -355,7 +355,7 @@ export default function Page() {
                   <p className="text-slate-600">
                     Section 7 of the FAST-NUCES Academic Rules and Regulations (
                     <a
-                      href="https://www.nu.edu.pk/"
+                      href="https://www.nu.edu.pk/Admissions/ProspectusUpload/Academic%20Rules%20and%20Regulations.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
@@ -450,7 +450,7 @@ export default function Page() {
               <p className="text-xs text-slate-500">
                 Source: <em>HEC Draft Policy Guidelines for the Implementation of Uniform Semester Examination System in HEIs of Pakistan</em>, Section 13.1, Page 18 (
                 <a
-                  href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf"
+                  href="https://www.bnu.edu.pk/portals/HEC-Draft-Policy-Guidelines-for-Semester-Examination-System-(Final).pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
@@ -530,7 +530,7 @@ export default function Page() {
               <p className="text-xs text-slate-500">
                 Source: <em>Central Board of Secondary Education Circular No. 24/2010</em> (Indicative Percentage = CGPA × 9.5;{" "}
                 <a
-                  href="https://www.cbse.gov.in/"
+                  href="https://www.cbse.gov.in/circulars/cir24-2010.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
@@ -616,14 +616,14 @@ export default function Page() {
             <ul className="text-xs md:text-sm text-slate-600 space-y-2.5 list-disc list-inside">
               <li>
                 <strong>HEC Notification No. 8-65/HEC/A&amp;A/2007 (January 14, 2008):</strong> Higher Education Commission, Islamabad (
-                <a href="https://www.hec.gov.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-                  hec.gov.pk
+                <a href="https://www.hec.gov.pk/english/services/students/DES/Documents/Conversion%20of%20CGPA%20in%20to%20Percentage.jpg" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  Notification Image (JPG)
                 </a>
                 ). Formal notification discontinuing CGPA-to-percentage conversion.
               </li>
               <li>
                 <strong>HEC Draft Policy Guidelines (Section 13.1):</strong> Implementation of Uniform Semester Examination System in HEIs of Pakistan (
-                <a href="https://www.bnu.edu.pk/Portals/0/Admin/hec-guidelines.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                <a href="https://www.bnu.edu.pk/portals/HEC-Draft-Policy-Guidelines-for-Semester-Examination-System-(Final).pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
                   BNU-hosted draft PDF
                 </a>
                 ). Standardized course-level grading matrix.
@@ -637,22 +637,22 @@ export default function Page() {
               </li>
               <li>
                 <strong>CBSE Circular No. 24/2010 (May 17, 2010):</strong> Central Board of Secondary Education (
-                <a href="https://www.cbse.gov.in/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-                  cbse.gov.in
+                <a href="https://www.cbse.gov.in/circulars/cir24-2010.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  Circular 24/2010 PDF
                 </a>
                 ). Indicative percentage formula (CGPA × 9.5) for secondary education.
               </li>
               <li>
                 <strong>NUST Academic Rules Regarding Students (PNEC copy, 2020):</strong> National University of Sciences and Technology (
-                <a href="https://pnec.nust.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-                  pnec.nust.edu.pk
+                <a href="https://pnec.nust.edu.pk/wp-content/uploads/2020/06/NUST-Academic-Rules-Regarding-Students.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  NUST PNEC Rules PDF
                 </a>
                 ). Relative grading policy (distribution gap method).
               </li>
               <li>
                 <strong>FAST-NUCES Academic Rules and Regulations:</strong> National University of Computer and Emerging Sciences (
-                <a href="https://www.nu.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-                  nu.edu.pk
+                <a href="https://www.nu.edu.pk/Admissions/ProspectusUpload/Academic%20Rules%20and%20Regulations.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  FAST Rules PDF
                 </a>
                 ). Continuous 0.00 to 4.00 SGPA/CGPA evaluation framework.
               </li>
