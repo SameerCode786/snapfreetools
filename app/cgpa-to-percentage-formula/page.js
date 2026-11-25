@@ -374,12 +374,12 @@ export default function Page() {
                   <p className="text-slate-600">
                     Section 2.11 of the COMSATS Graduate Handbook 2024-25 (Wah campus;{" "}
                     <a
-                      href="https://wah.comsats.edu.pk/"
+                      href="https://cuiwah.edu.pk/assets/Downloads/rulesandregulations/Graduate%20Handbook-2025.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-0.5"
                     >
-                      wah.comsats.edu.pk <ExternalLink className="w-3 h-3" />
+                      cuiwah.edu.pk <ExternalLink className="w-3 h-3" />
                     </a>
                     ) outlines an absolute grading table for students admitted from Fall 2021 onwards (A = 85%+, B = 71–74%, D = 50–53% passing). Specific conversion criteria may differ across individual campuses.
                   </p>
@@ -491,12 +491,12 @@ export default function Page() {
               <p className="text-xs text-slate-500">
                 Source: <em>COMSATS Graduate Handbook 2024-2025</em>, Section 2.11 (Page 25) for students admitted from Fall 2021 onwards (
                 <a
-                  href="https://wah.comsats.edu.pk/"
+                  href="https://cuiwah.edu.pk/assets/Downloads/rulesandregulations/Graduate%20Handbook-2025.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
                 >
-                  COMSATS Wah <ExternalLink className="w-3 h-3" />
+                  cuiwah.edu.pk Handbook PDF <ExternalLink className="w-3 h-3" />
                 </a>
                 ).
               </p>
@@ -607,11 +607,11 @@ export default function Page() {
             </p>
           </div>
 
-          {/* Sources & Official References Card */}
+          {/* Sources & References Card */}
           <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="font-bold text-slate-900 text-base md:text-lg flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-amber-600" />
-              Official Academic Sources &amp; Policy References
+              Sources &amp; References
             </h3>
             <ul className="text-xs md:text-sm text-slate-600 space-y-2.5 list-disc list-inside">
               <li>
@@ -630,8 +630,8 @@ export default function Page() {
               </li>
               <li>
                 <strong>COMSATS Graduate Handbook 2024-2025:</strong> Section 2.11, Wah campus (
-                <a href="https://wah.comsats.edu.pk/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-                  wah.comsats.edu.pk
+                <a href="https://cuiwah.edu.pk/assets/Downloads/rulesandregulations/Graduate%20Handbook-2025.pdf" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+                  cuiwah.edu.pk Handbook PDF
                 </a>
                 ). Course grading table for admissions from Fall 2021 onwards.
               </li>
