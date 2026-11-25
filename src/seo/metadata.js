@@ -127,6 +127,12 @@ export const METADATA_CONFIG = {
     keywords: "percentage to gpa, convert percent to gpa, percentage to 4.0 scale, cgpa converter",
     path: "/percentage-to-gpa"
   },
+  "cgpa-to-percentage-formula": {
+    title: "CGPA to Percentage Formula: 4.0 & 10.0 Scales Explained | SnapFreeTools",
+    description: "Learn how to convert CGPA to percentage on 4.0 and 10.0 scales. Review proportional formulas, official HEC semester policies, and university grading rules.",
+    keywords: "cgpa to percentage formula, convert cgpa to percentage, gpa to percentage, 4.0 cgpa to percentage, hec grading scale",
+    path: "/cgpa-to-percentage-formula"
+  },
   "required-gpa-calculator": {
     title: "Required GPA Calculator - Target GPA Goal Planner",
     description: "Find out exactly what GPA you must earn in future semesters to reach your target GPA. Perfect for graduation and scholarship planning.",

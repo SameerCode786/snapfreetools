@@ -19,6 +19,8 @@ export default function CalculatorLayout({
   educationalContent = null,
   content = null,
   faqs = [],
+  customSchema = null,
+  disableSchema = false,
   children 
 }) {
   const effectiveSeoContent = seoContent || educationalContent || content;
@@ -101,7 +103,7 @@ export default function CalculatorLayout({
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <JsonLd schema={breadcrumbSchema} />
+      {!disableSchema && <JsonLd schema={customSchema || breadcrumbSchema} />}
       {/* Dynamic Breadcrumbs */}
       <nav className="mb-6 flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
         <Link href="/" className="hover:text-amber-600 transition-colors">Home</Link>
