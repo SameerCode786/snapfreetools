@@ -51,8 +51,6 @@ export default function CalculatorLayout({
     { title: "CGPA to % Formula", href: "/cgpa-to-percentage-formula", desc: "Convert GPA and CGPA scores to percentage." },
     { title: "What is a Good GPA?", href: "/what-is-a-good-gpa", desc: "Honors benchmarks, graduate admissions & cutoffs." },
     { title: "What is GPA?", href: "/what-is-gpa", desc: "Grade Point Average explained for college & school." },
-    { title: "FAST GPA Scale", href: "/fast-gpa-scale", desc: "Official FAST NUCES letter grade and point breakdown." },
-    { title: "NUST GPA Scale", href: "/nust-gpa-scale", desc: "Official NUST grading criteria and GPA mapping." },
     { title: "HEC Pakistan Scale", href: "/gpa-calculator/pakistan", desc: "Higher Education Commission standard 4.0 calculator." },
   ];
 
@@ -67,8 +65,6 @@ export default function CalculatorLayout({
     "grade-calculator",
     "merit-calculator",
     "admission-calculator",
-    "fast-gpa-scale",
-    "nust-gpa-scale",
     "how-to-calculate-gpa",
     "what-is-gpa",
     "what-is-a-good-gpa",

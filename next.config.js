@@ -43,6 +43,16 @@ const nextConfig = {
         destination: "/gpa-calculator/pakistan",
         permanent: true,
       },
+      {
+        source: "/fast-gpa-scale",
+        destination: "/gpa-calculator/fast",
+        statusCode: 301,
+      },
+      {
+        source: "/nust-gpa-scale",
+        destination: "/gpa-calculator/nust",
+        statusCode: 301,
+      },
     ];
   },
   async rewrites() {

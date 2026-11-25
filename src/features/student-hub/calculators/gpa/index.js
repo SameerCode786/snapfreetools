@@ -1,29 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Trash2, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import CalculatorLayout from "../../shared/components/CalculatorLayout";
 import ResultCard from "../../shared/components/ResultCard";
-import GeoAnswerCard from "../../shared/components/GeoAnswerCard";
-import FormulaCard from "../../shared/components/FormulaCard";
-import ExampleGrid from "../../shared/components/ExampleGrid";
-import FAQSection from "../../shared/components/FAQSection";
 import GradeScaleSelector from "../../shared/components/GradeScaleSelector";
 import { calculateGPA } from "../../utils/formulaEngine";
 import { GRADE_SCALES } from "../../shared/constants/gradeScales";
 
-export default function GPACalculatorFeature({ faqs, initialScale = null }) {
-  const [mounted, setMounted] = useState(false);
+export default function GPACalculatorFeature({
+  faqs = [],
+  initialScale = null,
+  h1Title = null,
+  subheading = null,
+  seoContent = null,
+  disableSchema = false,
+  customSchema = null,
+  topSlot = null
+}) {
   const [scale, setScale] = useState(initialScale || "standard-4");
+  const initialGradesList = Object.keys(GRADE_SCALES[initialScale || "standard-4"].grades);
+  const defaultThirdGrade = initialGradesList.includes("A-")
+    ? "A-"
+    : (initialGradesList.includes("B+") ? "B+" : initialGradesList[0]);
+
   const [courses, setCourses] = useState([
     { id: "1", name: "", grade: "A", credits: "3" },
     { id: "2", name: "", grade: "B", credits: "3" },
-    { id: "3", name: "", grade: "A-", credits: "3" }
+    { id: "3", name: "", grade: defaultThirdGrade, credits: "3" }
   ]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const activeScale = GRADE_SCALES[scale];
   const gradesList = Object.keys(activeScale.grades);
@@ -37,20 +42,6 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
       setCourses(courses.filter(c => c.id !== id));
     }
   };
-
-  if (!mounted) {
-    return (
-      <CalculatorLayout 
-        title={initialScale ? `${activeScale.name}` : "GPA Calculator"} 
-        description={initialScale ? `Official GPA calculator pre-configured for ${activeScale.name}.` : "Calculate your semester and cumulative GPA with standard 4.0, 5.0, or custom university scales."}
-        currentSlug={initialScale ? `gpa-calculator/${initialScale}` : "gpa-calculator"}
-      >
-        <div className="animate-pulse space-y-8">
-          <div className="bg-slate-100 h-96 rounded-3xl" />
-        </div>
-      </CalculatorLayout>
-    );
-  }
 
   const updateCourse = (id, field, value) => {
     setCourses(courses.map(c => c.id === id ? { ...c, [field]: value } : c));
@@ -92,21 +83,26 @@ export default function GPACalculatorFeature({ faqs, initialScale = null }) {
 
   return (
     <CalculatorLayout 
-      title={initialScale ? `${activeScale.name}` : "GPA Calculator"} 
+      title={h1Title || (initialScale ? `${activeScale.name}` : "GPA Calculator")} 
       description={initialScale ? `Official GPA calculator pre-configured for ${activeScale.name}.` : "Calculate your semester and cumulative GPA with standard 4.0, 5.0, or custom university scales."}
       currentSlug={initialScale ? `gpa-calculator/${initialScale}` : "gpa-calculator"}
       activeResult={activeResult}
+      seoContent={seoContent}
+      faqs={faqs}
+      disableSchema={disableSchema}
+      customSchema={customSchema}
     >
       <div className="space-y-8">
+        {topSlot}
         {/* Tool Header & Courses Card */}
         <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl font-black text-slate-900">
-                {initialScale ? `${activeScale.name.split(" GPA")[0].split(" Scale")[0]}` : "GPA Calculator"}
+                {h1Title || (initialScale ? `${activeScale.name.split(" GPA")[0].split(" Scale")[0]}` : "GPA Calculator")}
               </h1>
               <p className="text-slate-500 text-sm font-semibold">
-                {initialScale ? `Official ${activeScale.description} grading system.` : "Track your semester grade point averages."}
+                {subheading || (initialScale ? `Official ${activeScale.description} grading system.` : "Track your semester grade point averages.")}
               </p>
             </div>
             <div className="flex items-center gap-3">
