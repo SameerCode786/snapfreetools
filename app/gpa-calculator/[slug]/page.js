@@ -34,22 +34,26 @@ const UNIVERSITY_CONTENT = {
     ]
   },
   nust: {
-    title: "NUST GPA Calculator & Official 4.00 Grading Scale | SnapFreeTools",
+    title: "NUST GPA Calculator & Grading Scale | SnapFreeTools",
     h1: "NUST GPA Calculator",
     subheading: "Calculate your NUST semester and cumulative GPA using the 4.00 grade point scale (PNEC copy, 2020).",
     description: "Calculate your NUST SGPA and CGPA with the 4.00 grading scale (PNEC copy, 2020). Includes relative grading overview, probation rules, and FAQs.",
     faqs: [
       {
         question: "What grading scale does NUST use?",
-        answer: "According to Section 4 of the NUST Academic Rules Regarding Students (PNEC copy, 2020), course performance is graded on a 4.00 scale: A = 4.00, B+ = 3.50, B = 3.00, C+ = 2.50, C = 2.00, D+ (for UG only) = 1.50, D (for UG only) = 1.00, and F = 0.00. Always confirm current rules directly with NUST."
+        answer: "According to Section 4 (Academic Standards for Award of Degrees, Page 2) of the NUST Academic Rules Regarding Students (PNEC copy, 2020), course performance is graded on a 4.00 scale: A = 4.00, B+ = 3.50, B = 3.00, C+ = 2.50, C = 2.00, D+ (for UG only) = 1.50, D (for UG only) = 1.00, and F = 0.00. Always confirm current rules directly with NUST."
       },
       {
         question: "Does NUST use relative or absolute grading?",
-        answer: "Under Section 5 of the NUST Academic Rules Regarding Students (PNEC copy, 2020), Grade Point Average (GPA) is worked out by awarding relative grading on a scale of 4.00 points according to the distribution gap method on the performance of a particular class."
+        answer: "Under Section 5 (Academic Standards for Award of Degrees, Page 2) of the NUST Academic Rules Regarding Students (PNEC copy, 2020), Grade Point Average (GPA) is worked out by awarding relative grading on a scale of 4.00 points according to the distribution gap method on the performance of a particular class."
       },
       {
-        question: "What CGPA is required to avoid probation and graduate at NUST?",
-        answer: "Under Section 7 (Page 2) and Probation rules (Page 5) of the NUST Academic Rules (PNEC copy, 2020), students must obtain a minimum CGPA of 2.00 for Bachelors, 3.00 for Masters/MPhil, and 3.50 for PhD degrees. A student is placed on academic probation if CGPA is less than 2.00 (not applicable to the first semester)."
+        question: "What CGPA is required to graduate at NUST?",
+        answer: "Under Section 7 (Academic Standards for Award of Degrees, Page 2) of the NUST Academic Rules (PNEC copy, 2020), a student must obtain a minimum CGPA of 2.00 for Bachelors, 3.00 for Masters/MPhil, and 3.50 for PhD degrees. Always confirm current rules with NUST."
+      },
+      {
+        question: "When is a NUST student placed on academic probation?",
+        answer: "One of the conditions listed in the PNEC copy (2020) under Section 5 (Probation, Award of Bachelors' Degree and Academic Deficiencies, Page 5) is a CGPA below 2.00 for a student who does not qualify for withdrawal; this clause does not apply to the first semester. Check the full rules with NUST."
       },
       {
         question: "Does NUST publish a CGPA to percentage formula?",
@@ -242,7 +246,7 @@ function buildFastSeoContent(scale) {
         </div>
 
         <p className="text-xs text-slate-500">
-          Note: <strong>FA</strong> (Fail due to attendance shortage) carries <strong>0.00</strong> points, while <strong>I</strong> (Incomplete) and <strong>W</strong> (Withdrawn) are not used in computing GPA. MS/MBA and PhD programs use different letter-grade tables under Section 6.
+          Note: <strong>FA</strong> carries <strong>0.00</strong> points (<em>&ldquo;Fail (attendance shortage)&rdquo;</em>). Section 6 also states: <em>&ldquo;I and W grades are not used in computing GPA.&rdquo;</em> MS/MBA and PhD programs use different letter-grade tables under Section 6.
         </p>
       </article>
 
@@ -300,8 +304,8 @@ function buildNustSeoContent(scale) {
     <div className="space-y-8">
       {/* Quick Answer Block */}
       <GeoAnswerCard
-        question="What is the official NUST GPA grading scale?"
-        answer="Under Section 4 of the NUST Academic Rules Regarding Students (PNEC copy, 2020), grades map on a 4.00 scale: A = 4.00, B+ = 3.50, B = 3.00, C+ = 2.50, C = 2.00, D+ (for UG only) = 1.50, D (for UG only) = 1.00, and F = 0.00."
+        question="What is the NUST GPA grading scale?"
+        answer="Under Section 4 (Academic Standards for Award of Degrees, Page 2) of the NUST Academic Rules Regarding Students (PNEC copy, 2020), grades map on a 4.00 scale: A = 4.00, B+ = 3.50, B = 3.00, C+ = 2.50, C = 2.00, D+ (for UG only) = 1.50, D (for UG only) = 1.00, and F = 0.00."
       />
 
       {/* Scale Table (from GRADE_SCALES.nust) */}
@@ -315,7 +319,7 @@ function buildNustSeoContent(scale) {
           </span>
         </div>
         <p className="text-xs md:text-sm text-slate-600">
-          The table below is generated directly from the calculator&apos;s <span className="font-mono text-xs">GRADE_SCALES.nust</span> constant based on Section 4 (Page 2) of the{" "}
+          The table below is generated directly from the calculator&apos;s <span className="font-mono text-xs">GRADE_SCALES.nust</span> constant based on Section 4 (Academic Standards for Award of Degrees, Page 2) of the{" "}
           <a href={nustPdfUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1">
             NUST Academic Rules Regarding Students PDF (PNEC copy, 2020) <ExternalLink className="w-3.5 h-3.5" />
           </a>. Confirm current grading rules directly with NUST.
@@ -345,7 +349,7 @@ function buildNustSeoContent(scale) {
         </div>
 
         <p className="text-xs text-slate-500">
-          Note: <strong>XF</strong> carries <strong>0.00</strong> grade points (F Grade due to shortage of attendance). Other administrative codes in Section 4 include I (Incomplete), W (Dropped), Q (Qualified), and T (Transfer).
+          Note: Section 4 also lists <strong>XF = 0.00</strong> (<em>&ldquo;F Grade due to shortage of attendance&rdquo;</em>).
         </p>
       </article>
 
@@ -358,17 +362,17 @@ function buildNustSeoContent(scale) {
           GPA = &Sigma; (Course Credit Hours &times; Grade Points) / &Sigma; Total Credit Hours
         </div>
         <p>
-          Under Section 5 (Page 2) of the NUST Academic Rules (PNEC copy, 2020), <em>&ldquo;Grade Point Average GPA will be worked out by awarding relative grading on a scale of 4.00 points according to distribution gap method on the performance of a particular class by the faculty teaching the course.&rdquo;</em>
+          Under Section 5 (Academic Standards for Award of Degrees, Page 2) of the NUST Academic Rules (PNEC copy, 2020), <em>&ldquo;Grade Point Average GPA will be worked out by awarding relative grading on a scale of 4.00 points according to distribution gap method on the performance of a particular class by the faculty teaching the course.&rdquo;</em>
         </p>
         <ul className="space-y-2 list-disc list-inside text-slate-600 text-xs md:text-sm">
           <li>
-            <strong>Minimum CGPA for Degree Completion (Section 7, Page 2):</strong> <em>&ldquo;To successfully complete the degree requirement, a student must obtain a minimum CGPA of 2.00 for Bachelors, 3.00 for Masters/MPhil, and 3.50 for PhD degree.&rdquo;</em>
+            <strong>Minimum CGPA for Degree Completion (Section 7, Academic Standards for Award of Degrees, Page 2):</strong> <em>&ldquo;To successfully complete the degree requirement, a student must obtain a minimum CGPA of 2.00 for Bachelors, 3.00 for Masters/MPhil, and 3.50 for PhD degree.&rdquo;</em>
           </li>
           <li>
-            <strong>Academic Probation (Section 5, Page 5):</strong> <em>&ldquo;A student shall be placed on academic probation under the following conditions: (i) His CGPA is less than 2.00, and he does not qualify for withdrawal. This clause will not be applicable to the first semester.&rdquo;</em>
+            <strong>Academic Probation (Section 5, Award of Bachelors&apos; Degree and Academic Deficiencies, Page 5):</strong> One of the conditions listed in the PNEC copy (2020) is: <em>&ldquo;(i) His CGPA is less than 2.00, and he does not qualify for withdrawal. This clause will not be applicable to the first semester.&rdquo;</em> Check the full rules with NUST.
           </li>
           <li>
-            <strong>Course Repetition (Section 8, Page 7):</strong> <em>&ldquo;The students&rsquo; transcript shall show both the old grade and the new earned grade, but the better grade will be used in the computation of CGPA.&rdquo;</em>
+            <strong>Course Repetition (Section 8, Award of Bachelors&apos; Degree and Academic Deficiencies, Page 7):</strong> <em>&ldquo;The students&rsquo; transcript shall show both the old grade and the new earned grade, but the better grade will be used in the computation of CGPA.&rdquo;</em>
           </li>
         </ul>
       </article>
@@ -381,9 +385,9 @@ function buildNustSeoContent(scale) {
         </h3>
         <ul className="text-xs md:text-sm text-slate-600 space-y-2 list-disc list-inside">
           <li>
-            <strong>NUST Academic Rules Regarding Students (PNEC copy, June 2020):</strong> Sections 4, 5, 7, and 8 (
+            <strong>NUST Academic Rules Regarding Students (PNEC copy, June 2020):</strong> Academic Standards for Award of Degrees (Sections 4, 5, 7) and Award of Bachelors&apos; Degree and Academic Deficiencies (Sections 5, 8) (
             <a href={nustPdfUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-              Official NUST PNEC Rules PDF
+              NUST PNEC Rules PDF
             </a>
             ). Confirm current regulations with NUST.
           </li>
