@@ -126,6 +126,42 @@ export default function CalculatorsHubFeature({ faqs }) {
           )}
         </section>
 
+        {/* University GPA Calculators & Grading Guides */}
+        <section className="space-y-4 pt-4">
+          <div className="border-b border-slate-200 pb-3">
+            <h2 className="text-xl font-bold text-slate-900">
+              University GPA Calculators &amp; Grading Guides
+            </h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Dedicated Pakistani university GPA calculators and CGPA conversion guides.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[
+              { name: "FAST GPA Calculator & Scale", href: "/gpa-calculator/fast", desc: "BS & BBA 4.00 grading scale and SGPA/CGPA calculator." },
+              { name: "NUST GPA Calculator & Scale", href: "/gpa-calculator/nust", desc: "4.00 grading scale (PNEC copy, 2020) and GPA calculator." },
+              { name: "UET GPA Calculator & Scale", href: "/gpa-calculator/uet", desc: "UET Lahore 4.00 grading scale and SGPA/CGPA calculator." },
+              { name: "COMSATS GPA Calculator", href: "/gpa-calculator/comsats", desc: "Calculate semester GPA for COMSATS on a 4.00 scale." },
+              { name: "LUMS GPA Calculator", href: "/gpa-calculator/lums", desc: "Undergraduate 4.00 letter-grade GPA calculator." },
+              { name: "GPA Calculator Pakistan", href: "/gpa-calculator/pakistan", desc: "HEC Pakistan 4.00 scale and university selector hub." },
+              { name: "CGPA to Percentage Formula", href: "/cgpa-to-percentage-formula", desc: "4.0 & 10.0 scale conversion formulas and HEC guidelines." }
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs hover:border-amber-300 hover:shadow-sm transition-all group"
+              >
+                <h3 className="font-bold text-slate-900 text-sm group-hover:text-amber-600 transition-colors">
+                  {item.name} &rarr;
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
+                  {item.desc}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* SEO Educational Content Section */}
         <section className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden mt-16">
           <div className="absolute top-0 right-0 p-8 opacity-5">

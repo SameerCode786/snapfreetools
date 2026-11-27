@@ -64,7 +64,8 @@ const UNIVERSITY_CONTENT = {
   comsats: {
     title: "COMSATS GPA Calculator - Calculate COMSATS GPA Online",
     h1: "COMSATS GPA Calculator",
-    description: "Calculate your semester GPA at COMSATS University Islamabad. Pre-loaded with the official COMSATS 4.0 scale grade values.",
+    subheading: "Calculate your COMSATS semester GPA using a preset 4.00 grading scale.",
+    description: "Calculate your semester GPA for COMSATS University Islamabad using a preset 4.00 scale. Confirm your campus grading table with your examination branch.",
     faqs: [
       {
         question: "What is the COMSATS GPA scale?",
@@ -77,17 +78,26 @@ const UNIVERSITY_CONTENT = {
     ]
   },
   uet: {
-    title: "UET GPA Calculator - Calculate UET GPA Online",
+    title: "UET GPA Calculator & Grading Scale | SnapFreeTools",
     h1: "UET GPA Calculator",
-    description: "Easily calculate your UET GPA online. Fully preconfigured with the University of Engineering and Technology GPA grading scale.",
+    subheading: "Calculate your UET Lahore semester GPA (SGPA) and cumulative GPA (CGPA) on the 4.00 grading scale (UG Prospectus 2021).",
+    description: "Calculate your UET Lahore SGPA and CGPA using the 4.00 grading scale (UG Prospectus 2021). Includes repetition, probation, and graduation CGPA rules.",
     faqs: [
       {
-        question: "What grading scale does UET use?",
-        answer: "UET uses a 4.00 grading scale: A=4.0, A-=3.7, B+=3.3, B=3.0, B-=2.7, C+=2.3, C=2.0, C-=1.7, D=1.0, F=0.0. Calculate your engineering credit GPA instantly."
+        question: "What grading scale does UET Lahore use?",
+        answer: "Under Section 10.0 (Page 169) of the UET Lahore Undergraduate Prospectus 2021, letter grades map to grade points on a 4.0 scale: A+ = 4.0, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, C- = 1.7, D+ = 1.3, D = 1.0, and F = 0. Confirm current rules directly with UET."
       },
       {
-        question: "How does UET calculate cumulative grade average?",
-        answer: "UET calculates cumulative averages (CGPA) as the sum of grade points earned in all courses across semesters divided by total attempted credits."
+        question: "What is the minimum CGPA to graduate from UET Lahore?",
+        answer: "Under Section 16.0(b) (Page 171) of the UET Lahore Undergraduate Prospectus 2021, students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0 and satisfy the prescribed credit and subject completion conditions. For 18-year M.Sc./M.Phil. degrees, the PG Rules (Section 16.0(b), Page 8) specify a minimum CGPA of 2.5."
+      },
+      {
+        question: "When is a UET student placed on academic probation?",
+        answer: "Under Section 14.1 (Page 170) of the UET Lahore Undergraduate Prospectus 2021, a student will be placed on academic probation if his CGPA falls below 2.0 after any semester. Confirm current rules directly with UET."
+      },
+      {
+        question: "How does repeating a course affect CGPA at UET Lahore?",
+        answer: "Under Section 13.0(c) (Page 170) of the UET Lahore Undergraduate Prospectus 2021, in case of repetition of a subject, the new grade earned shall replace the previous grade, whether high or low in calculation of CGPA."
       }
     ]
   },
@@ -125,6 +135,7 @@ const UNIVERSITY_CONTENT = {
 
 function buildMergedGraphSchema(slug, content, scale) {
   const pageUrl = `https://www.snapfreetools.com/gpa-calculator/${slug}`;
+  const dateModified = slug === "uet" ? "2026-11-27" : "2026-11-25";
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -135,7 +146,7 @@ function buildMergedGraphSchema(slug, content, scale) {
         "name": content.title,
         "description": content.description,
         "inLanguage": "en-US",
-        "dateModified": "2026-11-25",
+        "dateModified": dateModified,
         "isPartOf": {
           "@type": "WebSite",
           "@id": "https://www.snapfreetools.com/#website",
@@ -402,6 +413,125 @@ function buildNustSeoContent(scale) {
   );
 }
 
+function buildUetSeoContent(scale) {
+  const gradeEntries = Object.entries(scale.grades);
+  const uetUgPdfUrl = "https://www.uet.edu.pk/.galleries/Admission/UGProspectus2021.pdf";
+  const uetPgPdfUrl = "https://mechanical.uet.edu.pk/wp-content/uploads/2021/12/Rules-Regulations-Relating-to-Admission-Examination-and-Discipline.pdf";
+
+  return (
+    <div className="space-y-8">
+      {/* Quick Answer Block */}
+      <GeoAnswerCard
+        question="What grading scale does UET Lahore use?"
+        answer="Under Section 10.0 (Page 169) of the UET Lahore Undergraduate Prospectus 2021, letter grades map to grade points on a 4.0 scale: A+ = 4.0, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, C- = 1.7, D+ = 1.3, D = 1.0, and F = 0."
+      />
+
+      {/* Scale Table (from GRADE_SCALES.uet) */}
+      <article className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-5 text-slate-700 leading-relaxed text-sm md:text-base">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <h2 className="text-2xl font-bold text-slate-900">
+            UET GPA Grading Scale (UG Prospectus 2021)
+          </h2>
+          <span className="text-xs text-slate-400 font-medium">
+            Last reviewed: 27 November 2026
+          </span>
+        </div>
+        <p className="text-xs md:text-sm text-slate-600">
+          The table below is generated directly from the calculator&apos;s <span className="font-mono text-xs">GRADE_SCALES.uet</span> constant based on Section 10.0 (Page 169) of the{" "}
+          <a href={uetUgPdfUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1">
+            UET Lahore Undergraduate Prospectus 2021 PDF <ExternalLink className="w-3.5 h-3.5" />
+          </a>. Confirm current grading rules directly with UET.
+        </p>
+
+        <div className="overflow-x-auto border border-slate-200 rounded-2xl">
+          <table className="w-full text-left border-collapse text-xs md:text-sm">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase tracking-wider text-[11px]">
+                <th className="p-3">Letter Grade</th>
+                <th className="p-3">Grade Points</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium">
+              {gradeEntries.map(([grade, pts]) => (
+                <tr key={grade} className="hover:bg-slate-50/50">
+                  <td className="p-3 font-bold text-slate-800">{grade}</td>
+                  <td className="p-3 font-mono text-amber-700 font-semibold">{pts.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      {/* Formula & Verified Rules */}
+      <article className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-5 text-slate-700 leading-relaxed text-sm md:text-base">
+        <h2 className="text-2xl font-bold text-slate-900">
+          UET Repetition, Probation &amp; Graduation Rules
+        </h2>
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono text-xs md:text-sm text-slate-800">
+          GPA = &Sigma; (Course Credit Hours &times; Grade Points) / &Sigma; Total Credit Hours
+        </div>
+        <ul className="space-y-2 list-disc list-inside text-slate-600 text-xs md:text-sm">
+          <li>
+            <strong>Repetition of Subjects (Section 13.0(c), UG Prospectus 2021, Page 170):</strong> <em>&ldquo;In case of repetition of a subject, the new grade earned shall replace the previous grade, whether high or low in calculation of CGPA.&rdquo;</em>
+          </li>
+          <li>
+            <strong>Academic Probation (Section 14.1, UG Prospectus 2021, Page 170):</strong> <em>&ldquo;A student will be placed on academic probation if his CGPA falls below 2.0 after any semester.&rdquo;</em>
+          </li>
+          <li>
+            <strong>Minimum CGPA for Degree Award (Section 16.0(b), UG Prospectus 2021, Page 171):</strong> <em>&ldquo;Students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0...&rdquo;</em> (For 18-year M.Sc./Master/M.Phil. degrees, Section 16.0(b), Page 8 of the PG Rules specifies a minimum CGPA of <strong>2.5</strong>).
+          </li>
+        </ul>
+      </article>
+
+      {/* Sources & Internal Links */}
+      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <h3 className="font-bold text-slate-900 text-base md:text-lg flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-amber-600" />
+          Sources &amp; References
+        </h3>
+        <ul className="text-xs md:text-sm text-slate-600 space-y-2 list-disc list-inside">
+          <li>
+            <strong>UET Lahore Undergraduate Prospectus 2021 (Pages 169–171):</strong> Sections 10.0, 11.0, 13.0, 14.1, and 16.0 (
+            <a href={uetUgPdfUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+              UET UG Prospectus 2021 PDF
+            </a>
+            ). Confirm current regulations with UET.
+          </li>
+          <li>
+            <strong>UET Lahore PG Semester Regulations (Pages 7–8):</strong> Rules &amp; Regulations Relating to Admissions, Examinations &amp; Discipline (
+            <a href={uetPgPdfUrl} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
+              UET PG Rules PDF
+            </a>
+            ).
+          </li>
+        </ul>
+        <div className="pt-3 border-t border-slate-100 flex flex-wrap gap-3 text-xs font-semibold">
+          <Link href="/gpa-calculator/pakistan" className="text-amber-600 hover:underline">Pakistan University Calculators &rarr;</Link>
+          <Link href="/cgpa-calculator" className="text-amber-600 hover:underline">CGPA Calculator &rarr;</Link>
+          <Link href="/cgpa-to-percentage-formula" className="text-amber-600 hover:underline">CGPA to Percentage Formula &rarr;</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function buildComsatsNote() {
+  return (
+    <div className="bg-amber-50/70 border border-amber-200 rounded-3xl p-6 text-xs md:text-sm text-amber-900 leading-relaxed">
+      <strong>Note:</strong> This scale could not be verified against a university-wide COMSATS regulation. The only COMSATS table we verified is the Wah campus Graduate Handbook 2024–2025 (Fall 2021+ admissions), which uses 3.66, 3.33, 2.66, 2.33, 1.66, 1.30 and has no A+ and no D-. Students should confirm with their campus examination branch.
+    </div>
+  );
+}
+
+function buildLumsNote() {
+  return (
+    <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 text-xs md:text-sm text-slate-700 leading-relaxed">
+      <strong>Note:</strong> Scale for the LUMS Undergraduate Programme (Student Handbook 2024–2025, Section 21.2). Graduate programmes may use different scales. Confirm with LUMS.
+    </div>
+  );
+}
+
 function buildPakistanUniversitySelector() {
   const universities = [
     { name: "HEC Pakistan Standard", href: "/gpa-calculator/pakistan", active: true },
@@ -473,11 +603,13 @@ export default async function Page({ params }) {
     notFound();
   }
 
-  const isMergedPage = slug === "fast" || slug === "nust";
+  const isMergedPage = slug === "fast" || slug === "nust" || slug === "uet";
 
   if (isMergedPage) {
     const graphSchema = buildMergedGraphSchema(slug, content, scale);
-    const seoContent = slug === "fast" ? buildFastSeoContent(scale) : buildNustSeoContent(scale);
+    const seoContent = slug === "fast"
+      ? buildFastSeoContent(scale)
+      : (slug === "nust" ? buildNustSeoContent(scale) : buildUetSeoContent(scale));
 
     return (
       <>
@@ -494,7 +626,7 @@ export default async function Page({ params }) {
     );
   }
 
-  // Unchanged schema and content for comsats, uet, lums, and pakistan (pakistan adds university selector links)
+  // Unchanged schema for comsats, lums, and pakistan (comsats/lums add verification notes; pakistan adds university selector links)
   const appSchema = getSoftwareApplicationSchema(
     `${scale.name} Calculator`,
     content.description,
@@ -502,6 +634,7 @@ export default async function Page({ params }) {
   );
   const faqSchema = getFAQSchema(content.faqs);
   const topSlot = slug === "pakistan" ? buildPakistanUniversitySelector() : null;
+  const noteSeoContent = slug === "comsats" ? buildComsatsNote() : (slug === "lums" ? buildLumsNote() : null);
 
   return (
     <>
@@ -512,6 +645,8 @@ export default async function Page({ params }) {
       <GPACalculatorFeature 
         faqs={content.faqs} 
         initialScale={slug}
+        subheading={content.subheading || null}
+        seoContent={noteSeoContent}
         topSlot={topSlot}
       />
     </>
