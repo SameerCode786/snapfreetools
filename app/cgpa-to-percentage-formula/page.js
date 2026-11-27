@@ -345,8 +345,8 @@ export default function Page() {
                     </a>
                     ) specifies that GPA is worked out by awarding relative grading on a 4.00 scale according to the distribution gap method on the performance of a class. In the regulations we reviewed, we did not find a CGPA to percentage formula.
                   </p>
-                  <Link href="/nust-gpa-scale" className="text-amber-600 font-bold hover:underline inline-block pt-1">
-                    View NUST Grading Scale &rarr;
+                  <Link href="/gpa-calculator/nust" className="text-amber-600 font-bold hover:underline inline-block pt-1">
+                    NUST GPA Calculator &amp; Grading Scale &rarr;
                   </Link>
                 </div>
 
@@ -364,8 +364,8 @@ export default function Page() {
                     </a>
                     ) establishes a continuous 0.00 to 4.00 scale for Semester GPA (SGPA) and Cumulative GPA (CGPA). In the regulations we reviewed, we did not find a CGPA to percentage formula.
                   </p>
-                  <Link href="/fast-gpa-scale" className="text-amber-600 font-bold hover:underline inline-block pt-1">
-                    View FAST GPA Scale &rarr;
+                  <Link href="/gpa-calculator/fast" className="text-amber-600 font-bold hover:underline inline-block pt-1">
+                    FAST GPA Calculator &amp; Grading Scale &rarr;
                   </Link>
                 </div>
 
@@ -673,16 +673,10 @@ export default function Page() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-2 text-xs font-semibold">
               <Link href="/gpa-calculator/fast" className="p-3 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 rounded-xl transition-all">
-                FAST GPA Calculator
-              </Link>
-              <Link href="/fast-gpa-scale" className="p-3 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 rounded-xl transition-all">
-                FAST GPA Scale
+                FAST GPA Calculator &amp; Scale
               </Link>
               <Link href="/gpa-calculator/nust" className="p-3 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 rounded-xl transition-all">
-                NUST GPA Calculator
-              </Link>
-              <Link href="/nust-gpa-scale" className="p-3 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 rounded-xl transition-all">
-                NUST GPA Scale
+                NUST GPA Calculator &amp; Scale
               </Link>
               <Link href="/gpa-calculator/comsats" className="p-3 bg-slate-50 hover:bg-amber-50 hover:text-amber-700 border border-slate-200 rounded-xl transition-all">
                 COMSATS GPA Calculator

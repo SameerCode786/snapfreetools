@@ -50,7 +50,6 @@ export const GRADE_SCALES = {
       "C-": 1.67,
       "D+": 1.33,
       "D": 1.0,
-      "D-": 0.67,
       "F": 0.0
     }
   },
@@ -59,14 +58,13 @@ export const GRADE_SCALES = {
     description: "National University of Sciences and Technology",
     max: 4.0,
     grades: {
-      "A+": 4.0,
       "A": 4.0,
       "B+": 3.5,
       "B": 3.0,
       "C+": 2.5,
       "C": 2.0,
+      "D+": 1.5,
       "D": 1.0,
-      "D-": 0.7,
       "F": 0.0
     }
   },

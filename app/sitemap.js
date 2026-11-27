@@ -25,8 +25,6 @@ export default async function sitemap() {
 
   // Dedicated academic guides and grading scale documentation
   const academicGuideRoutes = [
-    "/fast-gpa-scale",
-    "/nust-gpa-scale",
     "/how-to-calculate-gpa",
     "/what-is-gpa",
     "/what-is-a-good-gpa",
