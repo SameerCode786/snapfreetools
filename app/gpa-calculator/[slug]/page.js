@@ -69,11 +69,7 @@ const UNIVERSITY_CONTENT = {
     faqs: [
       {
         question: "What is the COMSATS GPA scale?",
-        answer: "COMSATS uses a 4.00 grading scale: A=4.0, A-=3.7, B+=3.4, B=3.0, B-=2.7, C+=2.4, C=2.0, C-=1.7, D=1.0, F=0.0. These values are used to compute your semester SGPA."
-      },
-      {
-        question: "What CGPA is required to graduate from COMSATS?",
-        answer: "A minimum Cumulative GPA of 2.00 is required to successfully qualify for graduation and degree award at COMSATS University."
+        answer: "The scale used in this calculator (not verified against a university-wide COMSATS regulation) maps letter grades as follows: A=4.0, A-=3.7, B+=3.4, B=3.0, B-=2.7, C+=2.4, C=2.0, C-=1.7, D=1.0, F=0.0. Students should confirm the grading table with their campus examination branch."
       }
     ]
   },
@@ -89,26 +85,26 @@ const UNIVERSITY_CONTENT = {
       },
       {
         question: "What is the minimum CGPA to graduate from UET Lahore?",
-        answer: "Under Section 16.0(b) (Page 171) of the UET Lahore Undergraduate Prospectus 2021, students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0 and satisfy the prescribed credit and subject completion conditions. For 18-year M.Sc./M.Phil. degrees, the PG Rules (Section 16.0(b), Page 8) specify a minimum CGPA of 2.5."
+        answer: "Under Section 16.0(b) (Page 171) of the UET Lahore Undergraduate Prospectus 2021: \"Students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0 and they satisfy the following conditions\" (the conditions include completing compulsory subjects, repeated electives, and the prescribed credit hours). For 18-year M.Sc./M.Phil. degrees, the PG Rules (Section 16.0(b), Page 8) specify a minimum CGPA of 2.5."
       },
       {
         question: "When is a UET student placed on academic probation?",
-        answer: "Under Section 14.1 (Page 170) of the UET Lahore Undergraduate Prospectus 2021, a student will be placed on academic probation if his CGPA falls below 2.0 after any semester. Confirm current rules directly with UET."
+        answer: "Under Section 14.1 (Page 170) of the UET Lahore Undergraduate Prospectus 2021: \"A student will be placed on academic probation if his CGPA falls below 2.0 after any semester.\" Confirm current rules directly with UET."
       },
       {
         question: "How does repeating a course affect CGPA at UET Lahore?",
-        answer: "Under Section 13.0(c) (Page 170) of the UET Lahore Undergraduate Prospectus 2021, in case of repetition of a subject, the new grade earned shall replace the previous grade, whether high or low in calculation of CGPA."
+        answer: "Under Section 13.0(c) (Page 170) of the UET Lahore Undergraduate Prospectus 2021: \"In case of repetition of a subject, the new grade earned shall replace the previous grade, whether high or low in calculation of CGPA.\""
       }
     ]
   },
   lums: {
     title: "LUMS GPA Calculator - Calculate LUMS GPA Online Free",
     h1: "LUMS GPA Calculator",
-    description: "Online GPA calculator for Lahore University of Management Sciences (LUMS) students. Calculate your GPA using the official LUMS letter-grade point system.",
+    description: "Online GPA calculator for Lahore University of Management Sciences (LUMS) students. Calculate your GPA using the LUMS letter-grade point system (Student Handbook 2024–2025, Section 21.2).",
     faqs: [
       {
         question: "What grading scale does LUMS use?",
-        answer: "LUMS uses a standard 4.00 scale: A+=4.0, A=4.0, A-=3.7, B+=3.3, B=3.0, B-=2.7, C+=2.3, C=2.0, C-=1.7, D+=1.3, D=1.0, F=0.0. This pre-loaded scale will calculate your average instantly."
+        answer: "According to Section 21.2 of the LUMS Student Handbook 2024–2025, undergraduate grades map to grade points on a 4.00 scale: A+ = 4.0, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, C- = 1.7, D = 1.0, F = 0.0. There is no D+ or D- in this table. Graduate programmes may use different scales; confirm with LUMS."
       },
       {
         question: "What is a good GPA at LUMS?",
@@ -476,10 +472,10 @@ function buildUetSeoContent(scale) {
             <strong>Repetition of Subjects (Section 13.0(c), UG Prospectus 2021, Page 170):</strong> <em>&ldquo;In case of repetition of a subject, the new grade earned shall replace the previous grade, whether high or low in calculation of CGPA.&rdquo;</em>
           </li>
           <li>
-            <strong>Academic Probation (Section 14.1, UG Prospectus 2021, Page 170):</strong> <em>&ldquo;A student will be placed on academic probation if his CGPA falls below 2.0 after any semester.&rdquo;</em>
+            <strong>Academic Probation (Section 14.1, UG Prospectus 2021, Page 170):</strong> <em>&ldquo;A student will be placed on academic probation if his CGPA falls below 2.0 after any semester.&rdquo;</em> Confirm current rules directly with UET.
           </li>
           <li>
-            <strong>Minimum CGPA for Degree Award (Section 16.0(b), UG Prospectus 2021, Page 171):</strong> <em>&ldquo;Students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0...&rdquo;</em> (For 18-year M.Sc./Master/M.Phil. degrees, Section 16.0(b), Page 8 of the PG Rules specifies a minimum CGPA of <strong>2.5</strong>).
+            <strong>Minimum CGPA for Degree Award (Section 16.0(b), UG Prospectus 2021, Page 171):</strong> <em>&ldquo;Students shall qualify for the award of undergraduate degree if they earn a minimum CGPA of 2.0 and they satisfy the following conditions&rdquo;</em> (the conditions include completing compulsory subjects, repeated electives, and the prescribed credit hours). For 18-year M.Sc./M.Phil. degrees, Section 16.0(b), Page 8 of the PG Rules specifies a minimum CGPA of <strong>2.5</strong>.
           </li>
         </ul>
       </article>
